@@ -160,31 +160,26 @@ export function Motion() {
         else ScrollTrigger.create({ trigger: el, start: "top 90%", once: true, onEnter: run });
       });
 
-      /* ---- split-title mask reveal ---- */
+      /* ---- split-title word reveal ----
+         type "words" only (never "lines") so the browser wraps natively and we
+         avoid SplitText freezing stale line breaks before the font loads. */
       gsap.utils.toArray<HTMLElement>("[data-split]").forEach((el) => {
-        const split = new SplitText(el, { type: "lines,words", linesClass: "split-line" });
+        const split = new SplitText(el, { type: "words" });
         gsap.set(el, { opacity: 1 });
-        el.style.perspective = "800px";
         const play = () =>
           gsap.to(split.words, {
-            yPercent: 0,
+            y: 0,
             opacity: 1,
-            rotateX: 0,
-            duration: 1.1,
-            ease: "expo.out",
-            stagger: 0.06,
+            duration: 0.9,
+            ease: "power3.out",
+            stagger: 0.045,
           });
         if (alreadyShown(el)) {
-          gsap.set(split.words, { yPercent: 0, opacity: 1, rotateX: 0 });
+          gsap.set(split.words, { y: 0, opacity: 1 });
           return;
         }
-        gsap.set(split.words, {
-          yPercent: 118,
-          opacity: 0,
-          rotateX: -55,
-          transformOrigin: "50% 100%",
-        });
-        ScrollTrigger.create({ trigger: el, start: "top 88%", once: true, onEnter: play });
+        gsap.set(split.words, { y: 24, opacity: 0 });
+        ScrollTrigger.create({ trigger: el, start: "top 85%", once: true, onEnter: play });
       });
     });
 

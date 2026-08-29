@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowUpRight, MapPin, Building2 } from "lucide-react";
-import { Container, Section, Eyebrow, Button } from "@/components/ui/primitives";
+import { Container, Section, Button } from "@/components/ui/primitives";
+import { PageHeader } from "@/components/site/page-header";
 import { Reveal } from "@/components/ui/reveal";
 import { projects } from "@/data/projects";
 import { partners, site, whatsappHref } from "@/data/site";
@@ -16,19 +17,13 @@ export const metadata: Metadata = {
 export default function ProjectsPage() {
   return (
     <>
-      <section className="section-dark">
-        <Container className="pt-36 pb-16 sm:pt-44 sm:pb-20">
-          <Eyebrow>Live projects</Eyebrow>
-          <h1 className="mt-5 max-w-3xl font-display text-[clamp(2.2rem,5vw,3.6rem)] leading-[1.05] text-[var(--color-ivory)]">
-            Addresses we&apos;re proud to open doors to.
-          </h1>
-          <p className="mt-6 max-w-xl text-lg leading-relaxed on-dark-muted">
-            A selection of the residential projects we&apos;re marketing right
-            now across Zirakpur, Airport Road, Derabassi and beyond. For every
-            one, we verify the builder and negotiate hard on your behalf.
-          </p>
-        </Container>
-      </section>
+      <PageHeader eyebrow="Live projects" title="Addresses we're proud to open doors to.">
+        <p className="mt-6 max-w-xl text-lg leading-relaxed on-dark-muted">
+          A selection of the residential projects we&apos;re marketing right now
+          across Zirakpur, Airport Road, Derabassi and beyond. For every one, we
+          verify the builder and negotiate hard on your behalf.
+        </p>
+      </PageHeader>
 
       <Section className="bg-ivory">
         <Container>

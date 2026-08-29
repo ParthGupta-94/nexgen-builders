@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowUpRight, MapPin } from "lucide-react";
-import { Container, Section, Eyebrow, Button } from "@/components/ui/primitives";
+import { Container, Section, Button } from "@/components/ui/primitives";
+import { PageHeader } from "@/components/site/page-header";
 import { Reveal } from "@/components/ui/reveal";
 import { locations } from "@/data/locations";
 import { site, whatsappHref } from "@/data/site";
@@ -17,19 +18,13 @@ export default function LocationsHub() {
   return (
     <>
       {/* Page header */}
-      <section className="section-dark">
-        <Container className="pt-36 pb-16 sm:pt-44 sm:pb-20">
-          <Eyebrow>Areas we cover</Eyebrow>
-          <h1 className="mt-5 max-w-3xl font-display text-[clamp(2.2rem,5vw,3.6rem)] leading-[1.05] text-[var(--color-ivory)]">
-            Rooted in Zirakpur. Trusted across the region.
-          </h1>
-          <p className="mt-6 max-w-xl text-lg leading-relaxed on-dark-muted">
-            From the PR-7 Airport Road corridor to the Himachal hills, these are
-            the markets we know street by street — pick your area to see what we
-            do there.
-          </p>
-        </Container>
-      </section>
+      <PageHeader eyebrow="Areas we cover" title="Rooted in Zirakpur. Trusted across the region.">
+        <p className="mt-6 max-w-xl text-lg leading-relaxed on-dark-muted">
+          From the PR-7 Airport Road corridor to the Himachal hills, these are
+          the markets we know street by street — pick your area to see what we
+          do there.
+        </p>
+      </PageHeader>
 
       <Section className="bg-ivory">
         <Container>

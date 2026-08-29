@@ -90,8 +90,17 @@ export default async function LocationPage({
       />
 
       {/* Hero header */}
-      <section className="section-dark">
-        <Container className="pt-32 pb-16 sm:pt-40 sm:pb-20">
+      <section className="section-dark relative overflow-hidden">
+        <div
+          aria-hidden
+          data-parallax="0.22"
+          className="pointer-events-none absolute -right-24 -top-40 h-[65vh] w-[65vh] rounded-full"
+          style={{
+            background:
+              "radial-gradient(circle, rgba(201,162,74,0.16), rgba(201,162,74,0) 62%)",
+          }}
+        />
+        <Container className="relative pt-32 pb-16 sm:pt-40 sm:pb-20">
           <nav className="flex items-center gap-2 text-xs uppercase tracking-[0.14em] on-dark-muted">
             <Link href="/locations" className="hover:text-[var(--color-gold-soft)]">
               Areas
@@ -107,7 +116,10 @@ export default async function LocationPage({
             </span>
           </div>
 
-          <h1 className="mt-5 max-w-3xl font-display text-[clamp(2.2rem,5.2vw,3.8rem)] leading-[1.04] text-[var(--color-ivory)]">
+          <h1
+            data-split
+            className="mt-5 max-w-3xl font-display text-[clamp(2.2rem,5.2vw,3.8rem)] leading-[1.04] text-[var(--color-ivory)]"
+          >
             Property in {loc.name}, with an advisor who knows it street by street.
           </h1>
 

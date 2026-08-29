@@ -6,6 +6,7 @@ import {
   Check,
 } from "lucide-react";
 import { Container, Section, Eyebrow, Button } from "@/components/ui/primitives";
+import { PageHeader } from "@/components/site/page-header";
 import { Reveal } from "@/components/ui/reveal";
 import { CountUp } from "@/components/ui/count-up";
 import {
@@ -30,17 +31,11 @@ export default function AboutPage() {
   return (
     <>
       {/* Header */}
-      <section className="section-dark">
-        <Container className="pt-36 pb-16 sm:pt-44 sm:pb-20">
-          <Eyebrow>Our story</Eyebrow>
-          <h1 className="mt-5 max-w-3xl font-display text-[clamp(2.2rem,5vw,3.6rem)] leading-[1.05] text-[var(--color-ivory)]">
-            Built on credibility, not billboards.
-          </h1>
-          <p className="mt-6 max-w-2xl text-lg leading-relaxed on-dark-muted">
-            {site.ethos}
-          </p>
-        </Container>
-      </section>
+      <PageHeader eyebrow="Our story" title="Built on credibility, not billboards.">
+        <p className="mt-6 max-w-2xl text-lg leading-relaxed on-dark-muted">
+          {site.ethos}
+        </p>
+      </PageHeader>
 
       {/* Intro + name meaning */}
       <Section className="bg-ivory">

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { MessageCircle, Phone, Mail, MapPin, Clock } from "lucide-react";
-import { Container, Section, Eyebrow } from "@/components/ui/primitives";
+import { Container, Section } from "@/components/ui/primitives";
+import { PageHeader } from "@/components/site/page-header";
 import { Reveal } from "@/components/ui/reveal";
 import { EnquiryForm } from "@/components/forms/enquiry-form";
 import { site, whatsappHref } from "@/data/site";
@@ -63,19 +64,13 @@ export default function ContactPage() {
       />
 
       {/* Header */}
-      <section className="section-dark">
-        <Container className="pt-36 pb-16 sm:pt-44 sm:pb-20">
-          <Eyebrow>Get in touch</Eyebrow>
-          <h1 className="mt-5 max-w-3xl font-display text-[clamp(2.2rem,5vw,3.6rem)] leading-[1.05] text-[var(--color-ivory)]">
-            Your next address starts with a message.
-          </h1>
-          <p className="mt-6 max-w-xl text-lg leading-relaxed on-dark-muted">
-            No pressure, no jargon — just honest advice from someone who knows
-            the market. Reach out however suits you; {site.contact.owner.split(" ")[0]}{" "}
-            usually replies within minutes.
-          </p>
-        </Container>
-      </section>
+      <PageHeader eyebrow="Get in touch" title="Your next address starts with a message.">
+        <p className="mt-6 max-w-xl text-lg leading-relaxed on-dark-muted">
+          No pressure, no jargon — just honest advice from someone who knows the
+          market. Reach out however suits you; {site.contact.owner.split(" ")[0]}{" "}
+          usually replies within minutes.
+        </p>
+      </PageHeader>
 
       {/* Contact methods */}
       <Section className="bg-ivory">
