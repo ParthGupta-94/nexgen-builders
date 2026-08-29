@@ -44,8 +44,8 @@ export function AboutTeaser() {
   return (
     <Section className="bg-ivory">
       <Container className="grid items-center gap-12 lg:grid-cols-2 lg:gap-20">
-        <Reveal>
-          <div className="photo-well aspect-4/5 w-full rounded-2xl" />
+        <Reveal variant="left">
+          <div data-clip className="photo-well aspect-4/5 w-full overflow-hidden rounded-2xl" />
         </Reveal>
         <Reveal delay={120}>
           <div>

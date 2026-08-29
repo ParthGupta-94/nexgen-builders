@@ -5,6 +5,7 @@ import { site } from "@/data/site";
 import { SiteHeader } from "@/components/site/header";
 import { SiteFooter } from "@/components/site/footer";
 import { WhatsappFab } from "@/components/site/whatsapp-fab";
+import { Motion } from "@/components/site/motion";
 
 const fraunces = Fraunces({
   variable: "--font-fraunces",
@@ -51,14 +52,21 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${fraunces.variable} ${hanken.variable} h-full`}>
-      <head>
-        {/* No-JS fallback: reveal-on-scroll elements stay fully visible. */}
-        <noscript>
-          <style>{`.reveal{opacity:1 !important;transform:none !important}`}</style>
-        </noscript>
-      </head>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`${fraunces.variable} ${hanken.variable} h-full`}
+    >
       <body className="min-h-full flex flex-col bg-ivory text-ink">
+        {/* Pre-paint flag so animated elements hide before JS runs (no FOUC).
+            Only set when motion is allowed, so no-JS/reduced-motion see content. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "try{if(!matchMedia('(prefers-reduced-motion: reduce)').matches){document.documentElement.classList.add('js')}}catch(e){}",
+          }}
+        />
+        <Motion />
         <SiteHeader />
         <main className="flex-1">{children}</main>
         <SiteFooter />

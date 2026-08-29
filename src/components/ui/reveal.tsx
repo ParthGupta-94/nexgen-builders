@@ -1,45 +1,29 @@
-"use client";
+import type { ReactNode } from "react";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
-
-/** Scroll-in reveal. Gated on `.js`; disabled under reduced-motion (see globals.css). */
+/**
+ * Reveal-on-scroll marker. Renders a `data-reveal` element that the global
+ * Motion system (components/site/motion.tsx) animates on enter. No client JS
+ * here — hiding is CSS (`.js [data-reveal]`) so there is no hydration cost.
+ */
 export function Reveal({
   children,
-  delay = 0,
+  variant = "up",
   as: Tag = "div",
   className = "",
+  // `delay` is accepted for call-site compatibility; staggering is handled by
+  // the Motion system (data-reveal-batch) rather than per-item delays.
+  delay: _delay,
 }: {
   children: ReactNode;
-  delay?: number;
+  variant?: "up" | "left" | "right" | "scale";
   as?: "div" | "li" | "span";
   className?: string;
+  delay?: number;
 }) {
-  const ref = useRef<HTMLElement | null>(null);
-  const [shown, setShown] = useState(false);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setShown(true);
-          io.disconnect();
-        }
-      },
-      { threshold: 0.15, rootMargin: "0px 0px -8% 0px" },
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, []);
-
+  void _delay;
   const Comp = Tag as "div";
   return (
-    <Comp
-      ref={ref as React.Ref<HTMLDivElement>}
-      className={`reveal ${shown ? "is-visible" : ""} ${className}`}
-      style={{ ["--reveal-delay" as string]: `${delay}ms` }}
-    >
+    <Comp data-reveal={variant} className={className}>
       {children}
     </Comp>
   );

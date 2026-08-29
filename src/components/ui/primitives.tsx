@@ -49,8 +49,8 @@ const base =
   "inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold tracking-wide transition-all duration-300 [--tw-ease:var(--ease-out-soft)]";
 
 const variants: Record<string, string> = {
-  gold: "bg-[var(--color-gold)] text-white hover:bg-[var(--color-ink)] hover:shadow-lg hover:shadow-black/10 hover:-translate-y-0.5",
-  dark: "bg-[var(--color-ink)] text-[var(--color-ivory)] hover:bg-[var(--color-gold)] hover:-translate-y-0.5",
+  gold: "btn-magnetic bg-[var(--color-gold)] text-white hover:bg-[var(--color-ink)] hover:shadow-lg hover:shadow-black/10",
+  dark: "btn-magnetic bg-[var(--color-ink)] text-[var(--color-ivory)] hover:bg-[var(--color-gold)]",
   outline:
     "border border-[var(--color-ink)]/25 text-[var(--color-ink)] hover:border-[var(--color-gold)] hover:text-[var(--color-gold)]",
   ghost:
