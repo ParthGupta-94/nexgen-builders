@@ -174,11 +174,12 @@ export default function GoldenEraPage() {
           <div className="max-w-2xl">
             <Eyebrow>In 3D</Eyebrow>
             <h2 className="mt-5 font-display text-[clamp(1.7rem,3.6vw,2.5rem)] text-[var(--color-ivory)]">
-              Walk the towers, from the sky and the street.
+              Explore the towers — from the sky, the street, and inside a home.
             </h2>
             <p className="mt-3 text-[#cbc3b2]">
-              An interactive concept massing of the Golden Era Homes cluster — drag to look
-              around, then drop to street level. Indicative massing, not a final elevation.
+              An interactive 3D model of the Golden Era Homes cluster: the balcony towers, the
+              courtyard block and the grand entrance. Switch to an aerial view, drop to the
+              boulevard, or step inside a furnished home. Indicative concept, not a final elevation.
             </p>
           </div>
           <div className="relative mt-8 h-[62vh] min-h-[420px] w-full overflow-hidden rounded-3xl border border-white/10 shadow-xl shadow-black/30">
