@@ -378,7 +378,7 @@ export function GoldenEra3D() {
     const dcX = IX + 1.0, dHalf = 1.5; // balcony door centre + half-width
 
     // -- shell: marble floor, white walls (back wall split around the door) --
-    ibox(RW, 0.1, RD, marbleFloor, IX, 0.05, IZ);
+    ibox(RW, 0.1, RD, marbleFloor, IX, -0.05, IZ);                   // floor top at y=0 (items seat on it)
     ibox(0.16, RH, RD, whiteWall, x0, RH / 2, IZ, false);            // left wall (TV feature)
     ibox(0.16, RH, RD, whiteWall, x1, RH / 2, IZ, false);            // right wall (walnut door)
     ibox((dcX - dHalf) - x0, RH, 0.16, whiteWall, (x0 + dcX - dHalf) / 2, RH / 2, zBack, false); // back wall L
@@ -425,14 +425,14 @@ export function GoldenEra3D() {
     const dtX = IX - 0.3, dtZ = zFront - 1.7;                                  // dining anchor (front of room)
 
     // warm living-room fill lights
-    const iLightA = new THREE.PointLight(0xffe2b4, 2.2, 11, 2); iLightA.position.set(IX, 2.4, IZ); interior.add(iLightA);
-    const iLightB = new THREE.PointLight(0xffe6c0, 1.4, 8, 2); iLightB.position.set(sX - 0.7, 1.8, sZ); interior.add(iLightB);
-    const iLightC = new THREE.PointLight(0xfff0d0, 1.3, 7, 2); iLightC.position.set(dtX, 2.1, dtZ); interior.add(iLightC);
+    const iLightA = new THREE.PointLight(0xffcf92, 1.5, 11, 2); iLightA.position.set(IX, 2.4, IZ); interior.add(iLightA);
+    const iLightB = new THREE.PointLight(0xffd49c, 1.0, 8, 2); iLightB.position.set(sX - 0.7, 1.8, sZ); interior.add(iLightB);
+    const iLightC = new THREE.PointLight(0xffd9a2, 0.9, 7, 2); iLightC.position.set(dtX, 2.1, dtZ); interior.add(iLightC);
 
     // ===================== KITCHEN — open modular kitchen (right of living) =====================
     const KX = 0.8, KZ = IZ, KW = 6.2, KD = RD;
     const kx1 = KX + KW / 2, kzBack = KZ - KD / 2;
-    ibox(KW, 0.1, KD, marbleFloor, KX, 0.05, KZ);
+    ibox(KW, 0.1, KD, marbleFloor, KX, -0.05, KZ);
     ibox(0.16, RH, KD, whiteWall, kx1, RH / 2, KZ, false);                    // right wall
     ibox(KW, RH, 0.16, whiteWall, KX, RH / 2, kzBack, false);                // back wall
     ibox(0.16, RH, KD, whiteWall, KX - KW / 2, RH / 2, KZ, false);           // wall shared with living
@@ -448,14 +448,14 @@ export function GoldenEra3D() {
     ibox(0.66, 0.03, 0.48, metalBlk, KX - 1.6, 0.95, kzBack + 0.36, false);  // cooktop
     ibox(0.9, 0.55, 0.46, whiteWall, KX - 1.6, 2.15, kzBack + 0.34, false);  // chimney hood
     for (const px of [KX - 0.6, KX, KX + 0.6]) { addI(new THREE.CylinderGeometry(0.005, 0.005, 0.5, 6), frame, px, RH - 0.4, KZ + 0.7, false); addI(new THREE.SphereGeometry(0.09, 16, 16), goldGlow, px, RH - 0.72, KZ + 0.7, false); }
-    const kLight = new THREE.PointLight(0xffe6c0, 2.2, 11, 2); kLight.position.set(KX, 2.3, KZ + 0.4); interior.add(kLight);
-    const kLight2 = new THREE.PointLight(0xfff0d6, 1.8, 9, 2); kLight2.position.set(KX, 1.9, kzBack + 1.2); interior.add(kLight2);
+    const kLight = new THREE.PointLight(0xffd49c, 1.6, 11, 2); kLight.position.set(KX, 2.3, KZ + 0.4); interior.add(kLight);
+    const kLight2 = new THREE.PointLight(0xffd9a4, 1.3, 9, 2); kLight2.position.set(KX, 1.9, kzBack + 1.2); interior.add(kLight2);
 
     // ===================== BEDROOM (left of living) =====================
     const BX = -15.5, BZ = IZ, BW = 6.6, BD = RD;
     const bx0 = BX - BW / 2, bx1 = BX + BW / 2, bzBack = BZ - BD / 2;
     const bdcX = BX + 1.2, bdH = 1.4;
-    ibox(BW, 0.1, BD, marbleFloor, BX, 0.05, BZ);
+    ibox(BW, 0.1, BD, marbleFloor, BX, -0.05, BZ);
     ibox(0.16, RH, BD, whiteWall, bx1, RH / 2, BZ, false);                   // right wall
     ibox((bdcX - bdH) - bx0, RH, 0.16, whiteWall, (bx0 + bdcX - bdH) / 2, RH / 2, bzBack, false); // back-left
     ibox(bx1 - (bdcX + bdH), RH, 0.16, whiteWall, (bx1 + bdcX + bdH) / 2, RH / 2, bzBack, false); // back-right
@@ -486,13 +486,13 @@ export function GoldenEra3D() {
     const bViewGlow = new THREE.Mesh(new THREE.PlaneGeometry(12, 7), new THREE.MeshStandardMaterial({ color: 0x223049, emissive: 0xc98a52, emissiveIntensity: 0.7, roughness: 1 }));
     bViewGlow.position.set(bdcX, 2.4, bRailZ - 3.0); interior.add(bViewGlow);
     ibox(0.05, 2.2, 1.1, walnut, bx1 - 0.12, 1.1, BZ + 1.95, false);         // walnut door
-    const bLight = new THREE.PointLight(0xffe2b4, 2.1, 11, 2); bLight.position.set(BX, 2.3, BZ); interior.add(bLight);
-    const bLight2 = new THREE.PointLight(0xffcf9a, 1.3, 5, 2); bLight2.position.set(bx0 + 0.6, 0.7, BZ - 1.45); interior.add(bLight2);
+    const bLight = new THREE.PointLight(0xffcf92, 1.4, 11, 2); bLight.position.set(BX, 2.3, BZ); interior.add(bLight);
+    const bLight2 = new THREE.PointLight(0xffc488, 1.1, 5, 2); bLight2.position.set(bx0 + 0.6, 0.7, BZ - 1.45); interior.add(bLight2);
 
     // ===================== BATHROOM (right of the kitchen) =====================
     const HX = 8.0, HZ = IZ, HW = 4.2, HD = 4.8, HRH = 2.6;
     const hx0 = HX - HW / 2, hx1 = HX + HW / 2, hzBack = HZ - HD / 2;
-    ibox(HW, 0.1, HD, bathFloor, HX, 0.05, HZ);
+    ibox(HW, 0.1, HD, bathFloor, HX, -0.05, HZ);
     ibox(0.14, HRH, HD, bathWall, hx0, HRH / 2, HZ, false);                  // left wall (window)
     ibox(0.14, HRH, HD, bathWall, hx1, HRH / 2, HZ, false);                  // right wall (vanity)
     ibox(HW, HRH, 0.14, featureGrey, HX, HRH / 2, hzBack, false);            // back = grey geometric feature wall
@@ -504,8 +504,8 @@ export function GoldenEra3D() {
     // real vanity / toilet / bathtub models load below; mirror over the vanity kept
     ibox(0.04, 1.05, 1.3, glassCore, hx1 - 0.1, 1.8, HZ, false);             // mirror
     ibox(0.05, 0.04, 1.3, led, hx1 - 0.14, 2.34, HZ, false);                // mirror light
-    const hLight = new THREE.PointLight(0xffe9cc, 2.2, 9, 2); hLight.position.set(HX, 2.3, HZ); interior.add(hLight);
-    const hLight2 = new THREE.PointLight(0xfff2dc, 1.3, 5, 2); hLight2.position.set(hx1 - 0.4, 1.8, HZ); interior.add(hLight2);
+    const hLight = new THREE.PointLight(0xffdcae, 1.6, 9, 2); hLight.position.set(HX, 2.3, HZ); interior.add(hLight);
+    const hLight2 = new THREE.PointLight(0xffe0b4, 1.0, 5, 2); hLight2.position.set(hx1 - 0.4, 1.8, HZ); interior.add(hLight2);
 
     // soft contact shadow
     const shadowFloor = new THREE.Mesh(new THREE.PlaneGeometry(500, 500), new THREE.ShadowMaterial({ opacity: 0.24 }));
