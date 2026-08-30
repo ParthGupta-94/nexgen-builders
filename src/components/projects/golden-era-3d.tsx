@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry.js";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
@@ -166,7 +167,6 @@ export function GoldenEra3D() {
     const bloomOrange = new THREE.MeshStandardMaterial({ color: 0xd98a3c, roughness: 0.9 });
     const carBody = new THREE.MeshPhysicalMaterial({ color: 0x7a1f24, roughness: 0.25, metalness: 0.6, clearcoat: 1, clearcoatRoughness: 0.1, envMapIntensity: 1.6 });
     // interior
-    const rose = new THREE.MeshStandardMaterial({ color: 0xb5697a, roughness: 0.7, metalness: 0 });
     const cream = new THREE.MeshStandardMaterial({ color: 0xe8e0d0, roughness: 0.85, metalness: 0 });
     const rugMat = new THREE.MeshStandardMaterial({ color: 0x8a7150, roughness: 0.98, metalness: 0 });
     const whiteWall = new THREE.MeshStandardMaterial({ color: 0xefe9de, roughness: 0.92, metalness: 0 });
@@ -177,7 +177,6 @@ export function GoldenEra3D() {
     const sheer = new THREE.MeshStandardMaterial({ color: 0xece4d6, roughness: 0.95, metalness: 0, transparent: true, opacity: 0.5 });
     const metalBlk = new THREE.MeshStandardMaterial({ color: 0x1c1c1f, roughness: 0.5, metalness: 0.6 });
     const tvScreen = new THREE.MeshStandardMaterial({ color: 0x0a0c10, roughness: 0.2, metalness: 0.3 });
-    const plantMat = new THREE.MeshStandardMaterial({ color: 0x3f5a34, roughness: 0.85, metalness: 0, side: THREE.DoubleSide });
     const terra = new THREE.MeshStandardMaterial({ color: 0xa9764e, roughness: 0.85, metalness: 0 });
     const bathFloor = new THREE.MeshStandardMaterial({ color: 0x3a3b3d, roughness: 0.18, metalness: 0.2, envMapIntensity: 1.2 });
     const bathWall = new THREE.MeshStandardMaterial({ color: 0xedeeec, roughness: 0.22, metalness: 0.08, map: wrap(marbleTex(), 2), envMapIntensity: 1.2 });
@@ -375,7 +374,7 @@ export function GoldenEra3D() {
     //  generated furniture. Camera flies in from the +Z (open) side.
     // ============================================================
     const IX = -6.5, IZ = 8.4;
-    const RW = 8.0, RD = 6.6, RH = 2.9;
+    const RW = 8.0, RD = 8.2, RH = 2.9;
     const x0 = IX - RW / 2, x1 = IX + RW / 2, zBack = IZ - RD / 2, zFront = IZ + RD / 2;
     const dcX = IX + 1.0, dHalf = 1.5; // balcony door centre + half-width
 
@@ -417,54 +416,14 @@ export function GoldenEra3D() {
     ibox(0.05, 2.2, 1.1, walnut, x1 - 0.08, 1.1, IZ + 1.7, false);
     addI(new THREE.CylinderGeometry(0.028, 0.028, 0.3, 10), metalBlk, x1 - 0.16, 1.1, IZ + 1.42, false); // handle
 
-    // ===================== generated furniture =====================
-    // TV wall: wall-mounted TV + walnut console + gold ring art
-    ibox(0.05, 0.98, 1.8, tvScreen, x0 + 0.16, 1.55, IZ - 0.5, false);
-    irbox(0.5, 0.5, 2.6, walnut, x0 + 0.36, 0.25, IZ - 0.5, 0.04, false);   // console
-    ibox(0.54, 0.05, 2.6, marbleFloor, x0 + 0.36, 0.52, IZ - 0.5, false);   // console top
-    for (const rz of [IZ - 2.1, IZ - 1.55]) addI(new THREE.TorusGeometry(0.32, 0.04, 12, 30), gold, x0 + 0.14, 2.35, rz, false);
-
-    // L-sofa facing the TV wall
-    const sX = IX + 0.5, sZ = IZ - 0.1;
-    ibox(2.9, 0.02, 2.4, rugMat, sX - 0.7, 0.02, sZ, false);                // rug
-    irbox(1.0, 0.42, 2.9, sofaFab, sX, 0.28, sZ, 0.1, false);               // seat (runs along z)
-    irbox(0.35, 0.55, 2.9, sofaFab, sX + 0.5, 0.62, sZ, 0.1, false);        // backrest against +X? no — faces -X
-    irbox(2.0, 0.42, 1.0, sofaFab, sX - 0.9, 0.28, sZ - 1.35, 0.1, false);  // chaise return
-    for (const cz of [sZ - 0.9, sZ, sZ + 0.9]) irbox(0.5, 0.42, 0.5, cream, sX - 0.05, 0.6, cz, 0.08, false); // cushions
-    // coffee table (marble top + gold frame)
-    irbox(1.3, 0.08, 0.7, marbleFloor, sX - 0.85, 0.4, sZ, 0.03, false);
-    for (const cx of [-0.55, 0.55]) for (const cz of [-0.28, 0.28]) ibox(0.04, 0.36, 0.04, gold, sX - 0.85 + cx, 0.2, sZ + cz, false);
-    // floor lamp
-    addI(new THREE.CylinderGeometry(0.02, 0.02, 1.5, 8), gold, sX - 1.6, 0.75, sZ + 1.3, false);
-    addI(new THREE.CylinderGeometry(0.17, 0.21, 0.3, 20), goldGlow, sX - 1.6, 1.62, sZ + 1.3, false);
-
-    // dining set in the foreground (marble top, gold pedestal, rose-velvet chairs)
-    const dtX = IX + 0.2, dtZ = zFront - 1.3;
-    irbox(2.2, 0.1, 1.1, marbleFloor, dtX, 0.98, dtZ, 0.03, false);
-    ibox(0.9, 0.88, 0.4, gold, dtX, 0.5, dtZ, false);
-    const dchair = (cx: number, cz: number, back: number) => {
-      irbox(0.42, 0.08, 0.42, rose, cx, 0.5, cz, 0.05, false);
-      irbox(0.42, 0.46, 0.1, rose, cx, 0.75, cz + back * 0.18, 0.05, false);
-      for (const ox of [-0.15, 0.15]) for (const oz of [-0.15, 0.15]) addI(new THREE.CylinderGeometry(0.018, 0.018, 0.5, 8), gold, cx + ox, 0.25, cz + oz, false);
-    };
-    for (const cx of [dtX - 0.7, dtX, dtX + 0.7]) { dchair(cx, dtZ - 0.75, -1); dchair(cx, dtZ + 0.75, 1); }
-    for (const px of [dtX - 0.7, dtX, dtX + 0.7]) { // gold globe pendants
-      addI(new THREE.CylinderGeometry(0.006, 0.006, 0.55, 6), frame, px, RH - 0.42, dtZ, false);
-      addI(new THREE.SphereGeometry(0.1, 16, 16), goldGlow, px, RH - 0.78, dtZ, false);
-    }
-    addI(new THREE.CylinderGeometry(0.09, 0.05, 0.3, 14), cream, dtX, 1.16, dtZ, false); // vase
-
-    // potted plants (tall fanning leaves, tucked into corners)
-    const plant = (px: number, pz: number) => {
-      addI(new THREE.CylinderGeometry(0.16, 0.12, 0.36, 12), walnut, px, 0.18, pz, false);       // pot
-      addI(new THREE.CylinderGeometry(0.145, 0.145, 0.05, 12), plantMat, px, 0.37, pz, false);   // soil
-      for (let i = 0; i < 9; i++) {
-        const a = i / 9 * Math.PI * 2, lean = 0.16 + (i % 3) * 0.05, h = 0.8 + (i % 4) * 0.16;
-        const l = addI(new THREE.BoxGeometry(0.08, h, 0.02), i % 2 ? plantMat : foliageLt, px + Math.cos(a) * 0.1, 0.37 + h / 2, pz + Math.sin(a) * 0.1, false);
-        l.rotation.set(Math.sin(a) * lean, -a, Math.cos(a) * lean);
-      }
-    };
-    plant(x1 - 0.55, zBack + 0.6); plant(x0 + 0.9, zFront - 0.7);
+    // ===================== furnishings =====================
+    // Real CC0 furniture (Poly Haven glTF) is loaded + placed after the renderer
+    // is set up (see "load furniture models"). Here: the architectural bits only.
+    ibox(0.05, 0.98, 1.8, tvScreen, x0 + 0.16, 1.55, IZ - 0.5, false);         // wall-mounted TV
+    for (const rz of [IZ - 2.1, IZ - 1.55]) addI(new THREE.TorusGeometry(0.32, 0.04, 12, 30), gold, x0 + 0.14, 2.35, rz, false); // gold ring art
+    const sX = IX + 1.8, sZ = IZ - 1.0;                                        // sofa anchor (faces the TV wall)
+    ibox(3.6, 0.02, 2.8, rugMat, sX - 1.1, 0.02, sZ, false);                   // living rug
+    const dtX = IX - 0.3, dtZ = zFront - 1.7;                                  // dining anchor (front of room)
 
     // warm living-room fill lights
     const iLightA = new THREE.PointLight(0xffe2b4, 5, 11, 2); iLightA.position.set(IX, 2.4, IZ); interior.add(iLightA);
@@ -627,12 +586,45 @@ export function GoldenEra3D() {
     }
     const renderFrame = () => (composer ? composer.render() : renderer.render(scene, camera));
 
+    // ---------- load real furniture models (Poly Haven CC0 glTF) ----------
+    const gltfLoader = new GLTFLoader();
+    const M = "/models/gltf";
+    const prep = (o: THREE.Object3D) => o.traverse((c) => { const m = c as THREE.Mesh; if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } });
+    // place `o` so its footprint is centred at (px,pz) and it sits on the floor at py
+    // (hang=true aligns the TOP to py instead, for ceiling fixtures).
+    const seat = (o: THREE.Object3D, px: number, py: number, pz: number, rotY = 0, s = 1, hang = false) => {
+      o.scale.setScalar(s); o.rotation.y = rotY; o.updateMatrixWorld(true);
+      const b = new THREE.Box3().setFromObject(o); const c = b.getCenter(new THREE.Vector3());
+      o.position.set(px - c.x, hang ? py - b.max.y : py - b.min.y, pz - c.z);
+      interior.add(o);
+    };
+    const load = (name: string, cb: (o: THREE.Object3D) => void) =>
+      gltfLoader.load(`${M}/${name}/${name}_1k.gltf`, (g) => { prep(g.scene); cb(g.scene); renderFrame(); }, undefined, () => {});
+    // living room (sofa faces the TV wall on -X)
+    load("Sofa_01", (o) => seat(o, sX, 0, sZ, -Math.PI / 2));
+    load("CoffeeTable_01", (o) => seat(o, sX - 2.1, 0, sZ, 0));
+    load("modern_arm_chair_01", (o) => seat(o, sX - 0.2, 0, sZ + 2.4, -0.9));
+    load("ClassicConsole_01", (o) => seat(o, x0 + 0.55, 0, sZ, Math.PI / 2));
+    load("ceramic_vase_02", (o) => seat(o, sX - 2.1, 0.42, sZ + 0.25));
+    load("throw_pillows_01", (o) => seat(o, sX - 0.1, 0.45, sZ - 0.7));
+    load("calathea_orbifolia_01", (o) => seat(o, x1 - 0.8, 0, zBack + 0.9));
+    // dining (front of the room)
+    load("WoodenTable_01", (o) => seat(o, dtX, 0, dtZ));
+    load("dining_chair_02", (o) => {
+      const spots: [number, number, number][] = [
+        [dtX - 0.72, dtZ - 0.9, 0], [dtX, dtZ - 0.9, 0], [dtX + 0.72, dtZ - 0.9, 0],
+        [dtX - 0.72, dtZ + 0.9, Math.PI], [dtX, dtZ + 0.9, Math.PI], [dtX + 0.72, dtZ + 0.9, Math.PI],
+      ];
+      for (const [x, z, r] of spots) seat(o.clone(true), x, 0, z, r);
+    });
+    load("modern_ceiling_lamp_01", (o) => seat(o, dtX, RH - 0.04, dtZ, 0, 1, true));
+
     // ---------- orbit camera ----------
     type View = { target: THREE.Vector3; radius: number; az: number; pol: number };
     const VIEWS: Record<ViewKey, View> = {
       street: { target: new THREE.Vector3(-3, 6.5, -1), radius: 30, az: 0.16, pol: 1.4 },
       aerial: { target: new THREE.Vector3(0, 7.0, -3), radius: 46, az: -0.5, pol: 0.98 },
-      living: { target: new THREE.Vector3(IX + 0.3, 1.5, IZ - 0.4), radius: 4.4, az: 0.5, pol: 1.42 },
+      living: { target: new THREE.Vector3(IX + 0.2, 1.45, IZ), radius: 5.4, az: 0.55, pol: 1.4 },
       kitchen: { target: new THREE.Vector3(KX - 0.2, 1.4, KZ + 0.3), radius: 4.3, az: -0.55, pol: 1.42 },
       bedroom: { target: new THREE.Vector3(BX + 0.4, 1.3, BZ - 0.2), radius: 4.5, az: 0.7, pol: 1.44 },
       bathroom: { target: new THREE.Vector3(HX - 0.2, 1.3, HZ - 0.1), radius: 3.6, az: -0.6, pol: 1.44 },
