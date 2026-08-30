@@ -25,6 +25,7 @@ export function House3D() {
   useEffect(() => {
     const mount = mountRef.current;
     if (!mount) return;
+    const scrollTrack = mount.closest<HTMLElement>("[data-scroll-track]");
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     const renderer = new THREE.WebGLRenderer({ antialias: false, alpha: false });
@@ -319,8 +320,8 @@ export function House3D() {
       dir.normalize();
       const ep = fp
         .clone()
-        .add(dir.multiplyScalar(5 + rnd(i, 12.9) * 8))
-        .add(new THREE.Vector3((rnd(i, 78.2) - 0.5) * 9, rnd(i, 3.7) * 7 + 1.5, (rnd(i, 11.1) - 0.5) * 9));
+        .add(dir.multiplyScalar(9 + rnd(i, 12.9) * 15))
+        .add(new THREE.Vector3((rnd(i, 78.2) - 0.5) * 18, rnd(i, 3.7) * 13 + 2, (rnd(i, 11.1) - 0.5) * 18));
       pieces.push({
         m,
         fp,
@@ -454,11 +455,14 @@ export function House3D() {
       const k = 1 - Math.exp(-6 * dt);
       cur.tx += (tgt.tx - cur.tx) * k; cur.ty += (tgt.ty - cur.ty) * k; cur.tz += (tgt.tz - cur.tz) * k;
       cur.r += (tgt.r - cur.r) * k; cur.az += (tgt.az - cur.az) * k; cur.pol += (tgt.pol - cur.pol) * k;
-      // scroll-driven assembly: pieces converge as the section scrolls into view
-      const rect = mount.getBoundingClientRect();
-      let target = (window.innerHeight - rect.top) / (window.innerHeight * 0.75);
+      // scroll-driven assembly across the PINNED scroll-track: pieces converge
+      // over a full screen-plus of scrolling while the section stays fixed.
+      const track = scrollTrack || mount;
+      const tr = track.getBoundingClientRect();
+      const dist = Math.max(1, track.offsetHeight - window.innerHeight);
+      let target = -tr.top / dist;
       target = reduce || mode === INT ? 1 : Math.max(0, Math.min(1, target));
-      assembly += (target - assembly) * (1 - Math.exp(-5 * dt));
+      assembly += (target - assembly) * (1 - Math.exp(-7 * dt));
       applyAssembly();
       applyCamera();
       composer.render();

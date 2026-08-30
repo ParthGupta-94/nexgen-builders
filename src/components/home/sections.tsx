@@ -122,29 +122,34 @@ export function WhyNexgen() {
 /* ---------------- 3D villa showcase ---------------- */
 export function Showcase3D() {
   return (
-    <Section id="showcase" className="bg-sand relative overflow-hidden">
-      <Container className="relative">
-        <div className="mx-auto max-w-2xl text-center">
-          <div className="flex justify-center">
-            <Eyebrow>Built to last</Eyebrow>
-          </div>
-          <h2
-            data-split
-            className="mt-5 font-display text-[clamp(1.9rem,4vw,2.8rem)] leading-tight text-ink"
-          >
-            Homes designed for the next generation.
-          </h2>
-          <p className="mx-auto mt-4 max-w-lg text-muted">
-            Every project we back is judged the way we&apos;d judge a home for
-            our own family — the build, the location, the long-term value.
-          </p>
-        </div>
+    <section id="showcase" className="bg-sand">
+      {/* tall scroll-track: the villa stays pinned and assembles across it */}
+      <div data-scroll-track className="relative h-[300vh]">
+        <div className="sticky top-0 flex h-screen flex-col justify-center py-16">
+          <Container className="relative">
+            <div className="mx-auto max-w-2xl text-center">
+              <div className="flex justify-center">
+                <Eyebrow>Built to last</Eyebrow>
+              </div>
+              <h2
+                data-split
+                className="mt-5 font-display text-[clamp(1.9rem,4vw,2.8rem)] leading-tight text-ink"
+              >
+                Homes designed for the next generation.
+              </h2>
+              <p className="mx-auto mt-4 max-w-lg text-muted">
+                Scroll to watch it come together, piece by piece — the way we
+                judge a home: the build, the location, the long-term value.
+              </p>
+            </div>
 
-        <div className="relative mt-8 h-[62vh] min-h-[440px] w-full overflow-hidden rounded-3xl border border-[var(--color-line)] shadow-xl shadow-black/5">
-          <House3D />
+            <div className="relative mt-6 h-[58vh] min-h-[380px] w-full overflow-hidden rounded-3xl border border-[var(--color-line)] shadow-xl shadow-black/5">
+              <House3D />
+            </div>
+          </Container>
         </div>
-      </Container>
-    </Section>
+      </div>
+    </section>
   );
 }
 
