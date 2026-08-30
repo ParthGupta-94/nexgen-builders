@@ -7,6 +7,7 @@ import { Container, Section, Eyebrow, Button } from "@/components/ui/primitives"
 import { Reveal } from "@/components/ui/reveal";
 import { Photo } from "@/components/ui/photo";
 import { Gallery } from "@/components/site/gallery";
+import { LazyGoldenEra3D } from "@/components/projects/lazy-golden-era-3d";
 import { getProject } from "@/data/projects";
 import { getLocation } from "@/data/locations";
 import { goldenEraGallery } from "@/data/images";
@@ -163,6 +164,25 @@ export default function GoldenEraPage() {
           <p className="mt-3 max-w-xl text-muted">Tap any photo to view it full-screen.</p>
           <div className="mt-8">
             <Gallery images={goldenEraGallery} />
+          </div>
+        </Container>
+      </Section>
+
+      {/* 3D concept massing */}
+      <Section className="section-dark">
+        <Container>
+          <div className="max-w-2xl">
+            <Eyebrow>In 3D</Eyebrow>
+            <h2 className="mt-5 font-display text-[clamp(1.7rem,3.6vw,2.5rem)] text-[var(--color-ivory)]">
+              Walk the towers, from the sky and the street.
+            </h2>
+            <p className="mt-3 text-[#cbc3b2]">
+              An interactive concept massing of the Golden Era Homes cluster — drag to look
+              around, then drop to street level. Indicative massing, not a final elevation.
+            </p>
+          </div>
+          <div className="relative mt-8 h-[62vh] min-h-[420px] w-full overflow-hidden rounded-3xl border border-white/10 shadow-xl shadow-black/30">
+            <LazyGoldenEra3D />
           </div>
         </Container>
       </Section>
