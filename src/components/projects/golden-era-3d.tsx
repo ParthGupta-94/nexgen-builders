@@ -622,10 +622,11 @@ export function GoldenEra3D() {
     const VIEWS: Record<ViewKey, View> = {
       street: { target: new THREE.Vector3(-3, 6.5, -1), radius: 30, az: 0.16, pol: 1.4 },
       aerial: { target: new THREE.Vector3(0, 7.0, -3), radius: 46, az: -0.5, pol: 0.98 },
-      living: fpView(new THREE.Vector3(IX + 1.7, 1.6, IZ + 3.1), new THREE.Vector3(IX - 1.6, 1.15, IZ - 1.2)),
-      kitchen: fpView(new THREE.Vector3(KX + 0.4, 1.6, KZ + 3.2), new THREE.Vector3(KX - 0.2, 1.1, kzBack + 0.6)),
-      bedroom: fpView(new THREE.Vector3(BX + 2.5, 1.6, BZ + 2.4), new THREE.Vector3(bx0 + 1.6, 0.8, BZ)),
-      bathroom: fpView(new THREE.Vector3(HX - 0.4, 1.5, HZ + 1.8), new THREE.Vector3(HX + 0.3, 0.7, hzBack + 1.0)),
+      // CCTV-style: eye high in a front corner near the ceiling, looking down across the room
+      living: fpView(new THREE.Vector3(x1 - 0.4, RH - 0.3, zFront - 0.5), new THREE.Vector3(x0 + 2.5, 0.6, zBack + 2.2)),
+      kitchen: fpView(new THREE.Vector3(kx1 - 0.4, RH - 0.3, KZ + KD / 2 - 0.5), new THREE.Vector3(KX - 0.5, 0.7, kzBack + 1.5)),
+      bedroom: fpView(new THREE.Vector3(bx1 - 0.4, RH - 0.3, BZ + BD / 2 - 0.5), new THREE.Vector3(bx0 + 1.8, 0.6, BZ - 0.2)),
+      bathroom: fpView(new THREE.Vector3(hx1 - 0.3, HRH - 0.3, HZ + HD / 2 - 0.4), new THREE.Vector3(HX - 0.6, 0.5, hzBack + 1.2)),
     };
     const fv = (forceView === "inside" ? "living" : forceView) as ViewKey | null;
     let modeKey: ViewKey = fv && VIEWS[fv] ? fv : "street";
@@ -659,12 +660,13 @@ export function GoldenEra3D() {
     const snapCamera = () => {
       cur.tx = tgt.tx; cur.ty = tgt.ty; cur.tz = tgt.tz; cur.r = tgt.r; cur.az = tgt.az; cur.pol = tgt.pol; applyCamera();
     };
-    setView(mode); applyCamera(); applyVis();
+    const applyFov = () => { camera.fov = curFp ? 70 : 42; camera.updateProjectionMatrix(); }; // wide CCTV lens inside
+    setView(mode); applyFov(); applyCamera(); applyVis();
     goToRef.current = (k: ViewKey) => {
       // snap when either side is an interior room (crossing in/out, or room→room);
       // only street↔aerial glide.
       const crossing = ROOMS.includes(k) || ROOMS.includes(modeKey);
-      modeKey = k; mode = VIEWS[k]; curFp = mode.fp ?? false; azHome = mode.az; setView(mode); applyVis();
+      modeKey = k; mode = VIEWS[k]; curFp = mode.fp ?? false; azHome = mode.az; setView(mode); applyVis(); applyFov();
       if (crossing) snapCamera();
     };
 
