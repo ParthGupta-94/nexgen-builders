@@ -299,6 +299,53 @@ export function House3D() {
     shadowFloor.receiveShadow = true;
     scene.add(shadowFloor);
 
+    // ---------- exploded-assembly setup (Proto-Homes style) ----------
+    // Every building piece above ground gets a scattered start pose; scroll
+    // converges them into the finished villa. Ground/pool/deck stay put.
+    type Piece = { m: THREE.Mesh; fp: THREE.Vector3; ep: THREE.Vector3; fr: THREE.Euler; er: THREE.Euler };
+    const pieces: Piece[] = [];
+    const centre = new THREE.Vector3(0, 3, 0);
+    const rnd = (i: number, n: number) => {
+      const x = Math.sin((i + 1) * n) * 43758.5453;
+      return x - Math.floor(x);
+    };
+    villa.children.forEach((child, i) => {
+      const m = child as THREE.Mesh;
+      if (!(m as THREE.Mesh).isMesh) return;
+      if (m.position.y < 0.25) return; // leave the site (deck/pool/lawn) grounded
+      const fp = m.position.clone();
+      const dir = fp.clone().sub(centre);
+      if (dir.length() < 0.01) dir.set(0, 1, 0);
+      dir.normalize();
+      const ep = fp
+        .clone()
+        .add(dir.multiplyScalar(5 + rnd(i, 12.9) * 8))
+        .add(new THREE.Vector3((rnd(i, 78.2) - 0.5) * 9, rnd(i, 3.7) * 7 + 1.5, (rnd(i, 11.1) - 0.5) * 9));
+      pieces.push({
+        m,
+        fp,
+        ep,
+        fr: m.rotation.clone(),
+        er: new THREE.Euler((rnd(i, 1.1) - 0.5) * 1.6, (rnd(i, 2.2) - 0.5) * 2.2, (rnd(i, 3.3) - 0.5) * 1.6),
+      });
+      m.position.copy(ep); // start scattered
+      m.rotation.copy(pieces[pieces.length - 1].er);
+    });
+    let assembly = 0; // 0 = exploded, 1 = assembled
+    const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
+    const applyAssembly = () => {
+      const e = easeOut(assembly);
+      for (const p of pieces) {
+        p.m.position.lerpVectors(p.ep, p.fp, e);
+        p.m.rotation.set(
+          p.er.x + (p.fr.x - p.er.x) * e,
+          p.er.y + (p.fr.y - p.er.y) * e,
+          p.er.z + (p.fr.z - p.er.z) * e,
+        );
+      }
+    };
+    applyAssembly();
+
     // ---------- post-processing (AO + AA) ----------
     const composer = new EffectComposer(renderer);
     composer.addPass(new RenderPass(scene, camera));
@@ -407,6 +454,12 @@ export function House3D() {
       const k = 1 - Math.exp(-6 * dt);
       cur.tx += (tgt.tx - cur.tx) * k; cur.ty += (tgt.ty - cur.ty) * k; cur.tz += (tgt.tz - cur.tz) * k;
       cur.r += (tgt.r - cur.r) * k; cur.az += (tgt.az - cur.az) * k; cur.pol += (tgt.pol - cur.pol) * k;
+      // scroll-driven assembly: pieces converge as the section scrolls into view
+      const rect = mount.getBoundingClientRect();
+      let target = (window.innerHeight - rect.top) / (window.innerHeight * 0.75);
+      target = reduce || mode === INT ? 1 : Math.max(0, Math.min(1, target));
+      assembly += (target - assembly) * (1 - Math.exp(-5 * dt));
+      applyAssembly();
       applyCamera();
       composer.render();
     };
@@ -446,7 +499,7 @@ export function House3D() {
           {inside ? "← Back outside" : "Step inside ↵"}
         </button>
         <span className="pointer-events-none hidden items-center rounded-full border border-white/15 bg-black/30 px-4 py-2.5 text-xs font-medium text-[#efe7d7] backdrop-blur sm:inline-flex">
-          Drag to look around ↻
+          Scroll to build it · drag to look around
         </span>
       </div>
     </>
