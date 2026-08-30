@@ -8,7 +8,6 @@ import { MeshoptDecoder } from "three/examples/jsm/libs/meshopt_decoder.module.j
 import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
-import { GTAOPass } from "three/examples/jsm/postprocessing/GTAOPass.js";
 import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
 import { SMAAPass } from "three/examples/jsm/postprocessing/SMAAPass.js";
 import { OutputPass } from "three/examples/jsm/postprocessing/OutputPass.js";
@@ -48,7 +47,7 @@ export function GoldenEra3D() {
       window.innerWidth >= 768;
 
     const renderer = new THREE.WebGLRenderer({ antialias: !highPerf, alpha: false });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, highPerf ? 1.75 : 1.4));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, highPerf ? 1.5 : 1.25));
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -132,7 +131,7 @@ export function GoldenEra3D() {
     const sun = new THREE.DirectionalLight(0xffa259, 2.3); // warm low setting sun
     sun.position.set(-34, 16, 20);
     sun.castShadow = true;
-    sun.shadow.mapSize.set(highPerf ? 2048 : 1024, highPerf ? 2048 : 1024);
+    sun.shadow.mapSize.set(highPerf ? 1536 : 1024, highPerf ? 1536 : 1024);
     sun.shadow.camera.near = 1; sun.shadow.camera.far = 160;
     sun.shadow.camera.left = -40; sun.shadow.camera.right = 40;
     sun.shadow.camera.top = 46; sun.shadow.camera.bottom = -20;
@@ -547,11 +546,8 @@ export function GoldenEra3D() {
     if (highPerf) {
       composer = new EffectComposer(renderer);
       composer.addPass(new RenderPass(scene, camera));
-      const gtao = new GTAOPass(scene, camera, 1, 1);
-      gtao.output = GTAOPass.OUTPUT.Default;
-      gtao.updateGtaoMaterial({ radius: 0.6, distanceExponent: 1, thickness: 1, scale: 1, samples: 16 });
-      composer.addPass(gtao);
       // gentle bloom so lit windows / LED strips glow like the night render
+      // (GTAO ambient-occlusion pass dropped — biggest cost, minimal visual loss)
       composer.addPass(new UnrealBloomPass(new THREE.Vector2(1, 1), 0.42, 0.4, 0.86));
       composer.addPass(new SMAAPass());
       composer.addPass(new OutputPass());
@@ -656,11 +652,17 @@ export function GoldenEra3D() {
       interior.visible = inside;
       complex.visible = !inside;
       site.visible = !inside;
+      // only the active room's fill lights compute (big fragment-shader saving)
+      for (const L of [iLightA, iLightB, iLightC]) L.visible = modeKey === "living";
+      for (const L of [kLight, kLight2]) L.visible = modeKey === "kitchen";
+      for (const L of [bLight, bLight2]) L.visible = modeKey === "bedroom";
+      for (const L of [hLight, hLight2]) L.visible = modeKey === "bathroom";
     };
     const snapCamera = () => {
       cur.tx = tgt.tx; cur.ty = tgt.ty; cur.tz = tgt.tz; cur.r = tgt.r; cur.az = tgt.az; cur.pol = tgt.pol; applyCamera();
     };
     const applyFov = () => { camera.fov = curFp ? 70 : 42; camera.updateProjectionMatrix(); }; // wide CCTV lens inside
+    let dirty = true; // on-demand rendering: only draw a frame when something changed
     setView(mode); applyFov(); applyCamera(); applyVis();
     goToRef.current = (k: ViewKey) => {
       // snap when either side is an interior room (crossing in/out, or room→room);
@@ -668,6 +670,7 @@ export function GoldenEra3D() {
       const crossing = ROOMS.includes(k) || ROOMS.includes(modeKey);
       modeKey = k; mode = VIEWS[k]; curFp = mode.fp ?? false; azHome = mode.az; setView(mode); applyVis(); applyFov();
       if (crossing) snapCamera();
+      dirty = true;
     };
 
     // ---------- HDRI environment + sky ----------
@@ -683,9 +686,10 @@ export function GoldenEra3D() {
 
     // ---------- interaction ----------
     let dragging = false, lastX = 0, lastY = 0;
-    const onDown = (e: PointerEvent) => { dragging = true; lastX = e.clientX; lastY = e.clientY; renderer.domElement.style.cursor = "grabbing"; renderer.domElement.setPointerCapture(e.pointerId); };
+    const onDown = (e: PointerEvent) => { dragging = true; dirty = true; lastX = e.clientX; lastY = e.clientY; renderer.domElement.style.cursor = "grabbing"; renderer.domElement.setPointerCapture(e.pointerId); };
     const onMove = (e: PointerEvent) => {
       if (!dragging) return;
+      dirty = true;
       const dx = e.clientX - lastX, dy = e.clientY - lastY;
       if (curFp) {
         // look around in place: clamp the turn so you stay on the room, not the open side
@@ -731,12 +735,22 @@ export function GoldenEra3D() {
       // scroll-driven while OUTSIDE (street AND aerial both watch it build);
       // forced complete only inside a room (or reduced-motion / verification).
       target = reduce || forceBuilt || ROOMS.includes(modeKey) ? 1 : Math.max(0, Math.min(1, target));
-      assembly += (target - assembly) * (1 - Math.exp(-7 * dt));
       if (!dragging && modeKey === "aerial") tgt.az += 0.05 * dt;
       const k = 1 - Math.exp(-6 * dt);
       cur.tx += (tgt.tx - cur.tx) * k; cur.ty += (tgt.ty - cur.ty) * k; cur.tz += (tgt.tz - cur.tz) * k;
       cur.r += (tgt.r - cur.r) * k; cur.az += (tgt.az - cur.az) * k; cur.pol += (tgt.pol - cur.pol) * k;
-      applyAssembly(); applyCamera(); renderFrame();
+      const before = assembly;
+      assembly += (target - assembly) * (1 - Math.exp(-7 * dt));
+      // ON-DEMAND: skip the whole draw when nothing is moving (idle = smooth page)
+      const camSettled = Math.abs(cur.az - tgt.az) < 1e-4 && Math.abs(cur.pol - tgt.pol) < 1e-4 && Math.abs(cur.r - tgt.r) < 1e-3 &&
+        Math.abs(cur.tx - tgt.tx) < 1e-3 && Math.abs(cur.ty - tgt.ty) < 1e-3 && Math.abs(cur.tz - tgt.tz) < 1e-3;
+      const assemblyMoving = Math.abs(target - assembly) > 1e-3 || Math.abs(assembly - before) > 1e-4;
+      if (dirty || dragging || modeKey === "aerial" || !camSettled || assemblyMoving) {
+        if (complex.visible) applyAssembly(); // cheap; only matters for the exterior towers
+        applyCamera();
+        renderFrame();
+        dirty = false;
+      }
     };
     raf = requestAnimationFrame(tick);
 
