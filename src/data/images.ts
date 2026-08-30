@@ -43,6 +43,22 @@ export const projectImages: Record<string, string> = {
 // gallery shots for a project detail page
 export const galleryImages = [U(INT.a), U(INT.b), U(INT.c)];
 
+/*
+ * Golden Era Homes gallery — TEMPORARY placeholders.
+ * When the real photos arrive: drop them in `public/projects/golden-era/`
+ * and replace each `src` with e.g. "/projects/golden-era/01-exterior.jpg".
+ */
+export const goldenEraGallery: { src: string; alt: string }[] = [
+  { src: U(EXT.a, 1800), alt: "Golden Era Homes — street elevation" },
+  { src: U(INT.a, 1400), alt: "Golden Era Homes — living area" },
+  { src: U(INT.f, 1400), alt: "Golden Era Homes — living room" },
+  { src: U(INT.b, 1400), alt: "Golden Era Homes — modular kitchen" },
+  { src: U(INT.c, 1400), alt: "Golden Era Homes — bedroom" },
+  { src: U(INT.d, 1400), alt: "Golden Era Homes — interior detail" },
+  { src: U(INT.e, 1400), alt: "Golden Era Homes — bathroom" },
+  { src: U(EXT.b, 1400), alt: "Golden Era Homes — at dusk" },
+];
+
 export const locationImages: Record<string, string> = {
   zirakpur: U(EXT.a),
   "airport-road-pr7": U(EXT.f),

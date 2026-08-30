@@ -20,7 +20,8 @@ import { getLocation } from "@/data/locations";
 import { site, whatsappHref } from "@/data/site";
 
 export function generateStaticParams() {
-  return projects.map((p) => ({ slug: p.slug }));
+  // golden-era-homes has its own bespoke page at /projects/golden-era-homes
+  return projects.filter((p) => p.slug !== "golden-era-homes").map((p) => ({ slug: p.slug }));
 }
 
 export async function generateMetadata({
