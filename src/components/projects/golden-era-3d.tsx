@@ -11,8 +11,8 @@ import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPa
 import { SMAAPass } from "three/examples/jsm/postprocessing/SMAAPass.js";
 import { OutputPass } from "three/examples/jsm/postprocessing/OutputPass.js";
 
-type ViewKey = "street" | "aerial" | "living" | "kitchen" | "bedroom";
-const ROOMS: ViewKey[] = ["living", "kitchen", "bedroom"];
+type ViewKey = "street" | "aerial" | "living" | "kitchen" | "bedroom" | "bathroom";
+const ROOMS: ViewKey[] = ["living", "kitchen", "bedroom", "bathroom"];
 
 /**
  * Golden Era Homes — a photo-matched 3D reconstruction of Goyal Infra's
@@ -29,7 +29,7 @@ export function GoldenEra3D() {
   const goToRef = useRef<(v: ViewKey) => void>(() => {});
   const [view, setView] = useState<ViewKey>("street");
   const go = (k: ViewKey) => { setView(k); goToRef.current(k); };
-  const inside = view === "living" || view === "kitchen" || view === "bedroom";
+  const inside = view === "living" || view === "kitchen" || view === "bedroom" || view === "bathroom";
 
   useEffect(() => {
     const mount = mountRef.current;
@@ -179,6 +179,10 @@ export function GoldenEra3D() {
     const tvScreen = new THREE.MeshStandardMaterial({ color: 0x0a0c10, roughness: 0.2, metalness: 0.3 });
     const plantMat = new THREE.MeshStandardMaterial({ color: 0x3f5a34, roughness: 0.85, metalness: 0, side: THREE.DoubleSide });
     const terra = new THREE.MeshStandardMaterial({ color: 0xa9764e, roughness: 0.85, metalness: 0 });
+    const bathFloor = new THREE.MeshStandardMaterial({ color: 0x3a3b3d, roughness: 0.18, metalness: 0.2, envMapIntensity: 1.2 });
+    const bathWall = new THREE.MeshStandardMaterial({ color: 0xedeeec, roughness: 0.22, metalness: 0.08, map: wrap(marbleTex(), 2), envMapIntensity: 1.2 });
+    const chrome = new THREE.MeshStandardMaterial({ color: 0xd0d3d7, roughness: 0.16, metalness: 1, envMapIntensity: 1.8 });
+    const porcelain = new THREE.MeshStandardMaterial({ color: 0xf4f4f2, roughness: 0.14, metalness: 0.05, envMapIntensity: 1 });
 
     // irregular "lights on" pattern (~55% of units lit at dusk)
     const litOn = (i: number) => (Math.abs(Math.sin((i + 1) * 34.17)) * 91) % 10 < 5.5;
@@ -538,6 +542,40 @@ export function GoldenEra3D() {
     const bLight = new THREE.PointLight(0xffe2b4, 4.5, 11, 2); bLight.position.set(BX, 2.3, BZ); interior.add(bLight);
     const bLight2 = new THREE.PointLight(0xffcf9a, 2, 5, 2); bLight2.position.set(bx0 + 0.6, 0.7, BZ - 1.45); interior.add(bLight2);
 
+    // ===================== BATHROOM (right of the kitchen) =====================
+    const HX = 8.0, HZ = IZ, HW = 4.2, HD = 4.8, HRH = 2.6;
+    const hx0 = HX - HW / 2, hx1 = HX + HW / 2, hzBack = HZ - HD / 2;
+    ibox(HW, 0.1, HD, bathFloor, HX, 0.05, HZ);
+    ibox(0.14, HRH, HD, bathWall, hx0, HRH / 2, HZ, false);                  // left wall (window)
+    ibox(0.14, HRH, HD, bathWall, hx1, HRH / 2, HZ, false);                  // right wall (vanity)
+    ibox(HW, HRH, 0.14, featureGrey, HX, HRH / 2, hzBack, false);            // back = grey geometric feature wall
+    ibox(HW, 0.12, HD, whiteWall, HX, HRH, HZ, false);                       // ceiling
+    for (const dx of [-1.1, 1.1]) for (const dz of [-1.3, 1.3]) addI(new THREE.CylinderGeometry(0.06, 0.06, 0.03, 14), goldGlow, HX + dx, HRH - 0.13, HZ + dz, false);
+    // frosted window on the left wall
+    ibox(0.1, 0.95, 1.15, bathWall, hx0 + 0.05, 1.7, HZ - 0.5, false);
+    ibox(0.05, 0.8, 1.0, glassCore, hx0 + 0.11, 1.7, HZ - 0.5, false);
+    // wall-hung wood vanity + stone top + vessel basin + faucet + mirror
+    ibox(0.5, 0.5, 1.9, walnut, hx1 - 0.32, 0.72, HZ, false);
+    ibox(0.56, 0.06, 2.0, marbleFloor, hx1 - 0.32, 1.0, HZ, false);
+    addI(new THREE.CylinderGeometry(0.17, 0.2, 0.17, 20), porcelain, hx1 - 0.34, 1.11, HZ - 0.45, false);
+    addI(new THREE.CylinderGeometry(0.016, 0.016, 0.24, 10), chrome, hx1 - 0.34, 1.2, HZ - 0.2, false);
+    ibox(0.04, 1.05, 1.5, glassCore, hx1 - 0.1, 1.75, HZ, false);            // mirror
+    ibox(0.05, 0.04, 1.5, led, hx1 - 0.14, 2.3, HZ, false);                  // mirror light
+    // wall-hung WC on a half duct wall (back-left)
+    ibox(0.72, 1.1, 0.32, bathWall, HX - 1.2, 0.6, hzBack + 0.22, false);
+    irbox(0.44, 0.36, 0.62, porcelain, HX - 1.2, 0.52, hzBack + 0.6, 0.1, false);
+    ibox(0.3, 0.04, 0.16, chrome, HX - 1.2, 1.12, hzBack + 0.28, false);     // flush plate
+    // shower: glass screen + chrome rain head + riser + handset, grey feature on the wall
+    ibox(0.05, 2.2, 1.7, railGlass, hx0 + 1.55, 1.1, HZ + 1.0, false);       // glass screen
+    ibox(0.06, 2.2, 0.06, chrome, hx0 + 1.55, 1.1, HZ + 1.85, false);        // screen post
+    addI(new THREE.CylinderGeometry(0.1, 0.1, 0.05, 18), chrome, hx0 + 0.5, 2.25, HZ + 1.3, false); // rain head
+    addI(new THREE.CylinderGeometry(0.02, 0.02, 0.9, 10), chrome, hx0 + 0.35, 1.55, HZ + 1.7, false); // riser
+    // chrome towel rail + folded towel
+    ibox(0.05, 0.05, 0.8, chrome, hx1 - 0.12, 1.1, HZ - 1.7, false);
+    irbox(0.12, 0.4, 0.55, cream, hx1 - 0.22, 1.1, HZ - 1.7, 0.04, false);
+    const hLight = new THREE.PointLight(0xffe9cc, 4.5, 9, 2); hLight.position.set(HX, 2.3, HZ); interior.add(hLight);
+    const hLight2 = new THREE.PointLight(0xfff2dc, 2, 5, 2); hLight2.position.set(hx1 - 0.4, 1.8, HZ); interior.add(hLight2);
+
     // soft contact shadow
     const shadowFloor = new THREE.Mesh(new THREE.PlaneGeometry(500, 500), new THREE.ShadowMaterial({ opacity: 0.24 }));
     shadowFloor.rotation.x = -Math.PI / 2; shadowFloor.position.y = 0.004; shadowFloor.receiveShadow = true;
@@ -597,6 +635,7 @@ export function GoldenEra3D() {
       living: { target: new THREE.Vector3(IX + 0.3, 1.5, IZ - 0.4), radius: 4.4, az: 0.5, pol: 1.42 },
       kitchen: { target: new THREE.Vector3(KX - 0.2, 1.4, KZ + 0.3), radius: 4.3, az: -0.55, pol: 1.42 },
       bedroom: { target: new THREE.Vector3(BX + 0.4, 1.3, BZ - 0.2), radius: 4.5, az: 0.7, pol: 1.44 },
+      bathroom: { target: new THREE.Vector3(HX - 0.2, 1.3, HZ - 0.1), radius: 3.6, az: -0.6, pol: 1.44 },
     };
     const fv = (forceView === "inside" ? "living" : forceView) as ViewKey | null;
     let modeKey: ViewKey = fv && VIEWS[fv] ? fv : "street";
@@ -683,7 +722,9 @@ export function GoldenEra3D() {
       const tr = track.getBoundingClientRect();
       const dist = Math.max(1, track.offsetHeight - window.innerHeight);
       let target = -tr.top / dist / 0.88;
-      target = reduce || forceBuilt || modeKey !== "street" ? 1 : Math.max(0, Math.min(1, target));
+      // scroll-driven while OUTSIDE (street AND aerial both watch it build);
+      // forced complete only inside a room (or reduced-motion / verification).
+      target = reduce || forceBuilt || ROOMS.includes(modeKey) ? 1 : Math.max(0, Math.min(1, target));
       assembly += (target - assembly) * (1 - Math.exp(-7 * dt));
       if (!dragging && modeKey === "aerial") tgt.az += 0.05 * dt;
       const k = 1 - Math.exp(-6 * dt);
@@ -716,6 +757,7 @@ export function GoldenEra3D() {
     { k: "living", label: "Living" },
     { k: "kitchen", label: "Kitchen" },
     { k: "bedroom", label: "Bedroom" },
+    { k: "bathroom", label: "Bath" },
   ];
   const pill = "rounded-full px-4 py-2 text-sm font-semibold transition-colors duration-200";
 
