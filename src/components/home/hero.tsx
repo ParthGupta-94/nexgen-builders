@@ -47,6 +47,17 @@ export function Hero() {
         .to(".hero-cta", { opacity: 1, y: 0, duration: 0.9, stagger: 0.12 }, 1.35)
         .to(".hero-trust", { opacity: 1, y: 0, duration: 0.9 }, 1.6);
 
+        // Failsafe: if the intro can't run (e.g. tab opened in the background,
+        // where rAF is throttled), force the hero content visible so it's never
+        // stuck hidden. setTimeout fires in background tabs; gsap.set is
+        // synchronous and needs no ticker. Cleared once the intro completes.
+        const failsafe = window.setTimeout(() => {
+          gsap.set(q(".hero-eyebrow, .hero-desc, .hero-cta, .hero-trust"), { opacity: 1, y: 0 });
+          gsap.set(split.chars, { yPercent: 0, opacity: 1, rotateX: 0 });
+          gsap.set(q(".hero-bg"), { scale: 1.08 });
+        }, 2800);
+        tl.eventCallback("onComplete", () => window.clearTimeout(failsafe));
+
         // gentle parallax drift of the background on scroll
         gsap.to(".hero-bg", {
           yPercent: 14,

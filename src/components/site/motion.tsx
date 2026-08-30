@@ -204,6 +204,21 @@ export function Motion() {
       bar.remove();
     });
 
+    // If the tab loaded in the background (rAF throttled, triggers not fired),
+    // recalc + reveal in-view elements once it becomes visible.
+    const onVisible = () => {
+      if (document.hidden) return;
+      ScrollTrigger.refresh();
+      gsap.utils.toArray<HTMLElement>("[data-reveal], .reveal, [data-split]").forEach((el) => {
+        const r = el.getBoundingClientRect();
+        if (r.top < window.innerHeight && r.bottom > 0 && parseFloat(getComputedStyle(el).opacity) < 0.05) {
+          gsap.to(el, { opacity: 1, x: 0, y: 0, scale: 1, duration: 0.6, ease: "power3.out" });
+        }
+      });
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    cleanups.push(() => document.removeEventListener("visibilitychange", onVisible));
+
     // Scroll-velocity skew on flagged imagery
     const skewEls = gsap.utils.toArray<HTMLElement>("[data-skew]");
     if (skewEls.length) {
