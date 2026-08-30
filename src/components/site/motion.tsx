@@ -1,20 +1,19 @@
 "use client";
 
 import { useEffect } from "react";
-import Lenis from "lenis";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 /**
- * Global motion system for NexGen (adapted from the Azure build).
- * - Lenis smooth scrolling, driven by the GSAP ticker.
- * - Reveals: an IntersectionObserver toggles `.in` on [data-reveal]/[data-split]
- *   (CSS handles the transition) — reliable, never leaves content hidden.
+ * Global motion system for NexGen — NATIVE scrolling (no scroll hijacking).
+ * - Reveals: a scroll/resize listener + MutationObserver toggle `.in` on
+ *   [data-reveal]/[data-split] (CSS does the transition). Queries the DOM live,
+ *   so client-side route swaps are handled and content can never stay hidden.
  * - GSAP enhancements (decorative, never gate content):
- *     data-parallax="0.2"    drift the element as it passes through the viewport
- *     data-count / -to       count a number up when it enters
- *     data-skew              scroll-velocity skew
- *     .btn-magnetic          magnetic pull toward the cursor (fine pointers)
+ *     data-parallax="0.2"  drift as it passes through the viewport (ScrollTrigger)
+ *     data-count / -to      count a number up when it enters
+ *     .btn-magnetic         magnetic pull toward the cursor (fine pointers)
+ *   plus a scroll-progress bar and a soft gold cursor glow.
  * All gated behind prefers-reduced-motion (content shows immediately).
  */
 export function Motion() {
@@ -27,27 +26,11 @@ export function Motion() {
 
     gsap.registerPlugin(ScrollTrigger);
 
-    const lenis = new Lenis({
-      duration: 1.15,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      smoothWheel: true,
-      touchMultiplier: 1.4,
-    });
-    lenis.on("scroll", ScrollTrigger.update);
-    const raf = (time: number) => lenis.raf(time * 1000);
-    gsap.ticker.add(raf);
-    gsap.ticker.lagSmoothing(0);
-    (window as unknown as { __lenis?: Lenis }).__lenis = lenis;
-
+    const cleanups: Array<() => void> = [];
     const alreadyShown = (el: Element) =>
       el.getBoundingClientRect().top < window.innerHeight * 0.92;
 
-    // ---- reveals: toggle the `.in` class as elements enter (CSS transitions).
-    //      Queries the DOM live (":not(.in)") on every scroll/resize AND on DOM
-    //      changes, so client-side route navigations (which swap <main> content
-    //      without remounting this component) are handled too. Native events
-    //      fire regardless of Lenis / GSAP / rAF, so content can never stay
-    //      hidden. ----
+    // ---- reveals (native scroll; live DOM query; route-swap aware) ----
     const revealCheck = () => {
       const line = window.innerHeight * 0.9;
       document
@@ -61,16 +44,20 @@ export function Motion() {
     revealCheck();
     window.addEventListener("scroll", revealCheck, { passive: true });
     window.addEventListener("resize", revealCheck);
-    // catch client-side navigations: Next swaps the page content in place
     let moTimer: number | undefined;
     const mo = new MutationObserver(() => {
       window.clearTimeout(moTimer);
       moTimer = window.setTimeout(revealCheck, 60);
     });
     mo.observe(document.body, { childList: true, subtree: true });
+    cleanups.push(() => {
+      window.removeEventListener("scroll", revealCheck);
+      window.removeEventListener("resize", revealCheck);
+      window.clearTimeout(moTimer);
+      mo.disconnect();
+    });
 
-    // ---- GSAP enhancements (parallax + count-up) — decorative only, they
-    //      never control whether content is visible. ----
+    // ---- GSAP enhancements (decorative) ----
     const ctx = gsap.context(() => {
       gsap.utils.toArray<HTMLElement>("[data-parallax]").forEach((el) => {
         const strength = parseFloat(el.dataset.parallax || "0.15");
@@ -115,67 +102,34 @@ export function Motion() {
     window.addEventListener("load", onLoad);
     const refreshTimer = window.setTimeout(() => ScrollTrigger.refresh(), 600);
 
-    /* ================= Global flow effects ================= */
-    const cleanups: Array<() => void> = [];
+    // ---- scroll-progress bar (native) ----
     const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
-
-    // Scroll progress bar
     const bar = document.createElement("div");
     bar.className = "scroll-progress";
     document.body.appendChild(bar);
-    const onProgress = ({ progress }: { progress: number }) => {
-      bar.style.transform = `scaleX(${progress || 0})`;
+    const onProgress = () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      bar.style.transform = `scaleX(${max > 0 ? window.scrollY / max : 0})`;
     };
-    lenis.on("scroll", onProgress);
+    onProgress();
+    window.addEventListener("scroll", onProgress, { passive: true });
+    window.addEventListener("resize", onProgress);
     cleanups.push(() => {
-      lenis.off("scroll", onProgress);
+      window.removeEventListener("scroll", onProgress);
+      window.removeEventListener("resize", onProgress);
       bar.remove();
     });
 
-    // When the tab becomes visible, recalc parallax and reveal any in-view items.
+    // ---- reveal on tab-visible ----
     const onVisible = () => {
       if (document.hidden) return;
       ScrollTrigger.refresh();
       revealCheck();
     };
     document.addEventListener("visibilitychange", onVisible);
-    cleanups.push(() => {
-      document.removeEventListener("visibilitychange", onVisible);
-      window.removeEventListener("scroll", revealCheck);
-      window.removeEventListener("resize", revealCheck);
-      window.clearTimeout(moTimer);
-      mo.disconnect();
-    });
+    cleanups.push(() => document.removeEventListener("visibilitychange", onVisible));
 
-    // Scroll-velocity skew on flagged imagery
-    const skewEls = gsap.utils.toArray<HTMLElement>("[data-skew]");
-    if (skewEls.length) {
-      const setters = skewEls.map((el) => ({
-        skew: gsap.quickTo(el, "skewY", { duration: 0.5, ease: "power3" }),
-        scale: gsap.quickTo(el, "scaleY", { duration: 0.5, ease: "power3" }),
-      }));
-      let idle: number | undefined;
-      const onVel = ({ velocity }: { velocity: number }) => {
-        const s = gsap.utils.clamp(-4, 4, (velocity || 0) * 0.16);
-        const sc = 1 + Math.min(0.06, Math.abs(velocity || 0) * 0.0004);
-        setters.forEach((fn) => {
-          fn.skew(s);
-          fn.scale(sc);
-        });
-        window.clearTimeout(idle);
-        idle = window.setTimeout(
-          () => setters.forEach((fn) => { fn.skew(0); fn.scale(1); }),
-          140,
-        );
-      };
-      lenis.on("scroll", onVel);
-      cleanups.push(() => {
-        lenis.off("scroll", onVel);
-        window.clearTimeout(idle);
-      });
-    }
-
-    // Soft gold cursor glow + magnetic CTAs (fine pointer only)
+    // ---- soft gold cursor glow + magnetic CTAs (fine pointer only) ----
     if (finePointer) {
       const glow = document.createElement("div");
       glow.className = "cursor-glow";
@@ -219,30 +173,11 @@ export function Motion() {
       });
     }
 
-    // Anchor links → smooth scroll via Lenis
-    const onClick = (e: MouseEvent) => {
-      const a = (e.target as HTMLElement).closest?.('a[href*="#"]') as HTMLAnchorElement | null;
-      if (!a) return;
-      const url = new URL(a.href, window.location.href);
-      if (url.pathname !== window.location.pathname) return;
-      const id = url.hash;
-      if (!id || id === "#") return;
-      const target = document.querySelector(id);
-      if (!target) return;
-      e.preventDefault();
-      lenis.scrollTo(target as HTMLElement, { offset: -80, duration: 1.4 });
-      history.replaceState(null, "", id);
-    };
-    document.addEventListener("click", onClick);
-
     return () => {
-      document.removeEventListener("click", onClick);
       window.removeEventListener("load", onLoad);
       window.clearTimeout(refreshTimer);
       cleanups.forEach((fn) => fn());
       ctx.revert();
-      gsap.ticker.remove(raf);
-      lenis.destroy();
     };
   }, []);
 

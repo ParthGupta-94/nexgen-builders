@@ -36,6 +36,7 @@ export function Hero() {
       const failsafe = window.setTimeout(() => {
         gsap.set(bits, { opacity: 1, y: 0 });
         gsap.set(q(".hero-bg"), { scale: 1.06 });
+        gsap.set(".intro-curtain", { yPercent: -100 }); // never leave the curtain up
       }, 2600);
       tl.eventCallback("onComplete", () => window.clearTimeout(failsafe));
 
