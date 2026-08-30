@@ -425,9 +425,9 @@ export function GoldenEra3D() {
     const dtX = IX - 0.3, dtZ = zFront - 1.7;                                  // dining anchor (front of room)
 
     // warm living-room fill lights
-    const iLightA = new THREE.PointLight(0xffe2b4, 5, 11, 2); iLightA.position.set(IX, 2.4, IZ); interior.add(iLightA);
-    const iLightB = new THREE.PointLight(0xffe6c0, 3, 8, 2); iLightB.position.set(sX - 0.7, 1.8, sZ); interior.add(iLightB);
-    const iLightC = new THREE.PointLight(0xfff0d0, 2.6, 7, 2); iLightC.position.set(dtX, 2.1, dtZ); interior.add(iLightC);
+    const iLightA = new THREE.PointLight(0xffe2b4, 2.2, 11, 2); iLightA.position.set(IX, 2.4, IZ); interior.add(iLightA);
+    const iLightB = new THREE.PointLight(0xffe6c0, 1.4, 8, 2); iLightB.position.set(sX - 0.7, 1.8, sZ); interior.add(iLightB);
+    const iLightC = new THREE.PointLight(0xfff0d0, 1.3, 7, 2); iLightC.position.set(dtX, 2.1, dtZ); interior.add(iLightC);
 
     // ===================== KITCHEN — open modular kitchen (right of living) =====================
     const KX = 0.8, KZ = IZ, KW = 6.2, KD = RD;
@@ -448,8 +448,8 @@ export function GoldenEra3D() {
     ibox(0.66, 0.03, 0.48, metalBlk, KX - 1.6, 0.95, kzBack + 0.36, false);  // cooktop
     ibox(0.9, 0.55, 0.46, whiteWall, KX - 1.6, 2.15, kzBack + 0.34, false);  // chimney hood
     for (const px of [KX - 0.6, KX, KX + 0.6]) { addI(new THREE.CylinderGeometry(0.005, 0.005, 0.5, 6), frame, px, RH - 0.4, KZ + 0.7, false); addI(new THREE.SphereGeometry(0.09, 16, 16), goldGlow, px, RH - 0.72, KZ + 0.7, false); }
-    const kLight = new THREE.PointLight(0xffe6c0, 4.5, 11, 2); kLight.position.set(KX, 2.3, KZ + 0.4); interior.add(kLight);
-    const kLight2 = new THREE.PointLight(0xfff0d6, 4, 9, 2); kLight2.position.set(KX, 1.9, kzBack + 1.2); interior.add(kLight2);
+    const kLight = new THREE.PointLight(0xffe6c0, 2.2, 11, 2); kLight.position.set(KX, 2.3, KZ + 0.4); interior.add(kLight);
+    const kLight2 = new THREE.PointLight(0xfff0d6, 1.8, 9, 2); kLight2.position.set(KX, 1.9, kzBack + 1.2); interior.add(kLight2);
 
     // ===================== BEDROOM (left of living) =====================
     const BX = -15.5, BZ = IZ, BW = 6.6, BD = RD;
@@ -486,8 +486,8 @@ export function GoldenEra3D() {
     const bViewGlow = new THREE.Mesh(new THREE.PlaneGeometry(12, 7), new THREE.MeshStandardMaterial({ color: 0x223049, emissive: 0xc98a52, emissiveIntensity: 0.7, roughness: 1 }));
     bViewGlow.position.set(bdcX, 2.4, bRailZ - 3.0); interior.add(bViewGlow);
     ibox(0.05, 2.2, 1.1, walnut, bx1 - 0.12, 1.1, BZ + 1.95, false);         // walnut door
-    const bLight = new THREE.PointLight(0xffe2b4, 4.5, 11, 2); bLight.position.set(BX, 2.3, BZ); interior.add(bLight);
-    const bLight2 = new THREE.PointLight(0xffcf9a, 2, 5, 2); bLight2.position.set(bx0 + 0.6, 0.7, BZ - 1.45); interior.add(bLight2);
+    const bLight = new THREE.PointLight(0xffe2b4, 2.1, 11, 2); bLight.position.set(BX, 2.3, BZ); interior.add(bLight);
+    const bLight2 = new THREE.PointLight(0xffcf9a, 1.3, 5, 2); bLight2.position.set(bx0 + 0.6, 0.7, BZ - 1.45); interior.add(bLight2);
 
     // ===================== BATHROOM (right of the kitchen) =====================
     const HX = 8.0, HZ = IZ, HW = 4.2, HD = 4.8, HRH = 2.6;
@@ -504,8 +504,8 @@ export function GoldenEra3D() {
     // real vanity / toilet / bathtub models load below; mirror over the vanity kept
     ibox(0.04, 1.05, 1.3, glassCore, hx1 - 0.1, 1.8, HZ, false);             // mirror
     ibox(0.05, 0.04, 1.3, led, hx1 - 0.14, 2.34, HZ, false);                // mirror light
-    const hLight = new THREE.PointLight(0xffe9cc, 4.5, 9, 2); hLight.position.set(HX, 2.3, HZ); interior.add(hLight);
-    const hLight2 = new THREE.PointLight(0xfff2dc, 2, 5, 2); hLight2.position.set(hx1 - 0.4, 1.8, HZ); interior.add(hLight2);
+    const hLight = new THREE.PointLight(0xffe9cc, 2.2, 9, 2); hLight.position.set(HX, 2.3, HZ); interior.add(hLight);
+    const hLight2 = new THREE.PointLight(0xfff2dc, 1.3, 5, 2); hLight2.position.set(hx1 - 0.4, 1.8, HZ); interior.add(hLight2);
 
     // soft contact shadow
     const shadowFloor = new THREE.Mesh(new THREE.PlaneGeometry(500, 500), new THREE.ShadowMaterial({ opacity: 0.24 }));
@@ -587,6 +587,7 @@ export function GoldenEra3D() {
     load("modern_arm_chair_01", (o) => seat(o, sX - 0.2, 0, sZ + 2.4, -0.9));
     load("ClassicConsole_01", (o) => seat(o, x0 + 0.55, 0, sZ, Math.PI / 2));
     load("ceramic_vase_02", (o) => seat(o, sX - 2.1, 0.42, sZ + 0.25));
+    load("throw_pillows_01", (o) => seat(o, sX + 0.12, 0.42, sZ, -Math.PI / 2)); // on the seat, against the backrest
     load("calathea_orbifolia_01", (o) => seat(o, x1 - 0.8, 0, zBack + 0.9));
     // dining (front of the room)
     load("WoodenTable_01", (o) => seat(o, dtX, 0, dtZ));
@@ -599,7 +600,11 @@ export function GoldenEra3D() {
     });
     load("modern_ceiling_lamp_01", (o) => seat(o, dtX, RH - 0.04, dtZ, 0, 1, true));
     // bedroom / kitchen / bathroom — realistic FurniMesh GLB (rotation/scale tuned by screenshot)
-    loadGlb("bed", (o) => seatFit(o, bx0 + 1.9, 0, BZ - 0.2, 0, 2.6));
+    loadGlb("bed", (o) => seatFit(o, bx0 + 1.35, 0, BZ, Math.PI / 2, 2.2)); // head to the feature wall (-X)
+    // realistic potted plants in the other rooms
+    load("calathea_orbifolia_01", (o) => seat(o, bx1 - 0.7, 0, bzBack + 1.0));   // bedroom corner
+    load("calathea_orbifolia_01", (o) => seat(o, hx0 + 0.55, 0, HZ + 1.7));       // bathroom corner
+    load("calathea_orbifolia_01", (o) => seat(o, dtX + 2.3, 0, dtZ - 0.3));       // dining corner
     loadGlb("kitchen_island", (o) => seatFit(o, KX, 0, KZ + 0.7, 0, 2.4));
     loadGlb("vanity", (o) => seatFit(o, hx1 - 0.5, 0, HZ, -Math.PI / 2, 1.4));
     loadGlb("toilet", (o) => seatFit(o, HX - 1.3, 0, hzBack + 0.5, 0, 0.7));
