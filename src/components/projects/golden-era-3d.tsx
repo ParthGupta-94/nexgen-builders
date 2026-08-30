@@ -11,7 +11,8 @@ import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPa
 import { SMAAPass } from "three/examples/jsm/postprocessing/SMAAPass.js";
 import { OutputPass } from "three/examples/jsm/postprocessing/OutputPass.js";
 
-type ViewKey = "street" | "aerial" | "inside";
+type ViewKey = "street" | "aerial" | "living" | "kitchen" | "bedroom";
+const ROOMS: ViewKey[] = ["living", "kitchen", "bedroom"];
 
 /**
  * Golden Era Homes — a photo-matched 3D reconstruction of Goyal Infra's
@@ -27,6 +28,8 @@ export function GoldenEra3D() {
   const mountRef = useRef<HTMLDivElement>(null);
   const goToRef = useRef<(v: ViewKey) => void>(() => {});
   const [view, setView] = useState<ViewKey>("street");
+  const go = (k: ViewKey) => { setView(k); goToRef.current(k); };
+  const inside = view === "living" || view === "kitchen" || view === "bedroom";
 
   useEffect(() => {
     const mount = mountRef.current;
@@ -36,7 +39,7 @@ export function GoldenEra3D() {
     // dev-only visual-verification flags (inert without the query params)
     const q = new URLSearchParams(window.location.search);
     const forceBuilt = q.has("built");
-    const forceView = q.get("view") as ViewKey | null;
+    const forceView = q.get("view"); // string | null; mapped to a ViewKey below
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const highPerf =
       window.matchMedia("(hover: hover) and (pointer: fine)").matches &&
@@ -459,10 +462,81 @@ export function GoldenEra3D() {
     };
     plant(x1 - 0.55, zBack + 0.6); plant(x0 + 0.9, zFront - 0.7);
 
-    // warm interior fill lights
+    // warm living-room fill lights
     const iLightA = new THREE.PointLight(0xffe2b4, 5, 11, 2); iLightA.position.set(IX, 2.4, IZ); interior.add(iLightA);
     const iLightB = new THREE.PointLight(0xffe6c0, 3, 8, 2); iLightB.position.set(sX - 0.7, 1.8, sZ); interior.add(iLightB);
     const iLightC = new THREE.PointLight(0xfff0d0, 2.6, 7, 2); iLightC.position.set(dtX, 2.1, dtZ); interior.add(iLightC);
+
+    // ===================== KITCHEN — open modular kitchen (right of living) =====================
+    const KX = 0.8, KZ = IZ, KW = 6.2, KD = RD;
+    const kx1 = KX + KW / 2, kzBack = KZ - KD / 2;
+    ibox(KW, 0.1, KD, marbleFloor, KX, 0.05, KZ);
+    ibox(0.16, RH, KD, whiteWall, kx1, RH / 2, KZ, false);                    // right wall
+    ibox(KW, RH, 0.16, whiteWall, KX, RH / 2, kzBack, false);                // back wall
+    ibox(0.16, RH, KD, whiteWall, KX - KW / 2, RH / 2, KZ, false);           // wall shared with living
+    ibox(KW, 0.12, KD, whiteWall, KX, RH, KZ, false);                        // ceiling
+    ibox(KW - 1.4, 0.06, KD - 1.4, cream, KX, RH - 0.03, KZ, false);         // tray panel
+    for (const dx of [-1.7, 0, 1.7]) for (const dz of [-1.7, 1.7]) addI(new THREE.CylinderGeometry(0.07, 0.07, 0.03, 14), goldGlow, KX + dx, RH - 0.15, KZ + dz, false);
+    // counter run along the back wall
+    ibox(KW - 0.5, 0.85, 0.6, walnut, KX, 0.43, kzBack + 0.35, false);       // base cabinets
+    ibox(KW - 0.4, 0.08, 0.66, marbleFloor, KX, 0.9, kzBack + 0.35, false);  // quartz worktop
+    ibox(KW - 0.5, 1.0, 0.05, metalBlk, KX, 1.5, kzBack + 0.06, false);      // dark backsplash
+    ibox(KW - 0.5, 0.55, 0.4, whiteWall, KX, 2.2, kzBack + 0.24, false);     // upper cabinets
+    ibox(KW - 0.6, 0.04, 0.42, led, KX, 1.02, kzBack + 0.58, false);         // under-cabinet LED
+    ibox(0.66, 0.03, 0.46, metalBlk, KX - 1.6, 0.95, kzBack + 0.35, false);  // cooktop
+    ibox(0.9, 0.55, 0.45, whiteWall, KX - 1.6, 2.15, kzBack + 0.32, false);  // chimney hood
+    ibox(0.5, 0.05, 0.36, cream, KX + 1.6, 0.94, kzBack + 0.35, false);      // sink basin
+    addI(new THREE.CylinderGeometry(0.018, 0.018, 0.28, 10), gold, KX + 1.6, 1.06, kzBack + 0.5, false); // faucet
+    // island + stools + pendants
+    ibox(2.4, 0.9, 1.0, walnut, KX - 0.3, 0.45, KZ + 0.9, false);
+    ibox(2.6, 0.08, 1.2, marbleFloor, KX - 0.3, 0.94, KZ + 0.9, false);
+    for (const sx of [KX - 1.1, KX - 0.3, KX + 0.5]) { addI(new THREE.CylinderGeometry(0.17, 0.17, 0.09, 18), sofaFab, sx, 0.62, KZ + 1.7, false); addI(new THREE.CylinderGeometry(0.03, 0.03, 0.6, 10), metalBlk, sx, 0.3, KZ + 1.7, false); }
+    for (const px of [KX - 0.9, KX - 0.3, KX + 0.3]) { addI(new THREE.CylinderGeometry(0.005, 0.005, 0.5, 6), frame, px, RH - 0.4, KZ + 0.9, false); addI(new THREE.SphereGeometry(0.09, 16, 16), goldGlow, px, RH - 0.72, KZ + 0.9, false); }
+    const kLight = new THREE.PointLight(0xffe6c0, 4.5, 11, 2); kLight.position.set(KX, 2.3, KZ + 0.4); interior.add(kLight);
+
+    // ===================== BEDROOM (left of living) =====================
+    const BX = -15.5, BZ = IZ, BW = 6.6, BD = RD;
+    const bx0 = BX - BW / 2, bx1 = BX + BW / 2, bzBack = BZ - BD / 2;
+    const bdcX = BX + 1.2, bdH = 1.4;
+    ibox(BW, 0.1, BD, marbleFloor, BX, 0.05, BZ);
+    ibox(0.16, RH, BD, whiteWall, bx1, RH / 2, BZ, false);                   // right wall
+    ibox((bdcX - bdH) - bx0, RH, 0.16, whiteWall, (bx0 + bdcX - bdH) / 2, RH / 2, bzBack, false); // back-left
+    ibox(bx1 - (bdcX + bdH), RH, 0.16, whiteWall, (bx1 + bdcX + bdH) / 2, RH / 2, bzBack, false); // back-right
+    ibox(2 * bdH + 0.2, RH - 2.3, 0.16, whiteWall, bdcX, (2.3 + RH) / 2, bzBack, false);          // header
+    ibox(BW, 0.12, BD, whiteWall, BX, RH, BZ, false);
+    ibox(BW - 1.4, 0.06, BD - 1.4, cream, BX, RH - 0.03, BZ, false);
+    for (const dx of [-1.8, 0, 1.8]) for (const dz of [-1.8, 1.8]) addI(new THREE.CylinderGeometry(0.07, 0.07, 0.03, 14), goldGlow, BX + dx, RH - 0.15, BZ + dz, false);
+    // grey-marble feature wall behind the bed (left) + black cross inlay
+    ibox(0.06, 2.4, 3.2, featureGrey, bx0 + 0.1, 1.3, BZ - 0.2, false);
+    ibox(0.08, 0.12, 3.2, metalBlk, bx0 + 0.12, 1.95, BZ - 0.2, false);
+    ibox(0.08, 2.4, 0.12, metalBlk, bx0 + 0.12, 1.3, BZ - 0.2, false);
+    // bed (head against the feature wall, extends +X)
+    const bedX = bx0 + 1.5;
+    ibox(0.16, 1.2, 2.2, sofaFab, bx0 + 0.22, 0.7, BZ - 0.2, false);         // upholstered headboard
+    ibox(2.2, 0.3, 2.2, walnut, bedX, 0.2, BZ - 0.2, false);                 // platform base
+    ibox(2.1, 0.22, 2.0, cream, bedX, 0.46, BZ - 0.2, false);               // mattress
+    irbox(1.5, 0.16, 2.1, sofaFab, bedX + 0.3, 0.62, BZ - 0.2, 0.05, false); // duvet fold
+    for (const pz of [BZ - 0.75, BZ + 0.35]) irbox(0.7, 0.22, 0.5, cream, bx0 + 0.85, 0.62, pz, 0.08, false); // pillows
+    for (const pz of [BZ - 1.45, BZ + 1.05]) { ibox(0.5, 0.45, 0.5, walnut, bx0 + 0.6, 0.22, pz, false); addI(new THREE.CylinderGeometry(0.1, 0.14, 0.24, 16), goldGlow, bx0 + 0.6, 0.6, pz, false); } // nightstands + lamps
+    irbox(0.6, 0.35, 1.8, sofaFab, bedX + 1.55, 0.18, BZ - 0.2, 0.05, false); // bench at foot
+    ibox(3.4, 0.02, 3.0, rugMat, bedX + 0.4, 0.02, BZ - 0.2, false);          // rug
+    // sliding-mirror wardrobe on the right wall
+    ibox(0.12, 2.4, 3.4, walnut, bx1 - 0.14, 1.2, BZ + 0.2, false);
+    for (const wz of [BZ - 1.2, BZ - 0.1, BZ + 1.0]) ibox(0.05, 2.2, 1.0, glassCore, bx1 - 0.22, 1.2, wz, false); // tinted mirror panels
+    // balcony door + Greek-key railing + view glow + curtains
+    ibox(2 * bdH, 2.3, 0.06, frame, bdcX, 1.15, bzBack + 0.03, false);
+    ibox(2 * bdH - 0.16, 2.15, 0.04, glassWin, bdcX, 1.15, bzBack + 0.01, false);
+    ibox(2 * bdH + 0.6, 0.1, 1.4, terra, bdcX, 0.02, bzBack - 0.7, false);
+    const bRailZ = bzBack - 1.4;
+    ibox(2 * bdH + 0.6, 0.06, 0.06, metalBlk, bdcX, 1.0, bRailZ, false);
+    for (let i = 0; i <= 8; i++) ibox(0.04, 0.98, 0.04, metalBlk, bdcX - bdH - 0.2 + i * ((2 * bdH + 0.4) / 8), 0.55, bRailZ, false);
+    for (let i = 0; i < 4; i++) { const mx = bdcX - 1.1 + i * 0.75; ibox(0.32, 0.05, 0.06, metalBlk, mx, 0.42, bRailZ, false); ibox(0.05, 0.32, 0.06, metalBlk, mx + 0.14, 0.55, bRailZ, false); }
+    for (const sx of [bdcX - bdH - 0.05, bdcX + bdH + 0.05]) ibox(0.1, RH - 0.5, 0.7, sheer, sx, (RH - 0.5) / 2, bzBack + 0.14, false);
+    const bViewGlow = new THREE.Mesh(new THREE.PlaneGeometry(12, 7), new THREE.MeshStandardMaterial({ color: 0x223049, emissive: 0xc98a52, emissiveIntensity: 0.7, roughness: 1 }));
+    bViewGlow.position.set(bdcX, 2.4, bRailZ - 3.0); interior.add(bViewGlow);
+    ibox(0.05, 2.2, 1.1, walnut, bx1 - 0.12, 1.1, BZ + 1.95, false);         // walnut door
+    const bLight = new THREE.PointLight(0xffe2b4, 4.5, 11, 2); bLight.position.set(BX, 2.3, BZ); interior.add(bLight);
+    const bLight2 = new THREE.PointLight(0xffcf9a, 2, 5, 2); bLight2.position.set(bx0 + 0.6, 0.7, BZ - 1.45); interior.add(bLight2);
 
     // soft contact shadow
     const shadowFloor = new THREE.Mesh(new THREE.PlaneGeometry(500, 500), new THREE.ShadowMaterial({ opacity: 0.24 }));
@@ -520,9 +594,12 @@ export function GoldenEra3D() {
     const VIEWS: Record<ViewKey, View> = {
       street: { target: new THREE.Vector3(-3, 6.5, -1), radius: 30, az: 0.16, pol: 1.4 },
       aerial: { target: new THREE.Vector3(0, 7.0, -3), radius: 46, az: -0.5, pol: 0.98 },
-      inside: { target: new THREE.Vector3(IX + 0.3, 1.5, IZ - 0.4), radius: 4.4, az: 0.5, pol: 1.42 },
+      living: { target: new THREE.Vector3(IX + 0.3, 1.5, IZ - 0.4), radius: 4.4, az: 0.5, pol: 1.42 },
+      kitchen: { target: new THREE.Vector3(KX - 0.2, 1.4, KZ + 0.3), radius: 4.3, az: -0.55, pol: 1.42 },
+      bedroom: { target: new THREE.Vector3(BX + 0.4, 1.3, BZ - 0.2), radius: 4.5, az: 0.7, pol: 1.44 },
     };
-    let modeKey: ViewKey = forceView && VIEWS[forceView] ? forceView : "street";
+    const fv = (forceView === "inside" ? "living" : forceView) as ViewKey | null;
+    let modeKey: ViewKey = fv && VIEWS[fv] ? fv : "street";
     let mode: View = VIEWS[modeKey];
     const cur = { tx: mode.target.x, ty: mode.target.y, tz: mode.target.z, r: mode.radius, az: mode.az, pol: mode.pol };
     let tgt = { ...cur };
@@ -536,7 +613,7 @@ export function GoldenEra3D() {
     // exterior landscaping never intrudes into the room and the room box never
     // clutters the street/aerial views.
     const applyVis = () => {
-      const inside = modeKey === "inside";
+      const inside = ROOMS.includes(modeKey);
       interior.visible = inside;
       complex.visible = !inside;
       site.visible = !inside;
@@ -546,9 +623,11 @@ export function GoldenEra3D() {
     };
     setView(mode); applyCamera(); applyVis();
     goToRef.current = (k: ViewKey) => {
-      const crossing = k === "inside" || modeKey === "inside"; // entering or leaving the room
+      // snap when either side is an interior room (crossing in/out, or room→room);
+      // only street↔aerial glide.
+      const crossing = ROOMS.includes(k) || ROOMS.includes(modeKey);
       modeKey = k; mode = VIEWS[k]; setView(mode); applyVis();
-      if (crossing) snapCamera(); // cut across the interior boundary instead of flying through the void
+      if (crossing) snapCamera();
     };
 
     // ---------- HDRI environment + sky ----------
@@ -567,7 +646,7 @@ export function GoldenEra3D() {
     const onDown = (e: PointerEvent) => { dragging = true; lastX = e.clientX; lastY = e.clientY; renderer.domElement.style.cursor = "grabbing"; renderer.domElement.setPointerCapture(e.pointerId); };
     const onMove = (e: PointerEvent) => {
       if (!dragging) return;
-      const inside = modeKey === "inside";
+      const inside = ROOMS.includes(modeKey);
       tgt.az += (e.clientX - lastX) * (inside ? -0.006 : 0.007);
       tgt.pol = THREE.MathUtils.clamp(tgt.pol + (e.clientY - lastY) * 0.004, inside ? 1.25 : 0.5, inside ? 1.56 : 1.5);
       if (inside) tgt.az = THREE.MathUtils.clamp(tgt.az, -0.9, 0.9);
@@ -631,30 +710,42 @@ export function GoldenEra3D() {
   const tabs: { k: ViewKey; label: string }[] = [
     { k: "street", label: "Street" },
     { k: "aerial", label: "Aerial" },
-    { k: "inside", label: "Step inside" },
+    { k: "living", label: "Step inside" },
   ];
+  const rooms: { k: ViewKey; label: string }[] = [
+    { k: "living", label: "Living" },
+    { k: "kitchen", label: "Kitchen" },
+    { k: "bedroom", label: "Bedroom" },
+  ];
+  const pill = "rounded-full px-4 py-2 text-sm font-semibold transition-colors duration-200";
 
   return (
     <>
       <div ref={mountRef} className="absolute inset-0" aria-hidden />
-      <div className="pointer-events-none absolute inset-x-0 bottom-3 flex flex-wrap items-center justify-center gap-2">
-        <div className="pointer-events-auto inline-flex items-center gap-1 rounded-full border border-white/15 bg-black/35 p-1 backdrop-blur">
-          {tabs.map((t) => (
-            <button
-              key={t.k}
-              type="button"
-              onClick={() => { setView(t.k); goToRef.current(t.k); }}
-              className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors duration-200 ${
-                view === t.k ? "bg-[var(--color-gold)] text-white" : "text-[#efe7d7] hover:text-white"
-              }`}
-            >
-              {t.label}
-            </button>
-          ))}
+      <div className="pointer-events-none absolute inset-x-0 bottom-3 flex flex-col items-center gap-2">
+        {inside && (
+          <div className="pointer-events-auto inline-flex items-center gap-1 rounded-full border border-[var(--color-gold)]/40 bg-black/45 p-1 backdrop-blur">
+            {rooms.map((r) => (
+              <button key={r.k} type="button" onClick={() => go(r.k)}
+                className={`${pill} ${view === r.k ? "bg-[var(--color-gold)] text-white" : "text-[#efe7d7] hover:text-white"}`}>
+                {r.label}
+              </button>
+            ))}
+          </div>
+        )}
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          <div className="pointer-events-auto inline-flex items-center gap-1 rounded-full border border-white/15 bg-black/35 p-1 backdrop-blur">
+            {tabs.map((t) => (
+              <button key={t.label} type="button" onClick={() => go(t.k)}
+                className={`${pill} ${(t.k === "living" ? inside : view === t.k) ? "bg-[var(--color-gold)] text-white" : "text-[#efe7d7] hover:text-white"}`}>
+                {t.label}
+              </button>
+            ))}
+          </div>
+          <span className="pointer-events-none hidden items-center rounded-full border border-white/15 bg-black/30 px-4 py-2.5 text-xs font-medium text-[#efe7d7] backdrop-blur sm:inline-flex">
+            {inside ? "Drag to look around · a 3D concept" : "Scroll to build it · drag to look · a 3D concept"}
+          </span>
         </div>
-        <span className="pointer-events-none hidden items-center rounded-full border border-white/15 bg-black/30 px-4 py-2.5 text-xs font-medium text-[#efe7d7] backdrop-blur sm:inline-flex">
-          Scroll to build it · drag to look · a 3D concept
-        </span>
       </div>
     </>
   );
