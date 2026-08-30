@@ -38,8 +38,21 @@ export function House3D() {
     });
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x17130d);
-    scene.fog = new THREE.Fog(0x17130d, 24, 54);
+    // soft golden-hour sky so the villa reads as an outdoor photograph
+    const skyCanvas = document.createElement("canvas");
+    skyCanvas.width = 8;
+    skyCanvas.height = 256;
+    const sc = skyCanvas.getContext("2d")!;
+    const grad = sc.createLinearGradient(0, 0, 0, 256);
+    grad.addColorStop(0, "#9fb2c6");   // upper sky
+    grad.addColorStop(0.55, "#cdc6b6"); // haze
+    grad.addColorStop(1, "#ece3d1");    // warm horizon
+    sc.fillStyle = grad;
+    sc.fillRect(0, 0, 8, 256);
+    const skyTex = new THREE.CanvasTexture(skyCanvas);
+    skyTex.colorSpace = THREE.SRGBColorSpace;
+    scene.background = skyTex;
+    scene.fog = new THREE.Fog(0xd8cfbe, 26, 58);
     const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
 
     // ---------- procedural textures ----------

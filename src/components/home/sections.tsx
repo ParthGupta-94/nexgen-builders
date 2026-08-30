@@ -122,16 +122,7 @@ export function WhyNexgen() {
 /* ---------------- 3D villa showcase ---------------- */
 export function Showcase3D() {
   return (
-    <Section id="showcase" className="section-dark relative overflow-hidden">
-      {/* faint radial depth behind the model */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute left-1/2 top-1/2 h-[80vh] w-[80vh] -translate-x-1/2 -translate-y-1/2 rounded-full"
-        style={{
-          background:
-            "radial-gradient(circle, rgba(201,162,74,0.12), rgba(201,162,74,0) 60%)",
-        }}
-      />
+    <Section id="showcase" className="bg-sand relative overflow-hidden">
       <Container className="relative">
         <div className="mx-auto max-w-2xl text-center">
           <div className="flex justify-center">
@@ -139,17 +130,17 @@ export function Showcase3D() {
           </div>
           <h2
             data-split
-            className="mt-5 font-display text-[clamp(1.9rem,4vw,2.8rem)] leading-tight text-[var(--color-ivory)]"
+            className="mt-5 font-display text-[clamp(1.9rem,4vw,2.8rem)] leading-tight text-ink"
           >
             Homes designed for the next generation.
           </h2>
-          <p className="mx-auto mt-4 max-w-lg on-dark-muted">
+          <p className="mx-auto mt-4 max-w-lg text-muted">
             Every project we back is judged the way we&apos;d judge a home for
             our own family — the build, the location, the long-term value.
           </p>
         </div>
 
-        <div className="relative mt-8 h-[62vh] min-h-[440px] w-full">
+        <div className="relative mt-8 h-[62vh] min-h-[440px] w-full overflow-hidden rounded-3xl border border-[var(--color-line)] shadow-xl shadow-black/5">
           <House3D />
         </div>
       </Container>

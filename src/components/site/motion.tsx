@@ -42,28 +42,32 @@ export function Motion() {
     const alreadyShown = (el: Element) =>
       el.getBoundingClientRect().top < window.innerHeight * 0.92;
 
-    // ---- reveals: a plain scroll listener toggles the `.in` class as elements
-    //      enter (CSS does the transition). Native scroll events fire reliably
-    //      regardless of Lenis / GSAP / rAF, so content can never stay hidden. ----
-    const revealEls = Array.from(
-      document.querySelectorAll<HTMLElement>("[data-reveal], [data-split], .reveal"),
-    );
+    // ---- reveals: toggle the `.in` class as elements enter (CSS transitions).
+    //      Queries the DOM live (":not(.in)") on every scroll/resize AND on DOM
+    //      changes, so client-side route navigations (which swap <main> content
+    //      without remounting this component) are handled too. Native events
+    //      fire regardless of Lenis / GSAP / rAF, so content can never stay
+    //      hidden. ----
     const revealCheck = () => {
       const line = window.innerHeight * 0.9;
-      for (let i = revealEls.length - 1; i >= 0; i--) {
-        if (revealEls[i].getBoundingClientRect().top < line) {
-          revealEls[i].classList.add("in");
-          revealEls.splice(i, 1);
-        }
-      }
-      if (!revealEls.length) {
-        window.removeEventListener("scroll", revealCheck);
-        window.removeEventListener("resize", revealCheck);
-      }
+      document
+        .querySelectorAll<HTMLElement>(
+          "[data-reveal]:not(.in), [data-split]:not(.in), .reveal:not(.in)",
+        )
+        .forEach((el) => {
+          if (el.getBoundingClientRect().top < line) el.classList.add("in");
+        });
     };
     revealCheck();
     window.addEventListener("scroll", revealCheck, { passive: true });
     window.addEventListener("resize", revealCheck);
+    // catch client-side navigations: Next swaps the page content in place
+    let moTimer: number | undefined;
+    const mo = new MutationObserver(() => {
+      window.clearTimeout(moTimer);
+      moTimer = window.setTimeout(revealCheck, 60);
+    });
+    mo.observe(document.body, { childList: true, subtree: true });
 
     // ---- GSAP enhancements (parallax + count-up) — decorative only, they
     //      never control whether content is visible. ----
@@ -139,6 +143,8 @@ export function Motion() {
       document.removeEventListener("visibilitychange", onVisible);
       window.removeEventListener("scroll", revealCheck);
       window.removeEventListener("resize", revealCheck);
+      window.clearTimeout(moTimer);
+      mo.disconnect();
     });
 
     // Scroll-velocity skew on flagged imagery
