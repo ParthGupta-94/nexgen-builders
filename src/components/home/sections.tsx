@@ -15,7 +15,7 @@ import {
 } from "@/data/site";
 import { locations } from "@/data/locations";
 import { projects } from "@/data/projects";
-import { House3D } from "@/components/home/house-3d";
+import { LazyHouse3D } from "@/components/home/lazy-house-3d";
 
 /* ---------------- Stats strip ---------------- */
 export function StatsStrip() {
@@ -144,7 +144,7 @@ export function Showcase3D() {
             </div>
 
             <div className="relative mt-6 h-[58vh] min-h-[380px] w-full overflow-hidden rounded-3xl border border-[var(--color-line)] shadow-xl shadow-black/5">
-              <House3D />
+              <LazyHouse3D />
             </div>
           </Container>
         </div>

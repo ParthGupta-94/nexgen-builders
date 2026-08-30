@@ -27,9 +27,14 @@ export function House3D() {
     if (!mount) return;
     const scrollTrack = mount.closest<HTMLElement>("[data-scroll-track]");
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    // High-perf path (desktop, fine pointer) uses the GTAO+SMAA composer; phones
+    // fall back to plain MSAA rendering with lighter shadows to stay smooth.
+    const highPerf =
+      window.matchMedia("(hover: hover) and (pointer: fine)").matches &&
+      window.innerWidth >= 768;
 
-    const renderer = new THREE.WebGLRenderer({ antialias: false, alpha: false });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75));
+    const renderer = new THREE.WebGLRenderer({ antialias: !highPerf, alpha: false });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, highPerf ? 1.75 : 1.4));
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -118,7 +123,7 @@ export function House3D() {
     const sun = new THREE.DirectionalLight(0xfff1d8, 2.6);
     sun.position.set(-8, 10, 6);
     sun.castShadow = true;
-    sun.shadow.mapSize.set(2048, 2048);
+    sun.shadow.mapSize.set(highPerf ? 2048 : 1024, highPerf ? 2048 : 1024);
     sun.shadow.camera.near = 1;
     sun.shadow.camera.far = 48;
     sun.shadow.camera.left = -13;
@@ -348,14 +353,19 @@ export function House3D() {
     applyAssembly();
 
     // ---------- post-processing (AO + AA) ----------
-    const composer = new EffectComposer(renderer);
-    composer.addPass(new RenderPass(scene, camera));
-    const gtao = new GTAOPass(scene, camera, 1, 1);
-    gtao.output = GTAOPass.OUTPUT.Default;
-    gtao.updateGtaoMaterial({ radius: 0.5, distanceExponent: 1, thickness: 1, scale: 1, samples: 16 });
-    composer.addPass(gtao);
-    composer.addPass(new SMAAPass());
-    composer.addPass(new OutputPass());
+    // Post-processing only on the high-perf path.
+    let composer: EffectComposer | null = null;
+    if (highPerf) {
+      composer = new EffectComposer(renderer);
+      composer.addPass(new RenderPass(scene, camera));
+      const gtao = new GTAOPass(scene, camera, 1, 1);
+      gtao.output = GTAOPass.OUTPUT.Default;
+      gtao.updateGtaoMaterial({ radius: 0.5, distanceExponent: 1, thickness: 1, scale: 1, samples: 16 });
+      composer.addPass(gtao);
+      composer.addPass(new SMAAPass());
+      composer.addPass(new OutputPass());
+    }
+    const renderFrame = () => (composer ? composer.render() : renderer.render(scene, camera));
 
     // ---- orbit camera ----
     type View = { target: THREE.Vector3; radius: number; az: number; pol: number };
@@ -382,7 +392,7 @@ export function House3D() {
     applyCamera();
     goToRef.current = (goInside: boolean) => { mode = goInside ? INT : EXT; setView(mode); };
 
-    const renderOnce = () => composer.render();
+    const renderOnce = renderFrame;
 
     // ---- HDRI environment + sky (async) ----
     const pmrem = new THREE.PMREMGenerator(renderer);
@@ -431,11 +441,11 @@ export function House3D() {
     const resize = () => {
       const w = mount.clientWidth || 1, h = mount.clientHeight || 1;
       renderer.setSize(w, h, false);
-      composer.setSize(w, h);
+      composer?.setSize(w, h);
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
       applyCamera();
-      composer.render();
+      renderFrame();
     };
     resize();
     const ro = new ResizeObserver(resize);
@@ -465,7 +475,7 @@ export function House3D() {
       assembly += (target - assembly) * (1 - Math.exp(-7 * dt));
       applyAssembly();
       applyCamera();
-      composer.render();
+      renderFrame();
     };
     raf = requestAnimationFrame(tick);
 
@@ -485,7 +495,7 @@ export function House3D() {
       });
       hdrTex?.dispose();
       envRT?.dispose();
-      composer.dispose();
+      composer?.dispose();
       renderer.dispose();
       if (renderer.domElement.parentNode === mount) mount.removeChild(renderer.domElement);
     };
