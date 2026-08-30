@@ -513,7 +513,16 @@ export function GoldenEra3D() {
 
     // ---------- loop ----------
     let visible = true;
-    const io = new IntersectionObserver(([e]) => (visible = e.isIntersecting), { threshold: 0.01 });
+    // Play the assembly ONCE, and only after the canvas is comfortably in view,
+    // so you arrive to an exploded model and watch it come together (~2.6s)
+    // instead of it finishing before you scroll to it.
+    let triggered = reduce || forceBuilt;
+    let startedAt = 0;
+    const io = new IntersectionObserver((entries) => {
+      const e = entries[0];
+      visible = e.isIntersecting;
+      if (e.intersectionRatio >= 0.55) triggered = true;
+    }, { threshold: [0, 0.55, 1] });
     io.observe(mount);
     const clock = new THREE.Clock();
     let raf = 0;
@@ -521,13 +530,11 @@ export function GoldenEra3D() {
       raf = requestAnimationFrame(tick);
       if (!visible || document.hidden) { clock.getDelta(); return; }
       const dt = Math.min(clock.getDelta(), 0.05);
-      // SCROLL-DRIVEN assembly: exploded when the canvas first appears at the
-      // bottom of the screen (rect.top ≈ vh), and only fully built once you've
-      // scrolled it ~90% of the way up — so you watch it come together.
-      const rect = mount.getBoundingClientRect();
-      const vh = window.innerHeight || 1;
-      const target = reduce || forceBuilt ? 1 : THREE.MathUtils.clamp((vh - rect.top) / (vh * 0.9), 0, 1);
-      assembly += (target - assembly) * (1 - Math.exp(-5 * dt));
+      // timed assembly once triggered: a brief hold, then a 2.6s eased build
+      if (triggered && assembly < 1) {
+        startedAt += dt;
+        assembly = Math.min(1, Math.max(0, (startedAt - 0.25) / 2.6));
+      }
       if (!dragging && modeKey === "aerial") tgt.az += 0.05 * dt;
       const k = 1 - Math.exp(-6 * dt);
       cur.tx += (tgt.tx - cur.tx) * k; cur.ty += (tgt.ty - cur.ty) * k; cur.tz += (tgt.tz - cur.tz) * k;
