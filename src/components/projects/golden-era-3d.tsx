@@ -31,6 +31,8 @@ export function GoldenEra3D() {
   useEffect(() => {
     const mount = mountRef.current;
     if (!mount) return;
+    // pinned scroll-track (same mechanism as the homepage villa) drives assembly
+    const scrollTrack = mount.closest<HTMLElement>("[data-scroll-track]");
     // dev-only visual-verification flags (inert without the query params)
     const q = new URLSearchParams(window.location.search);
     const forceBuilt = q.has("built");
@@ -513,16 +515,7 @@ export function GoldenEra3D() {
 
     // ---------- loop ----------
     let visible = true;
-    // Play the assembly ONCE, and only after the canvas is comfortably in view,
-    // so you arrive to an exploded model and watch it come together (~2.6s)
-    // instead of it finishing before you scroll to it.
-    let triggered = reduce || forceBuilt;
-    let startedAt = 0;
-    const io = new IntersectionObserver((entries) => {
-      const e = entries[0];
-      visible = e.isIntersecting;
-      if (e.intersectionRatio >= 0.55) triggered = true;
-    }, { threshold: [0, 0.55, 1] });
+    const io = new IntersectionObserver(([e]) => (visible = e.isIntersecting), { threshold: 0.01 });
     io.observe(mount);
     const clock = new THREE.Clock();
     let raf = 0;
@@ -530,11 +523,15 @@ export function GoldenEra3D() {
       raf = requestAnimationFrame(tick);
       if (!visible || document.hidden) { clock.getDelta(); return; }
       const dt = Math.min(clock.getDelta(), 0.05);
-      // timed assembly once triggered: a brief hold, then a 2.6s eased build
-      if (triggered && assembly < 1) {
-        startedAt += dt;
-        assembly = Math.min(1, Math.max(0, (startedAt - 0.25) / 2.6));
-      }
+      // SCROLL-TRACK assembly (same as the homepage villa): the section pins and
+      // the towers converge as you scroll through the tall track. Completes at
+      // ~88% so the finished cluster holds for a beat before the section releases.
+      const track = scrollTrack || mount;
+      const tr = track.getBoundingClientRect();
+      const dist = Math.max(1, track.offsetHeight - window.innerHeight);
+      let target = -tr.top / dist / 0.88;
+      target = reduce || forceBuilt || modeKey !== "street" ? 1 : Math.max(0, Math.min(1, target));
+      assembly += (target - assembly) * (1 - Math.exp(-7 * dt));
       if (!dragging && modeKey === "aerial") tgt.az += 0.05 * dt;
       const k = 1 - Math.exp(-6 * dt);
       cur.tx += (tgt.tx - cur.tx) * k; cur.ty += (tgt.ty - cur.ty) * k; cur.tz += (tgt.tz - cur.tz) * k;
