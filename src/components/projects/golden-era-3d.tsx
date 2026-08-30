@@ -7,6 +7,7 @@ import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { GTAOPass } from "three/examples/jsm/postprocessing/GTAOPass.js";
+import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
 import { SMAAPass } from "three/examples/jsm/postprocessing/SMAAPass.js";
 import { OutputPass } from "three/examples/jsm/postprocessing/OutputPass.js";
 
@@ -44,15 +45,15 @@ export function GoldenEra3D() {
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.05;
+    renderer.toneMappingExposure = 0.86;
     mount.appendChild(renderer.domElement);
     Object.assign(renderer.domElement.style, {
       width: "100%", height: "100%", cursor: "grab", touchAction: "pan-y",
     });
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0xc3ccd4);
-    scene.fog = new THREE.Fog(0xcfd4d6, 80, 240);
+    scene.background = new THREE.Color(0x1a2440);
+    scene.fog = new THREE.Fog(0x243154, 70, 230);
     const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 700);
 
     // ---------- procedural textures ----------
@@ -91,13 +92,32 @@ export function GoldenEra3D() {
       return new THREE.CanvasTexture(c);
     };
 
+    // dusk sky gradient (deep navy → warm sunset horizon) — matches the night render
+    const duskSky = () => {
+      const c = cv(16); c.width = 16; c.height = 512;
+      const x = c.getContext("2d")!;
+      const g = x.createLinearGradient(0, 0, 0, 512);
+      g.addColorStop(0.0, "#0a1630");
+      g.addColorStop(0.5, "#1b2b4d");
+      g.addColorStop(0.72, "#3c3a5f");
+      g.addColorStop(0.84, "#9a5f45");
+      g.addColorStop(0.92, "#d98a4e");
+      g.addColorStop(1.0, "#e9b877");
+      x.fillStyle = g; x.fillRect(0, 0, 16, 512);
+      const t = new THREE.CanvasTexture(c);
+      t.colorSpace = THREE.SRGBColorSpace;
+      return t;
+    };
+    scene.background = duskSky();
+
     let hdrTex: THREE.Texture | null = null;
     let envRT: THREE.WebGLRenderTarget | null = null;
 
-    // ---------- lighting ----------
-    scene.add(new THREE.HemisphereLight(0xdfe8f0, 0x50543c, 0.32));
-    const sun = new THREE.DirectionalLight(0xfff0d6, 2.7);
-    sun.position.set(-20, 34, 18);
+    // ---------- lighting (golden-hour / dusk) ----------
+    scene.add(new THREE.HemisphereLight(0x3a4a6e, 0x241c14, 0.5));
+    scene.add(new THREE.AmbientLight(0x2a3352, 0.35));
+    const sun = new THREE.DirectionalLight(0xffa259, 2.3); // warm low setting sun
+    sun.position.set(-34, 16, 20);
     sun.castShadow = true;
     sun.shadow.mapSize.set(highPerf ? 2048 : 1024, highPerf ? 2048 : 1024);
     sun.shadow.camera.near = 1; sun.shadow.camera.far = 160;
@@ -116,10 +136,10 @@ export function GoldenEra3D() {
     const glassWin = new THREE.MeshPhysicalMaterial({ color: 0x13222b, metalness: 0, roughness: 0.06, ior: 1.5, clearcoat: 1, clearcoatRoughness: 0.05, envMapIntensity: 2.0, reflectivity: 0.7 });
     const glassCore = new THREE.MeshPhysicalMaterial({ color: 0x35566a, metalness: 0, roughness: 0.03, ior: 1.5, clearcoat: 1, clearcoatRoughness: 0.03, envMapIntensity: 2.6, reflectivity: 0.85 });
     const railGlass = new THREE.MeshPhysicalMaterial({ color: 0x30505e, metalness: 0, roughness: 0.08, transmission: 0.6, transparent: true, opacity: 0.6, ior: 1.4, envMapIntensity: 1.6 });
-    const winGlow = new THREE.MeshStandardMaterial({ color: 0xffe6bf, emissive: 0xffca82, emissiveIntensity: 0.9, roughness: 0.4 });
-    const led = new THREE.MeshStandardMaterial({ color: 0xfff0d2, emissive: 0xffd28a, emissiveIntensity: 1.3, roughness: 0.5 });
-    const gold = new THREE.MeshStandardMaterial({ color: 0xb08a3e, roughness: 0.24, metalness: 1, envMapIntensity: 2.0 });
-    const goldGlow = new THREE.MeshStandardMaterial({ color: 0xffd79a, emissive: 0xf2be74, emissiveIntensity: 1.1, roughness: 0.4 });
+    const winGlow = new THREE.MeshStandardMaterial({ color: 0xffe0b0, emissive: 0xffb865, emissiveIntensity: 1.6, roughness: 0.4 });
+    const led = new THREE.MeshStandardMaterial({ color: 0xffe9c4, emissive: 0xffc06a, emissiveIntensity: 2.3, roughness: 0.5 });
+    const gold = new THREE.MeshStandardMaterial({ color: 0xb08a3e, roughness: 0.24, metalness: 1, envMapIntensity: 1.6 });
+    const goldGlow = new THREE.MeshStandardMaterial({ color: 0xffd79a, emissive: 0xf2be74, emissiveIntensity: 2.4, roughness: 0.4 });
     const marbleMat = new THREE.MeshStandardMaterial({ color: 0xf3efe6, roughness: 0.16, metalness: 0.1, map: wrap(marbleTex(), 2), envMapIntensity: 1.4 });
     const stone = new THREE.MeshStandardMaterial({ color: 0x6f6752, roughness: 0.85, metalness: 0.06 });
     const copper = new THREE.MeshStandardMaterial({ color: 0xb5623a, roughness: 0.3, metalness: 0.9, envMapIntensity: 1.8 });
@@ -141,6 +161,9 @@ export function GoldenEra3D() {
     const cream = new THREE.MeshStandardMaterial({ color: 0xe8e0d0, roughness: 0.85, metalness: 0 });
     const curtain = new THREE.MeshStandardMaterial({ color: 0x9aa0a6, roughness: 0.95, metalness: 0 });
     const rugMat = new THREE.MeshStandardMaterial({ color: 0x7c6742, roughness: 0.98, metalness: 0 });
+
+    // irregular "lights on" pattern (~55% of units lit at dusk)
+    const litOn = (i: number) => (Math.abs(Math.sin((i + 1) * 34.17)) * 91) % 10 < 5.5;
 
     // groups: complex = assembles; site = static ground/gate/landscape; interior = show flat
     const complex = new THREE.Group();
@@ -178,8 +201,8 @@ export function GoldenEra3D() {
         cbox(w + 0.7, 0.05, 0.05, led, cx, fy - 0.09, cz + d / 2 + 0.24, false);
         // tan wall set back behind the balcony
         cbox(w - 0.3, fh - 0.13, d - 0.3, f % 2 ? plaster : plasterWarm, cx, fy + fh / 2, cz - 0.15, true);
-        // recessed glazing — ~1 in 3 units lit warm
-        cbox(w - 0.7, fh - 0.34, 0.05, (f * 7 + 3) % 3 === 0 ? winGlow : glassWin, cx, fy + fh / 2, cz + d / 2 - 0.34, false);
+        // recessed glazing — many units lit warm at dusk
+        cbox(w - 0.7, fh - 0.34, 0.05, litOn(f * 3) ? winGlow : glassWin, cx, fy + fh / 2, cz + d / 2 - 0.34, false);
         // glass balustrade on the slab front + gold cap
         cbox(w + 0.68, 0.42, 0.03, railGlass, cx, fy + 0.28, cz + d / 2 + 0.24, false);
         cbox(w + 0.68, 0.04, 0.06, gold, cx, fy + 0.5, cz + d / 2 + 0.24, false);
@@ -209,7 +232,7 @@ export function GoldenEra3D() {
         const fy = y0 + f * fh + fh / 2;
         for (let c2 = 0; c2 < cols; c2++) {
           const wx = cx - w / 2 + 0.55 + c2 * ((w - 1.1) / (cols - 1));
-          const lit = (f * 5 + c2 * 3) % 4 === 0;
+          const lit = litOn(f * 4 + c2);
           cbox(0.62, 0.62, 0.05, lit ? winGlow : glassWin, wx, fy, cz + d / 2 + 0.01, false);
           cbox(0.72, 0.72, 0.06, slabWhite, wx, fy, cz + d / 2 - 0.02, false); // window reveal
         }
@@ -233,7 +256,7 @@ export function GoldenEra3D() {
         b(w + 0.06, 0.12, d + 0.06, slabWhite, 0, fy, 0, false); // cream floor band
         for (let c2 = 0; c2 < cols; c2++) {
           const wx = -w / 2 + w / (2 * cols) + c2 * (w / cols);
-          const lit = (f * 3 + c2 * 7) % 5 === 0;
+          const lit = litOn(f * 6 + c2 + 2);
           b(0.7, 0.6, 0.05, lit ? winGlow : glassWin, wx, fy + fh / 2 + 0.1, d / 2 + 0.01, false);
         }
       }
@@ -425,6 +448,8 @@ export function GoldenEra3D() {
       gtao.output = GTAOPass.OUTPUT.Default;
       gtao.updateGtaoMaterial({ radius: 0.6, distanceExponent: 1, thickness: 1, scale: 1, samples: 16 });
       composer.addPass(gtao);
+      // gentle bloom so lit windows / LED strips glow like the night render
+      composer.addPass(new UnrealBloomPass(new THREE.Vector2(1, 1), 0.42, 0.4, 0.86));
       composer.addPass(new SMAAPass());
       composer.addPass(new OutputPass());
     }
@@ -456,7 +481,8 @@ export function GoldenEra3D() {
     new RGBELoader().load("/hdri/sky_1k.hdr", (hdr) => {
       hdr.mapping = THREE.EquirectangularReflectionMapping;
       hdrTex = hdr; envRT = pmrem.fromEquirectangular(hdr);
-      scene.environment = envRT.texture; scene.background = hdr; scene.backgroundBlurriness = 0; scene.environmentIntensity = 1;
+      // keep the dusk gradient as the visible sky; use the HDRI only as dim IBL
+      scene.environment = envRT.texture; scene.environmentIntensity = 0.45;
       pmrem.dispose(); renderFrame();
     }, undefined, () => pmrem.dispose());
 
@@ -495,12 +521,13 @@ export function GoldenEra3D() {
       raf = requestAnimationFrame(tick);
       if (!visible || document.hidden) { clock.getDelta(); return; }
       const dt = Math.min(clock.getDelta(), 0.05);
-      // SCROLL-DRIVEN assembly: exploded when the canvas enters at the bottom,
-      // fully built by the time it reaches the upper-middle of the viewport.
+      // SCROLL-DRIVEN assembly: exploded when the canvas first appears at the
+      // bottom of the screen (rect.top ≈ vh), and only fully built once you've
+      // scrolled it ~90% of the way up — so you watch it come together.
       const rect = mount.getBoundingClientRect();
       const vh = window.innerHeight || 1;
-      const target = reduce ? 1 : THREE.MathUtils.clamp((vh - rect.top) / (vh * 0.62), 0, 1);
-      assembly += (target - assembly) * (1 - Math.exp(-6 * dt));
+      const target = reduce || forceBuilt ? 1 : THREE.MathUtils.clamp((vh - rect.top) / (vh * 0.9), 0, 1);
+      assembly += (target - assembly) * (1 - Math.exp(-5 * dt));
       if (!dragging && modeKey === "aerial") tgt.az += 0.05 * dt;
       const k = 1 - Math.exp(-6 * dt);
       cur.tx += (tgt.tx - cur.tx) * k; cur.ty += (tgt.ty - cur.ty) * k; cur.tz += (tgt.tz - cur.tz) * k;
