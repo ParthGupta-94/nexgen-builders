@@ -611,24 +611,40 @@ export function GoldenEra3D() {
     loadGlb("bathtub", (o) => seatFit(o, hx0 + 0.95, 0, HZ + 1.0, 0, 1.7));
 
     // ---------- orbit camera ----------
-    type View = { target: THREE.Vector3; radius: number; az: number; pol: number };
+    type View = { target: THREE.Vector3; radius: number; az: number; pol: number; fp?: boolean };
+    // interior "stand and look around" view: camera FIXED at `eye` (inside the
+    // room, so it never phases through a wall), looking toward `look`; drag turns
+    // the view in place rather than orbiting.
+    const fpView = (eye: THREE.Vector3, look: THREE.Vector3): View => {
+      const d = look.clone().sub(eye);
+      return { target: eye, radius: 0, az: Math.atan2(d.x, d.z), pol: Math.acos(THREE.MathUtils.clamp(d.y / d.length(), -1, 1)), fp: true };
+    };
     const VIEWS: Record<ViewKey, View> = {
       street: { target: new THREE.Vector3(-3, 6.5, -1), radius: 30, az: 0.16, pol: 1.4 },
       aerial: { target: new THREE.Vector3(0, 7.0, -3), radius: 46, az: -0.5, pol: 0.98 },
-      living: { target: new THREE.Vector3(IX + 0.2, 1.45, IZ), radius: 5.4, az: 0.55, pol: 1.4 },
-      kitchen: { target: new THREE.Vector3(KX - 0.2, 1.4, KZ + 0.3), radius: 4.3, az: -0.55, pol: 1.42 },
-      bedroom: { target: new THREE.Vector3(BX + 0.4, 1.3, BZ - 0.2), radius: 4.5, az: 0.7, pol: 1.44 },
-      bathroom: { target: new THREE.Vector3(HX - 0.2, 1.3, HZ - 0.1), radius: 3.6, az: -0.6, pol: 1.44 },
+      living: fpView(new THREE.Vector3(IX + 1.7, 1.6, IZ + 3.1), new THREE.Vector3(IX - 1.6, 1.15, IZ - 1.2)),
+      kitchen: fpView(new THREE.Vector3(KX + 0.4, 1.6, KZ + 3.2), new THREE.Vector3(KX - 0.2, 1.1, kzBack + 0.6)),
+      bedroom: fpView(new THREE.Vector3(BX + 2.5, 1.6, BZ + 2.4), new THREE.Vector3(bx0 + 1.6, 0.8, BZ)),
+      bathroom: fpView(new THREE.Vector3(HX - 0.4, 1.5, HZ + 1.8), new THREE.Vector3(HX + 0.3, 0.7, hzBack + 1.0)),
     };
     const fv = (forceView === "inside" ? "living" : forceView) as ViewKey | null;
     let modeKey: ViewKey = fv && VIEWS[fv] ? fv : "street";
     let mode: View = VIEWS[modeKey];
     const cur = { tx: mode.target.x, ty: mode.target.y, tz: mode.target.z, r: mode.radius, az: mode.az, pol: mode.pol };
     let tgt = { ...cur };
+    let curFp = mode.fp ?? false;   // current view is fixed-eye look-around
+    let azHome = mode.az;           // look direction the room opened at (for the drag clamp)
     const lookAt = new THREE.Vector3();
     const applyCamera = () => {
-      camera.position.set(cur.tx + cur.r * Math.sin(cur.pol) * Math.sin(cur.az), cur.ty + cur.r * Math.cos(cur.pol), cur.tz + cur.r * Math.sin(cur.pol) * Math.cos(cur.az));
-      lookAt.set(cur.tx, cur.ty, cur.tz); camera.lookAt(lookAt);
+      const sp = Math.sin(cur.pol);
+      if (curFp) {
+        camera.position.set(cur.tx, cur.ty, cur.tz);
+        lookAt.set(cur.tx + sp * Math.sin(cur.az), cur.ty + Math.cos(cur.pol), cur.tz + sp * Math.cos(cur.az));
+      } else {
+        camera.position.set(cur.tx + cur.r * sp * Math.sin(cur.az), cur.ty + cur.r * Math.cos(cur.pol), cur.tz + cur.r * sp * Math.cos(cur.az));
+        lookAt.set(cur.tx, cur.ty, cur.tz);
+      }
+      camera.lookAt(lookAt);
     };
     const setView = (v: View) => { tgt = { tx: v.target.x, ty: v.target.y, tz: v.target.z, r: v.radius, az: v.az, pol: v.pol }; };
     // show only the interior when "inside", only the complex when outside — so
@@ -648,7 +664,7 @@ export function GoldenEra3D() {
       // snap when either side is an interior room (crossing in/out, or room→room);
       // only street↔aerial glide.
       const crossing = ROOMS.includes(k) || ROOMS.includes(modeKey);
-      modeKey = k; mode = VIEWS[k]; setView(mode); applyVis();
+      modeKey = k; mode = VIEWS[k]; curFp = mode.fp ?? false; azHome = mode.az; setView(mode); applyVis();
       if (crossing) snapCamera();
     };
 
@@ -668,10 +684,15 @@ export function GoldenEra3D() {
     const onDown = (e: PointerEvent) => { dragging = true; lastX = e.clientX; lastY = e.clientY; renderer.domElement.style.cursor = "grabbing"; renderer.domElement.setPointerCapture(e.pointerId); };
     const onMove = (e: PointerEvent) => {
       if (!dragging) return;
-      const inside = ROOMS.includes(modeKey);
-      tgt.az += (e.clientX - lastX) * (inside ? -0.006 : 0.007);
-      tgt.pol = THREE.MathUtils.clamp(tgt.pol + (e.clientY - lastY) * 0.004, inside ? 1.25 : 0.5, inside ? 1.56 : 1.5);
-      if (inside) tgt.az = THREE.MathUtils.clamp(tgt.az, -0.9, 0.9);
+      const dx = e.clientX - lastX, dy = e.clientY - lastY;
+      if (curFp) {
+        // look around in place: clamp the turn so you stay on the room, not the open side
+        tgt.az = THREE.MathUtils.clamp(tgt.az + dx * 0.005, azHome - 1.25, azHome + 1.25);
+        tgt.pol = THREE.MathUtils.clamp(tgt.pol + dy * 0.004, 1.2, 1.82);
+      } else {
+        tgt.az += dx * 0.007;
+        tgt.pol = THREE.MathUtils.clamp(tgt.pol + dy * 0.004, 0.5, 1.5);
+      }
       lastX = e.clientX; lastY = e.clientY;
     };
     const onUp = (e: PointerEvent) => { dragging = false; renderer.domElement.style.cursor = "grab"; try { renderer.domElement.releasePointerCapture(e.pointerId); } catch {} };
