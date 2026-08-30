@@ -184,29 +184,38 @@ export function House3D() {
       box(0.05, h, w, glass, x, y, z, false);
     };
 
-    // ---------- grounds ----------
-    add(new THREE.PlaneGeometry(60, 60).rotateX(-Math.PI / 2), lawnMat, 0, -0.02, -1, true);
-    rbox(13, 0.34, 10, paveMat, 0, -0.05, 0.2, 0.03);
-    box(2.2, 0.06, 6.2, paveMat, -2.4, 0.13, 5.6);
-    add(new THREE.BoxGeometry(3.4, 0.05, 1.6), water, 3.0, 0.1, 4.4, false);
-    box(3.7, 0.14, 1.9, stone, 3.0, 0.05, 4.4);
-    for (let i = 0; i < 3; i++) box(2.2 - i * 0.4, 0.14, 0.5 - i * 0.05, paveMat, 2.5, 0.16 + i * 0.13, 3.4 - i * 0.4);
+    // ============================================================
+    //  Villa modelled on the reference photo (ref_a) via the
+    //  img2threejs decomposition: recessed dark glazing between white
+    //  end-piers, a deep wood-soffit cantilever, glass balustrade,
+    //  flat roof parapet, right service pier + external stair, pool.
+    // ============================================================
+    const fx = 0;
 
-    // ---------- ground floor shell ----------
-    const fx = -0.4;
-    box(7.2, 0.12, 5.0, woodFloor, fx, 0.12, 0);
-    rbox(7.2, 1.95, 0.18, cream, fx, 1.0, -2.5, 0.06);
-    rbox(0.18, 1.95, 5.0, creamDark, fx - 3.55, 1.0, 0, 0.06);
-    rbox(0.18, 1.95, 5.0, charcoal, fx + 3.55, 1.0, 0, 0.06);
-    box(7.35, 0.18, 5.05, creamDark, fx, 1.99, 0);
-    box(5.4, 1.78, 0.05, glass, fx - 0.5, 1.0, 2.47, false);
-    box(5.5, 1.9, 0.1, frame, fx - 0.5, 1.0, 2.42, false);
-    for (let i = -3; i <= 3; i++) box(0.05, 1.78, 0.09, frame, fx - 0.5 + i * 0.78, 1.0, 2.5, false);
-    box(0.12, 1.95, 5.0, gold, fx - 3.45, 1.0, 0, false);
-    box(1.1, 1.55, 0.14, wood, fx + 2.9, 0.79, 2.47, false);
-    box(0.16, 1.15, 0.16, goldGlow, fx + 3.34, 0.74, 2.52, false);
-    box(7.55, 0.12, 5.2, gold, fx, 2.04, 0, false);
-    for (let i = 1; i <= 3; i++) box(7.25, 0.02, 5.02, charcoal, fx, 0.4 + i * 0.42, 0, false);
+    // ---------- grounds ----------
+    add(new THREE.PlaneGeometry(80, 80).rotateX(-Math.PI / 2), lawnMat, 0, -0.02, -1, true);
+    rbox(18, 0.32, 12, paveMat, 0, -0.05, 2.0, 0.03);   // stone deck / podium
+    // pool in the foreground
+    add(new THREE.BoxGeometry(9, 0.08, 4.2), water, -1.4, 0.06, 6.4, false);
+    box(9.6, 0.16, 4.8, stone, -1.4, 0.0, 6.4);
+
+    // ---------- ground floor (recessed glazed living) ----------
+    const gy = 1.25, gh = 2.5;
+    box(12, 0.12, 5.4, woodFloor, fx, 0.12, 0);                 // interior floor
+    rbox(12, gh, 0.2, cream, fx, gy, -2.6, 0.05);              // back wall
+    rbox(0.2, gh, 5.4, cream, fx - 6, gy, 0, 0.05);           // left wall
+    rbox(0.2, gh, 5.4, charcoal, fx + 6, gy, 0, 0.05);        // right wall
+    box(12, 0.16, 5.4, wood, fx, 2.5, 0);                      // warm WOOD ceiling soffit (ref_a)
+    // dark recessed glazing + frame + vertical mullions
+    box(10.2, 2.3, 0.06, glass, fx, gy, 2.3, false);
+    box(10.4, gh, 0.04, frame, fx, gy, 2.25, false);
+    for (let i = -4; i <= 4; i++) box(0.06, 2.3, 0.08, frame, fx + i * 1.13, gy, 2.35, false);
+    // white end piers flanking the glazing (full height)
+    rbox(1.0, 5.7, 0.9, cream, fx - 5.5, 2.85, 2.4, 0.05);
+    rbox(1.2, 5.7, 0.9, cream, fx + 5.4, 2.85, 2.4, 0.05);
+    // warm entrance
+    box(1.2, 1.6, 0.12, wood, fx + 3.2, 0.8, 2.32, false);
+    box(0.16, 1.2, 0.16, goldGlow, fx + 3.7, 0.74, 2.36, false);
 
     // ================= INTERIOR (open plan) =================
     box(3.0, 0.04, 2.4, rugMat, -2.0, 0.2, 1.0);
@@ -249,16 +258,24 @@ export function House3D() {
     box(0.05, 1.9, 0.05, gold, -2.5, 1.0, -0.2, false);
     box(0.05, 0.05, 2.0, gold, -2.5, 1.75, -1.05, false);
 
-    // ================= UPPER FLOOR =================
-    rbox(5.4, 1.7, 4.2, creamDark, 0.9, 2.9, -0.2, 0.08);
-    rbox(2.0, 1.7, 3.0, charcoal, -2.8, 2.9, 0.3, 0.08);
-    box(5.55, 0.16, 4.35, gold, 0.9, 3.82, -0.2, false);
-    box(5.35, 0.28, 4.15, stone, 0.9, 3.68, -0.2, false);
-    windowZ(3.9, 1.15, 0.9, 2.95, 1.96);
-    windowX(2.2, 1.1, -2.85, 2.95, 0.3);
-    box(4.6, 0.14, 1.1, stone, 0.9, 2.12, 2.6);
-    box(4.5, 0.55, 0.04, glass, 0.9, 2.42, 3.1, false);
-    box(4.62, 0.05, 0.08, gold, 0.9, 2.72, 3.1, false);
+    // ================= UPPER FLOOR (deep cantilever) =================
+    box(12.4, 0.4, 6.0, cream, fx, 2.78, 0.5, false);          // mid floor plate (cantilever edge)
+    rbox(12, 2.5, 5.0, cream, fx, 4.1, -0.5, 0.08);            // cantilevered upper volume
+    box(10.4, 0.16, 2.4, wood, fx, 2.9, 1.7, false);          // WOOD soffit under overhang (signature)
+    windowZ(9.6, 1.5, fx, 4.15, 1.72);                         // upper dark window band
+    for (let i = -4; i <= 4; i++) box(0.06, 1.5, 0.08, frame, fx + i * 1.06, 4.15, 1.78, false); // mullions
+    windowX(2.6, 1.3, fx - 6.0, 4.1, -0.6);                   // side window
+    box(10.0, 0.95, 0.05, glass, fx, 3.4, 2.5, false);        // glass balustrade
+    box(10.1, 0.06, 0.09, frame, fx, 3.9, 2.5, false);       // balustrade top rail
+    box(12.4, 0.5, 5.2, cream, fx, 5.45, -0.5, false);        // flat roof parapet
+    box(12.5, 0.08, 5.3, frame, fx, 5.72, -0.5, false);      // coping line
+    rbox(1.3, 7.2, 3.2, cream, fx + 5.9, 3.6, -0.4, 0.08);   // right service pier
+    // external stair + steel railing (right)
+    for (let i = 0; i < 7; i++)
+      box(1.6, 0.14, 0.52, stone, fx + 7.0, 0.24 + i * 0.36, 3.6 - i * 0.52, false);
+    box(0.06, 1.1, 3.9, frame, fx + 7.75, 1.35, 1.9, false);
+    for (let i = 0; i < 4; i++)
+      box(0.05, 0.05, 3.9, frame, fx + 7.75, 0.8 + i * 0.28, 1.9, false);
 
     // ================= LANDSCAPING (smooth foliage) =================
     const tree = (x: number, z: number, s: number) => {
@@ -267,13 +284,13 @@ export function House3D() {
       add(new THREE.IcosahedronGeometry(0.7 * s, 2), foliageLt, x - 0.5 * s, 1.6 * s, z + 0.3 * s, false);
       add(new THREE.IcosahedronGeometry(0.62 * s, 2), foliage, x + 0.55 * s, 1.55 * s, z - 0.3 * s, false);
     };
-    tree(5.2, -3.4, 1.15);
-    tree(-5.4, -2.2, 0.9);
-    rbox(0.6, 0.5, 4.2, foliage, -5.2, 0.28, 1.0, 0.12);
-    rbox(3.6, 0.45, 0.55, foliageLt, -1.8, 0.25, -4.7, 0.12);
-    for (const px of [fx + 2.2, fx + 3.5]) {
-      rbox(0.4, 0.42, 0.4, stone, px, 0.32, 2.9, 0.04);
-      add(new THREE.IcosahedronGeometry(0.32, 2), foliageLt, px, 0.72, 2.9, false);
+    tree(-8.2, 1.5, 1.15);
+    tree(9.2, -2.0, 0.9);
+    rbox(0.6, 0.6, 5.0, foliage, -8.0, 0.3, -0.5, 0.12);      // side hedge
+    rbox(5.0, 0.5, 0.55, foliageLt, 0, 0.25, -5.4, 0.12);     // rear hedge
+    for (const px of [fx - 4.4, fx + 4.4]) {                   // entrance planters
+      rbox(0.45, 0.45, 0.45, stone, px, 0.34, 3.3, 0.04);
+      add(new THREE.IcosahedronGeometry(0.34, 2), foliageLt, px, 0.76, 3.3, false);
     }
 
     const shadowFloor = new THREE.Mesh(new THREE.PlaneGeometry(80, 80), new THREE.ShadowMaterial({ opacity: 0.26 }));
@@ -294,8 +311,8 @@ export function House3D() {
 
     // ---- orbit camera ----
     type View = { target: THREE.Vector3; radius: number; az: number; pol: number };
-    const EXT: View = { target: new THREE.Vector3(0, 1.3, 0), radius: 15.5, az: -0.7, pol: 1.14 };
-    const INT: View = { target: new THREE.Vector3(0.1, 0.95, -0.6), radius: 2.9, az: 0.0, pol: 1.44 };
+    const EXT: View = { target: new THREE.Vector3(0, 2.1, 1.2), radius: 24, az: -0.42, pol: 1.4 };
+    const INT: View = { target: new THREE.Vector3(0.1, 1.1, -0.6), radius: 3.0, az: 0.0, pol: 1.44 };
 
     let mode: View = EXT;
     const cur = { tx: EXT.target.x, ty: EXT.target.y, tz: EXT.target.z, r: EXT.radius, az: EXT.az, pol: EXT.pol };
@@ -350,7 +367,7 @@ export function House3D() {
       if (!dragging) return;
       const isInt = mode === INT;
       tgt.az += (e.clientX - lastX) * (isInt ? -0.006 : 0.008);
-      tgt.pol = THREE.MathUtils.clamp(tgt.pol + (e.clientY - lastY) * 0.004, isInt ? 1.28 : 0.82, isInt ? 1.56 : 1.4);
+      tgt.pol = THREE.MathUtils.clamp(tgt.pol + (e.clientY - lastY) * 0.004, isInt ? 1.28 : 0.9, isInt ? 1.56 : 1.5);
       if (isInt) tgt.az = THREE.MathUtils.clamp(tgt.az, -0.95, 0.95);
       lastX = e.clientX; lastY = e.clientY;
     };
