@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry.js";
+import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { MeshoptDecoder } from "three/examples/jsm/libs/meshopt_decoder.module.js";
 import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
@@ -50,6 +51,7 @@ export function GoldenEra3D() {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, highPerf ? 1.5 : 1.25));
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.shadowMap.autoUpdate = false; // shadows recomputed manually, only when the scene is still
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 0.86;
     mount.appendChild(renderer.domElement);
@@ -363,6 +365,35 @@ export function GoldenEra3D() {
     srbox(30, 0.55, 0.6, foliage, 2, 0.5, 10.6, 0.1); // courtyard hedge
     for (const px of [-9, -5, 8, 12]) { srbox(0.5, 0.5, 0.5, stone, px, 0.55, 9.6, 0.05); addS(new THREE.IcosahedronGeometry(0.34, 2), foliageLt, px, 1.0, 9.6, false); }
 
+    // ---- merge the static site (ground/gate/boulevard/landscaping) by material ----
+    // ~140 meshes → a dozen draw calls. It never animates, so this is free realism.
+    const mergeStatic = (grp: THREE.Group) => {
+      grp.updateMatrixWorld(true);
+      const byMat = new Map<THREE.Material, { geos: THREE.BufferGeometry[]; meshes: THREE.Mesh[] }>();
+      grp.traverse((o) => {
+        const m = o as THREE.Mesh;
+        if (!m.isMesh) return;
+        const mat = m.material as THREE.Material;
+        const g = m.geometry.clone();
+        g.applyMatrix4(m.matrixWorld);
+        for (const name of Object.keys(g.attributes)) if (!["position", "normal", "uv"].includes(name)) g.deleteAttribute(name);
+        if (!g.attributes.uv) g.setAttribute("uv", new THREE.BufferAttribute(new Float32Array(g.attributes.position.count * 2), 2));
+        const e = byMat.get(mat) ?? { geos: [], meshes: [] };
+        e.geos.push(g); e.meshes.push(m); byMat.set(mat, e);
+      });
+      for (const [mat, e] of byMat) {
+        let merged: THREE.BufferGeometry | null = null;
+        try { merged = mergeGeometries(e.geos, false); } catch { merged = null; }
+        e.geos.forEach((g) => g.dispose());
+        if (!merged) continue; // leave those meshes as-is
+        e.meshes.forEach((m) => grp.remove(m));
+        const mesh = new THREE.Mesh(merged, mat);
+        mesh.castShadow = true; mesh.receiveShadow = true;
+        grp.add(mesh);
+      }
+    };
+    mergeStatic(site);
+
     // ============================================================
     //  FURNISHED SHOW FLAT — the REAL Golden Era flat (from the
     //  handover photos): polished beige-grey marble floor, white walls,
@@ -663,6 +694,7 @@ export function GoldenEra3D() {
     };
     const applyFov = () => { camera.fov = curFp ? 70 : 42; camera.updateProjectionMatrix(); }; // wide CCTV lens inside
     let dirty = true; // on-demand rendering: only draw a frame when something changed
+    let stillShadowsDone = false; // shadows are baked once when the scene settles
     setView(mode); applyFov(); applyCamera(); applyVis();
     goToRef.current = (k: ViewKey) => {
       // snap when either side is an interior room (crossing in/out, or room→room);
@@ -745,10 +777,20 @@ export function GoldenEra3D() {
       const camSettled = Math.abs(cur.az - tgt.az) < 1e-4 && Math.abs(cur.pol - tgt.pol) < 1e-4 && Math.abs(cur.r - tgt.r) < 1e-3 &&
         Math.abs(cur.tx - tgt.tx) < 1e-3 && Math.abs(cur.ty - tgt.ty) < 1e-3 && Math.abs(cur.tz - tgt.tz) < 1e-3;
       const assemblyMoving = Math.abs(target - assembly) > 1e-3 || Math.abs(assembly - before) > 1e-4;
+      // "still" = nothing moving; only then do we pay for the shadow pass (once, cached)
+      const still = !dragging && !assemblyMoving && camSettled && modeKey !== "aerial";
+      if (still && !stillShadowsDone) { dirty = true; stillShadowsDone = true; }
+      if (!still) stillShadowsDone = false;
       if (dirty || dragging || modeKey === "aerial" || !camSettled || assemblyMoving) {
         if (complex.visible) applyAssembly(); // cheap; only matters for the exterior towers
         applyCamera();
-        renderFrame();
+        if (still) {
+          sun.castShadow = true; renderer.shadowMap.needsUpdate = true;
+          renderFrame(); // settle frame: full quality (shadows + bloom + AA), then idle
+        } else {
+          sun.castShadow = false;
+          renderer.render(scene, camera); // motion frames: no shadow pass, no post-fx → fast
+        }
         dirty = false;
       }
     };

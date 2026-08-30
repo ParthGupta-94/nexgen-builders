@@ -171,7 +171,7 @@ export default function GoldenEraPage() {
       {/* 3D concept massing — pinned scroll-track: the section stays put and the
           towers assemble as you scroll through it (same as the homepage villa). */}
       <section className="section-dark">
-        <div data-scroll-track className="relative h-[380vh]">
+        <div data-scroll-track className="relative h-[240vh]">
           <div className="sticky top-0 flex h-screen flex-col justify-center py-14">
             <Container>
               <div className="max-w-2xl">
