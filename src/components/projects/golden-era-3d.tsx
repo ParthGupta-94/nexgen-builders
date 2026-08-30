@@ -587,7 +587,6 @@ export function GoldenEra3D() {
     load("modern_arm_chair_01", (o) => seat(o, sX - 0.2, 0, sZ + 2.4, -0.9));
     load("ClassicConsole_01", (o) => seat(o, x0 + 0.55, 0, sZ, Math.PI / 2));
     load("ceramic_vase_02", (o) => seat(o, sX - 2.1, 0.42, sZ + 0.25));
-    load("throw_pillows_01", (o) => seat(o, sX - 0.1, 0.45, sZ - 0.7));
     load("calathea_orbifolia_01", (o) => seat(o, x1 - 0.8, 0, zBack + 0.9));
     // dining (front of the room)
     load("WoodenTable_01", (o) => seat(o, dtX, 0, dtZ));
