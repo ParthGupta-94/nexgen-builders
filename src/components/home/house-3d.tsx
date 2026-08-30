@@ -6,8 +6,9 @@ import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment
 
 /**
  * A stylized modern villa in Three.js, matched to the NexGen palette.
- * Exterior orbit with auto-rotate + drag; a "Step inside" button flies the
- * camera into a furnished interior. Pauses when off-screen / tab hidden,
+ * Exterior orbit (auto-rotate + drag); a "Step inside" button flies the camera
+ * into an open-plan interior — living, dining, kitchen and a staircase — that
+ * you can pan across. Frame-rate-independent, pauses off-screen / tab hidden,
  * respects reduced-motion, repaints on resize. Placeholder for a real model.
  */
 export function House3D() {
@@ -20,13 +21,12 @@ export function House3D() {
     if (!mount) return;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    // ---- renderer ----
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.06;
+    renderer.toneMappingExposure = 1.05;
     mount.appendChild(renderer.domElement);
     Object.assign(renderer.domElement.style, {
       width: "100%",
@@ -36,9 +36,8 @@ export function House3D() {
     });
 
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
+    const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 100);
 
-    // ---- environment (soft reflections for glass + gold) ----
     try {
       const pmrem = new THREE.PMREMGenerator(renderer);
       const env = pmrem.fromScene(new RoomEnvironment(), 0.04);
@@ -51,25 +50,31 @@ export function House3D() {
     // ---- lighting ----
     scene.add(new THREE.HemisphereLight(0xfbf6ec, 0x241d14, 0.7));
     const key = new THREE.DirectionalLight(0xfff2d6, 2.0);
-    key.position.set(6, 10, 5);
+    key.position.set(7, 11, 6);
     key.castShadow = true;
-    key.shadow.mapSize.set(2048, 2048);
+    key.shadow.mapSize.set(1536, 1536);
     key.shadow.camera.near = 1;
-    key.shadow.camera.far = 40;
-    key.shadow.camera.left = -9;
-    key.shadow.camera.right = 9;
-    key.shadow.camera.top = 9;
-    key.shadow.camera.bottom = -9;
+    key.shadow.camera.far = 45;
+    key.shadow.camera.left = -11;
+    key.shadow.camera.right = 11;
+    key.shadow.camera.top = 11;
+    key.shadow.camera.bottom = -11;
     key.shadow.bias = -0.0004;
-    key.shadow.radius = 4;
+    key.shadow.radius = 3;
     scene.add(key);
     const rim = new THREE.DirectionalLight(0xc9a24a, 0.5);
-    rim.position.set(-7, 4, -6);
+    rim.position.set(-8, 4, -7);
     scene.add(rim);
-    // warm interior glow (also lights the room when inside)
-    const interiorLight = new THREE.PointLight(0xffcf8f, 6, 8, 2);
-    interiorLight.position.set(-0.2, 1.3, -0.2);
-    scene.add(interiorLight);
+    // warm interior lights (per zone)
+    const lampLight = new THREE.PointLight(0xffd9a0, 4, 6, 2);
+    lampLight.position.set(-2.6, 1.5, -0.4);
+    scene.add(lampLight);
+    const diningLight = new THREE.PointLight(0xffd9a0, 4, 6, 2);
+    diningLight.position.set(0.4, 1.6, -1.0);
+    scene.add(diningLight);
+    const kitchenLight = new THREE.PointLight(0xffe0b0, 2.5, 5, 2);
+    kitchenLight.position.set(2.4, 1.6, -0.8);
+    scene.add(kitchenLight);
 
     // ---- materials ----
     const M = (o: THREE.MeshStandardMaterialParameters) => new THREE.MeshStandardMaterial(o);
@@ -78,22 +83,21 @@ export function House3D() {
     const stone = M({ color: 0x2a241b, roughness: 0.85, metalness: 0.06 });
     const glass = M({ color: 0x0e0c08, roughness: 0.06, metalness: 0.9, envMapIntensity: 1.4 });
     const gold = M({ color: 0xb0873a, roughness: 0.28, metalness: 1.0, envMapIntensity: 1.3 });
-    const goldGlow = M({ color: 0xffd79a, emissive: 0xf2be74, emissiveIntensity: 1.1, roughness: 0.4 });
+    const goldGlow = M({ color: 0xffd79a, emissive: 0xf2be74, emissiveIntensity: 1.0, roughness: 0.4 });
     const woodFloor = M({ color: 0x5c4128, roughness: 0.55, metalness: 0.05 });
     const wood = M({ color: 0x6b4a2a, roughness: 0.65, metalness: 0.05 });
+    const woodDark = M({ color: 0x4a3420, roughness: 0.6, metalness: 0.05 });
     const fabric = M({ color: 0x8f7d64, roughness: 0.95, metalness: 0 });
     const fabricDark = M({ color: 0x6f5f49, roughness: 0.95, metalness: 0 });
     const rugMat = M({ color: 0x7c6742, roughness: 0.95, metalness: 0 });
+    const marble = M({ color: 0x2b2820, roughness: 0.25, metalness: 0.3, envMapIntensity: 1.1 });
     const foliage = M({ color: 0x5f6b4a, roughness: 0.9, metalness: 0 });
     const grass = M({ color: 0x3f4630, roughness: 0.95, metalness: 0 });
 
     const villa = new THREE.Group();
     scene.add(villa);
 
-    const add = (
-      geo: THREE.BufferGeometry, mat: THREE.Material,
-      x: number, y: number, z: number, shadow = true,
-    ) => {
+    const add = (geo: THREE.BufferGeometry, mat: THREE.Material, x: number, y: number, z: number, shadow = true) => {
       const m = new THREE.Mesh(geo, mat);
       m.position.set(x, y, z);
       m.castShadow = shadow;
@@ -105,115 +109,134 @@ export function House3D() {
       add(new THREE.BoxGeometry(w, h, d), mat, x, y, z, s);
 
     // ---------- grounds ----------
-    box(16, 0.2, 14, grass, 0, -0.2, -1);
-    box(9, 0.32, 8, stone, 0, -0.06, 0); // podium
-    // pathway + driveway
-    box(1.6, 0.05, 5, creamDark, -1.4, 0.11, 4.2);
-    // reflective pool
-    box(3.2, 0.06, 1.4, glass, 1.9, 0.06, 3.1);
-    box(3.4, 0.12, 1.6, stone, 1.9, 0.02, 3.1);
+    box(22, 0.2, 18, grass, 0, -0.2, -1);
+    box(13, 0.32, 10, stone, 0, -0.06, 0.2); // podium
+    box(2.0, 0.05, 6, creamDark, -2.4, 0.11, 5.6); // driveway
+    box(3.4, 0.06, 1.6, glass, 3.0, 0.06, 4.4); // pool
+    box(3.6, 0.12, 1.8, stone, 3.0, 0.02, 4.4);
 
-    // ---------- ground floor (a real room: walls + glass front) ----------
-    const gy = 0.9, gh = 1.7;
-    box(4.6, 0.12, 3.4, woodFloor, 0, 0.12, 0); // interior floor
-    box(4.6, gh, 0.16, cream, 0, gy, -1.62); // back wall
-    box(0.16, gh, 3.4, creamDark, -2.22, gy, 0); // left wall
-    box(0.16, gh, 3.4, stone, 2.22, gy, 0); // right wall
-    box(4.6, 0.16, 3.4, creamDark, 0, 1.74, 0); // floor plate (ceiling of ground)
-    // glass facade (front) with mullions + door gap
-    box(2.9, 1.5, 0.06, glass, -0.55, gy, 1.6);
-    for (let i = -1; i <= 2; i++) box(0.06, 1.5, 0.09, gold, -0.55 + i * 0.72, gy, 1.63, false);
-    box(0.1, 1.5, 3.4, gold, -2.05, gy, 0, false); // corner fin
-    // entrance (right of glass)
-    box(0.95, 1.35, 0.12, wood, 1.4, 0.7, 1.6, false);
-    box(0.14, 1.0, 0.14, goldGlow, 1.78, 0.62, 1.66, false);
+    // ---------- ground floor shell (open-plan room) ----------
+    const fx = -0.4; // interior centre x
+    box(7.2, 0.12, 5.0, woodFloor, fx, 0.12, 0); // floor
+    box(7.2, 1.95, 0.16, cream, fx, 1.0, -2.5); // back wall
+    box(0.16, 1.95, 5.0, creamDark, fx - 3.55, 1.0, 0); // left wall
+    box(0.16, 1.95, 5.0, stone, fx + 3.55, 1.0, 0); // right wall
+    box(7.3, 0.16, 5.0, creamDark, fx, 1.98, 0); // ceiling / upper floor plate
+    // glass facade (front) + mullions, leaving the far right for the entrance
+    box(5.4, 1.75, 0.06, glass, fx - 0.5, 1.0, 2.46);
+    for (let i = -3; i <= 3; i++) box(0.06, 1.75, 0.09, gold, fx - 0.5 + i * 0.78, 1.0, 2.49, false);
+    box(0.12, 1.95, 5.0, gold, fx - 3.45, 1.0, 0, false); // corner fin
+    // entrance
+    box(1.0, 1.5, 0.12, wood, fx + 2.9, 0.77, 2.46, false);
+    box(0.14, 1.1, 0.14, goldGlow, fx + 3.32, 0.72, 2.5, false);
+    // fascia band
+    box(7.5, 0.1, 5.15, gold, fx, 2.02, 0, false);
 
-    // gold fascia band between floors
-    box(4.75, 0.1, 3.55, gold, 0, 1.78, 0, false);
+    // ================= INTERIOR ZONES =================
+    // ---- living area (left / front) ----
+    box(3.0, 0.04, 2.4, rugMat, -2.0, 0.2, 1.0);
+    box(2.4, 0.4, 1.0, fabric, -2.0, 0.4, 0.3);           // sofa seat
+    box(2.4, 0.6, 0.22, fabric, -2.0, 0.62, -0.15);       // backrest
+    box(0.22, 0.5, 1.0, fabricDark, -3.1, 0.5, 0.3);      // arm
+    box(0.22, 0.5, 1.0, fabricDark, -0.9, 0.5, 0.3);      // arm
+    box(1.0, 0.16, 0.8, fabricDark, -2.5, 0.5, 0.3, false);
+    box(1.0, 0.16, 0.8, fabricDark, -1.5, 0.5, 0.3, false);
+    box(1.3, 0.08, 0.7, wood, -2.0, 0.42, 1.2);           // coffee table
+    for (const sx of [-0.55, 0.55]) for (const sz of [-0.28, 0.28])
+      box(0.05, 0.4, 0.05, gold, -2.0 + sx, 0.2, 1.2 + sz, false);
+    box(0.05, 1.4, 0.05, gold, -3.2, 0.8, -0.4, false);   // floor lamp pole
+    add(new THREE.CylinderGeometry(0.18, 0.22, 0.28, 20), goldGlow, -3.2, 1.55, -0.4, false);
+    // art on left wall
+    box(0.04, 1.0, 1.6, gold, -3.9, 1.15, 0.4, false);
+    box(0.02, 0.85, 1.4, marble, -3.86, 1.15, 0.4, false);
 
-    // ---------- interior furniture ----------
-    // rug
-    box(2.8, 0.04, 2.0, rugMat, -0.3, 0.2, 0.1);
-    // sofa (faces the window)
-    box(2.2, 0.35, 0.95, fabric, -0.4, 0.4, -0.95);
-    box(2.2, 0.55, 0.22, fabric, -0.4, 0.62, -1.35);
-    box(0.22, 0.5, 0.95, fabricDark, -1.4, 0.5, -0.95);
-    box(0.22, 0.5, 0.95, fabricDark, 0.6, 0.5, -0.95);
-    box(0.95, 0.16, 0.7, fabricDark, -0.85, 0.5, -0.95, false); // cushions
-    box(0.95, 0.16, 0.7, fabricDark, 0.05, 0.5, -0.95, false);
-    // coffee table (wood slab + gold legs)
-    box(1.2, 0.07, 0.6, wood, -0.4, 0.42, -0.05);
-    for (const sx of [-0.5, 0.5]) for (const sz of [-0.25, 0.25])
-      box(0.05, 0.38, 0.05, gold, -0.4 + sx, 0.2, -0.05 + sz, false);
-    // floor lamp (with light)
-    box(0.05, 1.3, 0.05, gold, 1.7, 0.75, -1.1, false);
-    add(new THREE.CylinderGeometry(0.18, 0.22, 0.28, 20), goldGlow, 1.7, 1.5, -1.1, false);
-    const lampLight = new THREE.PointLight(0xffd9a0, 3, 4, 2);
-    lampLight.position.set(1.7, 1.45, -1.1);
-    scene.add(lampLight);
-    // framed art on back wall
-    box(1.4, 0.9, 0.05, gold, -0.9, 1.05, -1.53, false);
-    box(1.25, 0.75, 0.02, stone, -0.9, 1.05, -1.5, false);
-    // sideboard against right wall
-    box(0.4, 0.6, 1.8, wood, 2.0, 0.42, -0.2);
+    // ---- dining area (centre / back) ----
+    box(1.9, 0.1, 1.0, wood, 0.5, 0.78, -1.1);            // table top
+    for (const sx of [-0.8, 0.8]) for (const sz of [-0.35, 0.35])
+      box(0.08, 0.72, 0.08, woodDark, 0.5 + sx, 0.38, -1.1 + sz, false);
+    // chairs
+    const chair = (cx: number, cz: number, back: "n" | "s") => {
+      box(0.44, 0.06, 0.44, woodDark, cx, 0.46, cz, false);
+      for (const dx of [-0.18, 0.18]) for (const dz of [-0.18, 0.18])
+        box(0.05, 0.46, 0.05, woodDark, cx + dx, 0.23, cz + dz, false);
+      box(0.44, 0.5, 0.06, fabric, cx, 0.72, cz + (back === "n" ? -0.2 : 0.2), false);
+    };
+    chair(0.0, -1.75, "n"); chair(1.0, -1.75, "n");
+    chair(0.0, -0.45, "s"); chair(1.0, -0.45, "s");
+    // pendant over table
+    add(new THREE.CylinderGeometry(0.05, 0.28, 0.3, 18), goldGlow, 0.5, 1.55, -1.1, false);
+    box(0.02, 0.55, 0.02, gold, 0.5, 1.75, -1.1, false);
 
-    // ---------- upper floor (cantilevered) + balcony ----------
-    box(3.6, 1.5, 2.9, creamDark, 0.6, 2.6, -0.2);
-    box(1.3, 1.5, 2.2, stone, -1.75, 2.6, 0.2);
-    box(3.7, 0.1, 3.0, gold, 0.6, 3.36, -0.2, false); // roof trim
-    // big picture window upstairs
-    box(2.7, 1.05, 0.06, glass, 0.6, 2.62, 1.28);
-    for (let i = -1; i <= 1; i++) box(0.05, 1.05, 0.09, gold, 0.6 + i * 0.9, 2.62, 1.31, false);
-    // balcony slab + gold railing
-    box(3.2, 0.1, 0.9, stone, 0.6, 1.9, 1.9);
-    box(3.2, 0.05, 0.05, gold, 0.6, 2.45, 2.3, false);
-    for (let i = 0; i <= 10; i++) box(0.03, 0.55, 0.03, gold, 0.6 - 1.55 + i * 0.31, 2.2, 2.3, false);
+    // ---- kitchen (right / back) ----
+    box(0.75, 0.9, 3.2, wood, 2.75, 0.45, -0.7);          // base cabinets (right wall run)
+    box(0.8, 0.06, 3.3, marble, 2.75, 0.93, -0.7, false); // counter top
+    box(0.6, 0.7, 3.2, creamDark, 2.85, 1.55, -0.7);      // upper cabinets
+    box(0.5, 1.0, 0.9, marble, 1.7, 0.5, -0.9);           // island
+    box(1.5, 0.08, 1.1, marble, 1.55, 1.0, -0.9, false);  // island top overhang
+    // bar stools at island
+    for (const sz of [-1.2, -0.6]) {
+      add(new THREE.CylinderGeometry(0.16, 0.16, 0.08, 16), fabric, 1.0, 0.7, sz, false);
+      add(new THREE.CylinderGeometry(0.04, 0.04, 0.68, 12), gold, 1.0, 0.34, sz, false);
+    }
+
+    // ---- staircase (back-left, rising toward the upper floor) ----
+    for (let i = 0; i < 7; i++) {
+      box(1.1, 0.14, 0.34, woodFloor, -3.0, 0.18 + i * 0.26, -2.0 + i * 0.34, false);
+    }
+    box(0.05, 1.9, 0.05, gold, -2.5, 1.0, -1.9, false);   // railing posts
+    box(0.05, 1.9, 0.05, gold, -2.5, 1.0, -0.2, false);
+    box(0.05, 0.05, 2.0, gold, -2.5, 1.75, -1.05, false); // rail
+
+    // ================= UPPER FLOOR (exterior) =================
+    box(5.4, 1.7, 4.2, creamDark, 0.9, 2.9, -0.2);        // main upper volume
+    box(2.0, 1.7, 3.0, stone, -2.8, 2.9, 0.3);            // side volume
+    box(5.5, 0.12, 4.3, gold, 0.9, 3.82, -0.2, false);    // roof trim
+    box(4.0, 1.15, 0.06, glass, 0.9, 2.95, 1.94);         // upstairs picture window
+    for (let i = -2; i <= 2; i++) box(0.05, 1.15, 0.09, gold, 0.9 + i * 0.9, 2.95, 1.97, false);
+    // balcony + railing
+    box(4.6, 0.12, 1.1, stone, 0.9, 2.1, 2.6);
+    box(4.6, 0.05, 0.05, gold, 0.9, 2.7, 3.1, false);
+    for (let i = 0; i <= 14; i++) box(0.03, 0.6, 0.03, gold, 0.9 - 2.25 + i * 0.32, 2.4, 3.1, false);
 
     // ---------- landscaping ----------
-    box(0.55, 0.5, 3.0, foliage, -3.4, 0.3, 0.4); // hedge
-    box(2.4, 0.45, 0.5, foliage, -1.6, 0.28, -3.4);
-    // a tree
-    add(new THREE.CylinderGeometry(0.12, 0.16, 1.4, 10), wood, 3.7, 0.75, -2.6);
-    add(new THREE.IcosahedronGeometry(0.8, 0), foliage, 3.7, 1.9, -2.6);
-    add(new THREE.IcosahedronGeometry(0.6, 0), foliage, 3.3, 1.6, -2.2);
-    add(new THREE.IcosahedronGeometry(0.55, 0), foliage, 4.1, 1.55, -2.8);
-    // planters flanking entrance
-    for (const px of [0.85, 1.95]) {
-      box(0.35, 0.35, 0.35, stone, px, 0.28, 1.9);
-      add(new THREE.IcosahedronGeometry(0.28, 0), foliage, px, 0.62, 1.9, false);
+    box(0.6, 0.55, 4.0, foliage, -5.0, 0.32, 0.5);        // hedge
+    box(3.4, 0.5, 0.55, foliage, -1.8, 0.3, -4.6);
+    add(new THREE.CylinderGeometry(0.14, 0.18, 1.6, 10), wood, 5.2, 0.85, -3.4);
+    add(new THREE.IcosahedronGeometry(1.0, 0), foliage, 5.2, 2.2, -3.4);
+    add(new THREE.IcosahedronGeometry(0.7, 0), foliage, 4.6, 1.85, -2.9);
+    add(new THREE.IcosahedronGeometry(0.65, 0), foliage, 5.7, 1.8, -3.7);
+    for (const px of [fx + 2.3, fx + 3.4]) {
+      box(0.38, 0.38, 0.38, stone, px, 0.3, 2.8);
+      add(new THREE.IcosahedronGeometry(0.3, 0), foliage, px, 0.66, 2.8, false);
     }
 
     // shadow catcher
-    const shadowFloor = new THREE.Mesh(new THREE.PlaneGeometry(60, 60), new THREE.ShadowMaterial({ opacity: 0.34 }));
+    const shadowFloor = new THREE.Mesh(new THREE.PlaneGeometry(80, 80), new THREE.ShadowMaterial({ opacity: 0.32 }));
     shadowFloor.rotation.x = -Math.PI / 2;
     shadowFloor.position.y = -0.09;
     shadowFloor.receiveShadow = true;
     scene.add(shadowFloor);
 
-    // ---- orbit camera model ----
+    // ---- orbit camera ----
     type View = { target: THREE.Vector3; radius: number; az: number; pol: number };
-    const EXT: View = { target: new THREE.Vector3(0, 1.05, 0), radius: 11, az: -0.6, pol: 1.12 };
-    const INT: View = { target: new THREE.Vector3(-0.3, 0.9, -0.5), radius: 2.1, az: 0.0, pol: 1.42 };
+    const EXT: View = { target: new THREE.Vector3(0, 1.2, 0), radius: 15, az: -0.6, pol: 1.12 };
+    const INT: View = { target: new THREE.Vector3(0.1, 0.95, -0.6), radius: 2.9, az: 0.0, pol: 1.44 };
 
-    let mode: View = EXT; // start outside
+    let mode: View = EXT;
     const cur = { tx: EXT.target.x, ty: EXT.target.y, tz: EXT.target.z, r: EXT.radius, az: EXT.az, pol: EXT.pol };
     let tgt = { ...cur };
     const lookAt = new THREE.Vector3();
 
     const applyCamera = () => {
-      const st = cur;
-      const x = st.tx + st.r * Math.sin(st.pol) * Math.sin(st.az);
-      const y = st.ty + st.r * Math.cos(st.pol);
-      const z = st.tz + st.r * Math.sin(st.pol) * Math.cos(st.az);
+      const x = cur.tx + cur.r * Math.sin(cur.pol) * Math.sin(cur.az);
+      const y = cur.ty + cur.r * Math.cos(cur.pol);
+      const z = cur.tz + cur.r * Math.sin(cur.pol) * Math.cos(cur.az);
       camera.position.set(x, y, z);
-      lookAt.set(st.tx, st.ty, st.tz);
+      lookAt.set(cur.tx, cur.ty, cur.tz);
       camera.lookAt(lookAt);
     };
-
     const setView = (v: View) => {
-      tgt = { tx: v.target.x, ty: v.target.y, tz: v.target.z, r: v.radius, az: cur.az, pol: v.pol };
-      // keep azimuth continuous, but snap interior to a pleasant angle
-      tgt.az = v === INT ? 0.0 : cur.az;
+      tgt = { tx: v.target.x, ty: v.target.y, tz: v.target.z, r: v.radius, az: v === INT ? 0.0 : cur.az, pol: v.pol };
     };
     setView(EXT);
     applyCamera();
@@ -234,8 +257,8 @@ export function House3D() {
       if (!dragging) return;
       const isInt = mode === INT;
       tgt.az += (e.clientX - lastX) * (isInt ? -0.006 : 0.008);
-      tgt.pol = THREE.MathUtils.clamp(tgt.pol + (e.clientY - lastY) * 0.005, isInt ? 1.25 : 0.75, isInt ? 1.62 : 1.4);
-      if (isInt) tgt.az = THREE.MathUtils.clamp(tgt.az, -0.7, 0.7);
+      tgt.pol = THREE.MathUtils.clamp(tgt.pol + (e.clientY - lastY) * 0.004, isInt ? 1.28 : 0.8, isInt ? 1.56 : 1.4);
+      if (isInt) tgt.az = THREE.MathUtils.clamp(tgt.az, -0.95, 0.95); // pan across the zones
       lastX = e.clientX; lastY = e.clientY;
     };
     const onUp = (e: PointerEvent) => {
@@ -260,17 +283,22 @@ export function House3D() {
     ro.observe(mount);
     renderer.render(scene, camera);
 
-    // ---- loop ----
+    // ---- loop (frame-rate independent) ----
     let visible = true;
     const io = new IntersectionObserver(([e]) => (visible = e.isIntersecting), { threshold: 0.01 });
     io.observe(mount);
 
+    const clock = new THREE.Clock();
     let raf = 0;
     const tick = () => {
       raf = requestAnimationFrame(tick);
-      if (!visible || document.hidden) return;
-      if (!dragging && !reduce && mode === EXT) tgt.az += 0.0016;
-      const k = 0.075;
+      if (!visible || document.hidden) {
+        clock.getDelta();
+        return;
+      }
+      const dt = Math.min(clock.getDelta(), 0.05);
+      if (!dragging && !reduce && mode === EXT) tgt.az += 0.11 * dt;
+      const k = 1 - Math.exp(-6 * dt); // smooth, refresh-rate independent
       cur.tx += (tgt.tx - cur.tx) * k;
       cur.ty += (tgt.ty - cur.ty) * k;
       cur.tz += (tgt.tz - cur.tz) * k;
@@ -305,7 +333,7 @@ export function House3D() {
   return (
     <>
       <div ref={mountRef} className="absolute inset-0" aria-hidden />
-      <div className="pointer-events-none absolute inset-x-0 bottom-3 flex justify-center gap-3">
+      <div className="pointer-events-none absolute inset-x-0 bottom-3 flex flex-wrap justify-center gap-3">
         <button
           type="button"
           onClick={() => {

@@ -4,19 +4,16 @@ import { useEffect } from "react";
 import Lenis from "lenis";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { SplitText } from "gsap/SplitText";
 
 /**
  * Global motion system for NexGen (adapted from the Azure build).
  * - Lenis smooth scrolling, driven by the GSAP ticker.
- * - Declarative, attribute-driven scroll animations so markup stays clean:
- *     data-reveal            fade + rise on enter (variants: up|left|right|scale)
- *     data-reveal-batch      stagger the direct children (or [data-reveal-item])
+ * - Reveals: an IntersectionObserver toggles `.in` on [data-reveal]/[data-split]
+ *   (CSS handles the transition) — reliable, never leaves content hidden.
+ * - GSAP enhancements (decorative, never gate content):
  *     data-parallax="0.2"    drift the element as it passes through the viewport
  *     data-count / -to       count a number up when it enters
- *     data-split             mask-reveal a heading word by word
- *     data-clip              editorial clip-path wipe
- *     data-skew              scroll-velocity skew (the "flowy" hallmark)
+ *     data-skew              scroll-velocity skew
  *     .btn-magnetic          magnetic pull toward the cursor (fine pointers)
  * All gated behind prefers-reduced-motion (content shows immediately).
  */
@@ -28,7 +25,7 @@ export function Motion() {
       return;
     }
 
-    gsap.registerPlugin(ScrollTrigger, SplitText);
+    gsap.registerPlugin(ScrollTrigger);
 
     const lenis = new Lenis({
       duration: 1.15,
@@ -45,82 +42,32 @@ export function Motion() {
     const alreadyShown = (el: Element) =>
       el.getBoundingClientRect().top < window.innerHeight * 0.92;
 
+    // ---- reveals: a plain scroll listener toggles the `.in` class as elements
+    //      enter (CSS does the transition). Native scroll events fire reliably
+    //      regardless of Lenis / GSAP / rAF, so content can never stay hidden. ----
+    const revealEls = Array.from(
+      document.querySelectorAll<HTMLElement>("[data-reveal], [data-split], .reveal"),
+    );
+    const revealCheck = () => {
+      const line = window.innerHeight * 0.9;
+      for (let i = revealEls.length - 1; i >= 0; i--) {
+        if (revealEls[i].getBoundingClientRect().top < line) {
+          revealEls[i].classList.add("in");
+          revealEls.splice(i, 1);
+        }
+      }
+      if (!revealEls.length) {
+        window.removeEventListener("scroll", revealCheck);
+        window.removeEventListener("resize", revealCheck);
+      }
+    };
+    revealCheck();
+    window.addEventListener("scroll", revealCheck, { passive: true });
+    window.addEventListener("resize", revealCheck);
+
+    // ---- GSAP enhancements (parallax + count-up) — decorative only, they
+    //      never control whether content is visible. ----
     const ctx = gsap.context(() => {
-      /* ---- reveals ---- */
-      gsap.utils.toArray<HTMLElement>("[data-reveal], .reveal").forEach((el) => {
-        const batch = el.closest("[data-reveal-batch]");
-        if (batch && batch !== el) return;
-        if (alreadyShown(el)) {
-          gsap.set(el, { opacity: 1, x: 0, y: 0, scale: 1 });
-          return;
-        }
-        const v = el.dataset.reveal || "up";
-        const start: gsap.TweenVars = { opacity: 0 };
-        if (v === "left") start.x = -48;
-        else if (v === "right") start.x = 48;
-        else if (v === "scale") {
-          start.scale = 1.06;
-          start.y = 24;
-        } else start.y = 44;
-        gsap.set(el, start);
-        ScrollTrigger.create({
-          trigger: el,
-          start: "top 88%",
-          once: true,
-          onEnter: () =>
-            gsap.to(el, {
-              opacity: 1,
-              x: 0,
-              y: 0,
-              scale: 1,
-              duration: 1.15,
-              ease: "power4.out",
-            }),
-        });
-      });
-
-      /* ---- clip-path image reveals ---- */
-      gsap.utils.toArray<HTMLElement>("[data-clip]").forEach((el) => {
-        if (alreadyShown(el)) {
-          gsap.set(el, { clipPath: "inset(0 0 0% 0)" });
-          return;
-        }
-        gsap.set(el, { clipPath: "inset(0 0 100% 0)" });
-        ScrollTrigger.create({
-          trigger: el,
-          start: "top 84%",
-          once: true,
-          onEnter: () =>
-            gsap.to(el, { clipPath: "inset(0 0 0% 0)", duration: 1.2, ease: "power4.out" }),
-        });
-      });
-
-      /* ---- staggered batches ---- */
-      gsap.utils.toArray<HTMLElement>("[data-reveal-batch]").forEach((parent) => {
-        const sel = parent.dataset.revealItemSelector || "[data-reveal-item]";
-        let targets = parent.querySelectorAll<HTMLElement>(sel);
-        if (!targets.length) targets = parent.querySelectorAll<HTMLElement>(":scope > *");
-        if (alreadyShown(parent)) {
-          gsap.set(targets, { opacity: 1, y: 0 });
-          return;
-        }
-        gsap.set(targets, { opacity: 0, y: 46 });
-        ScrollTrigger.create({
-          trigger: parent,
-          start: "top 82%",
-          once: true,
-          onEnter: () =>
-            gsap.to(targets, {
-              opacity: 1,
-              y: 0,
-              duration: 0.9,
-              ease: "power3.out",
-              stagger: 0.09,
-            }),
-        });
-      });
-
-      /* ---- parallax ---- */
       gsap.utils.toArray<HTMLElement>("[data-parallax]").forEach((el) => {
         const strength = parseFloat(el.dataset.parallax || "0.15");
         gsap.fromTo(
@@ -139,7 +86,6 @@ export function Motion() {
         );
       });
 
-      /* ---- count up ---- */
       gsap.utils.toArray<HTMLElement>("[data-count]").forEach((el) => {
         const to = parseFloat(el.dataset.countTo || "0");
         const decimals = (el.dataset.countTo || "").includes(".") ? 1 : 0;
@@ -158,28 +104,6 @@ export function Motion() {
         };
         if (alreadyShown(el)) run();
         else ScrollTrigger.create({ trigger: el, start: "top 90%", once: true, onEnter: run });
-      });
-
-      /* ---- split-title word reveal ----
-         type "words" only (never "lines") so the browser wraps natively and we
-         avoid SplitText freezing stale line breaks before the font loads. */
-      gsap.utils.toArray<HTMLElement>("[data-split]").forEach((el) => {
-        const split = new SplitText(el, { type: "words" });
-        gsap.set(el, { opacity: 1 });
-        const play = () =>
-          gsap.to(split.words, {
-            y: 0,
-            opacity: 1,
-            duration: 0.9,
-            ease: "power3.out",
-            stagger: 0.045,
-          });
-        if (alreadyShown(el)) {
-          gsap.set(split.words, { y: 0, opacity: 1 });
-          return;
-        }
-        gsap.set(split.words, { y: 24, opacity: 0 });
-        ScrollTrigger.create({ trigger: el, start: "top 85%", once: true, onEnter: play });
       });
     });
 
@@ -204,20 +128,18 @@ export function Motion() {
       bar.remove();
     });
 
-    // If the tab loaded in the background (rAF throttled, triggers not fired),
-    // recalc + reveal in-view elements once it becomes visible.
+    // When the tab becomes visible, recalc parallax and reveal any in-view items.
     const onVisible = () => {
       if (document.hidden) return;
       ScrollTrigger.refresh();
-      gsap.utils.toArray<HTMLElement>("[data-reveal], .reveal, [data-split]").forEach((el) => {
-        const r = el.getBoundingClientRect();
-        if (r.top < window.innerHeight && r.bottom > 0 && parseFloat(getComputedStyle(el).opacity) < 0.05) {
-          gsap.to(el, { opacity: 1, x: 0, y: 0, scale: 1, duration: 0.6, ease: "power3.out" });
-        }
-      });
+      revealCheck();
     };
     document.addEventListener("visibilitychange", onVisible);
-    cleanups.push(() => document.removeEventListener("visibilitychange", onVisible));
+    cleanups.push(() => {
+      document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("scroll", revealCheck);
+      window.removeEventListener("resize", revealCheck);
+    });
 
     // Scroll-velocity skew on flagged imagery
     const skewEls = gsap.utils.toArray<HTMLElement>("[data-skew]");

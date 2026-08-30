@@ -3,7 +3,6 @@
 import { useEffect, useRef } from "react";
 import { MessageCircle, ArrowRight, ShieldCheck } from "lucide-react";
 import gsap from "gsap";
-import { SplitText } from "gsap/SplitText";
 import { Container } from "@/components/ui/primitives";
 import { site, whatsappHref } from "@/data/site";
 
@@ -12,68 +11,41 @@ export function Hero() {
 
   useEffect(() => {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduce) return;
-    gsap.registerPlugin(SplitText);
+    if (reduce) return; // content is visible by default; skip the intro
 
-    let ctx: gsap.Context | undefined;
-    let cancelled = false;
-
-    // Split only after web fonts settle, or SplitText freezes the wrong line
-    // breaks (measured with fallback-font metrics).
-    const build = () => {
-      if (cancelled) return;
-      ctx = gsap.context((self) => {
-        const q = self.selector!;
-        const title = q(".hero-title")[0] as HTMLElement;
-        // words+chars (no "lines") so the browser wraps natively and responsively
-        // — avoids SplitText freezing stale line breaks.
-        const split = new SplitText(title, { type: "words,chars" });
-
-      gsap.set(q(".hero-eyebrow, .hero-desc, .hero-cta, .hero-trust"), { opacity: 0, y: 26 });
-      gsap.set(title, { opacity: 1, perspective: 700 });
-      gsap.set(split.chars, { yPercent: 120, opacity: 0, rotateX: -80, transformOrigin: "50% 100%" });
-      gsap.set(q(".hero-bg"), { scale: 1.28 });
+    const ctx = gsap.context((self) => {
+      const q = self.selector!;
+      const bits = q(".hero-eyebrow, .hero-line, .hero-desc, .hero-cta, .hero-trust");
+      gsap.set(bits, { opacity: 0, y: 26 });
+      gsap.set(q(".hero-bg"), { scale: 1.25 });
 
       const tl = gsap.timeline({ defaults: { ease: "power3.out" }, delay: 0.1 });
-      tl.to(".intro-curtain", { yPercent: -100, duration: 1.1, ease: "power4.inOut" }, 0)
-        .to(".hero-bg", { scale: 1.08, duration: 2.6, ease: "power2.out" }, 0)
-        .to(
-          split.chars,
-          { yPercent: 0, opacity: 1, rotateX: 0, duration: 1.1, stagger: 0.03, ease: "expo.out" },
-          0.5,
-        )
-        .to(".hero-eyebrow", { opacity: 1, y: 0, duration: 0.9 }, 0.5)
+      tl.to(".intro-curtain", { yPercent: -100, duration: 1.05, ease: "power4.inOut" }, 0)
+        .to(".hero-bg", { scale: 1.06, duration: 2.4, ease: "power2.out" }, 0)
+        .to(".hero-eyebrow", { opacity: 1, y: 0, duration: 0.8 }, 0.5)
+        .to(".hero-line", { opacity: 1, y: 0, duration: 1.0, stagger: 0.14 }, 0.6)
         .to(".hero-desc", { opacity: 1, y: 0, duration: 0.9 }, 1.2)
         .to(".hero-cta", { opacity: 1, y: 0, duration: 0.9, stagger: 0.12 }, 1.35)
         .to(".hero-trust", { opacity: 1, y: 0, duration: 0.9 }, 1.6);
 
-        // Failsafe: if the intro can't run (e.g. tab opened in the background,
-        // where rAF is throttled), force the hero content visible so it's never
-        // stuck hidden. setTimeout fires in background tabs; gsap.set is
-        // synchronous and needs no ticker. Cleared once the intro completes.
-        const failsafe = window.setTimeout(() => {
-          gsap.set(q(".hero-eyebrow, .hero-desc, .hero-cta, .hero-trust"), { opacity: 1, y: 0 });
-          gsap.set(split.chars, { yPercent: 0, opacity: 1, rotateX: 0 });
-          gsap.set(q(".hero-bg"), { scale: 1.08 });
-        }, 2800);
-        tl.eventCallback("onComplete", () => window.clearTimeout(failsafe));
+      // Failsafe: guarantee the hero is visible even if the intro can't run
+      // (background tab / throttled rAF). setTimeout fires regardless; gsap.set
+      // is synchronous and needs no ticker.
+      const failsafe = window.setTimeout(() => {
+        gsap.set(bits, { opacity: 1, y: 0 });
+        gsap.set(q(".hero-bg"), { scale: 1.06 });
+      }, 2600);
+      tl.eventCallback("onComplete", () => window.clearTimeout(failsafe));
 
-        // gentle parallax drift of the background on scroll
-        gsap.to(".hero-bg", {
-          yPercent: 14,
-          ease: "none",
-          scrollTrigger: { trigger: root.current, start: "top top", end: "bottom top", scrub: true },
-        });
-      }, root);
-    };
+      // gentle parallax drift of the background on scroll
+      gsap.to(".hero-bg", {
+        yPercent: 12,
+        ease: "none",
+        scrollTrigger: { trigger: root.current, start: "top top", end: "bottom top", scrub: true },
+      });
+    }, root);
 
-    if (document.fonts?.status === "loaded") build();
-    else (document.fonts?.ready ?? Promise.resolve()).then(build);
-
-    return () => {
-      cancelled = true;
-      ctx?.revert();
-    };
+    return () => ctx.revert();
   }, []);
 
   return (
@@ -98,11 +70,12 @@ export function Hero() {
             </span>
           </div>
 
-          <h1 className="hero-title mt-6 max-w-4xl font-display text-[clamp(2.1rem,4.4vw,3.4rem)] font-medium leading-[1.06] text-white">
-            Property, chosen the way
-            <br />
-            you&apos;d choose it for{" "}
-            <span className="text-[var(--color-gold-soft)]">family.</span>
+          <h1 className="mt-6 max-w-4xl font-display text-[clamp(2.1rem,4.4vw,3.4rem)] font-medium leading-[1.08] text-white">
+            <span className="hero-line block">Property, chosen the way</span>
+            <span className="hero-line block">
+              you&apos;d choose it for{" "}
+              <span className="text-[var(--color-gold-soft)]">family.</span>
+            </span>
           </h1>
 
           <p className="hero-desc mt-7 max-w-xl text-lg leading-relaxed text-white/80">

@@ -116,32 +116,42 @@ body {
 }
 
 /* ============================================================
-   Motion state (GSAP-driven — see components/site/motion.tsx).
-   Unlayered so it reliably pre-hides before JS runs. `.js` is only
-   present when motion is allowed, so no-JS / reduced-motion show content.
+   Reveal-on-scroll — CSS transitions toggled by a reliable
+   IntersectionObserver (see motion.tsx). `.js` pre-hides before JS runs;
+   `.in` reveals. No-JS / reduced-motion always show content. This is
+   deliberately NOT dependent on GSAP scroll timing, so content can never
+   get stuck hidden.
    ============================================================ */
 .js [data-reveal],
+.js [data-split],
 .js .reveal {
   opacity: 0;
+  transform: translateY(26px);
+  transition:
+    opacity 0.75s var(--ease-out-soft),
+    transform 0.75s var(--ease-out-soft);
+  will-change: opacity, transform;
 }
-.js [data-split] {
-  opacity: 0;
+.js [data-reveal="left"] {
+  transform: translateX(-42px);
+}
+.js [data-reveal="right"] {
+  transform: translateX(42px);
+}
+.js [data-reveal="scale"] {
+  transform: translateY(18px) scale(1.04);
+}
+.js [data-reveal].in,
+.js [data-split].in,
+.js .reveal.in {
+  opacity: 1;
+  transform: none;
 }
 [data-parallax] {
   will-change: transform;
 }
 [data-skew] {
   will-change: transform;
-}
-.js [data-clip] {
-  clip-path: inset(0 0 100% 0);
-}
-
-/* SplitText line mask — words rise out of a clipped line */
-.split-line {
-  overflow: hidden;
-  display: block;
-  padding-bottom: 0.08em;
 }
 
 /* Scroll progress bar */
@@ -229,8 +239,12 @@ body {
   .scroll-progress {
     display: none;
   }
-  .js [data-clip] {
-    clip-path: none;
+  .js [data-reveal],
+  .js [data-split],
+  .js .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
   }
 }
 
