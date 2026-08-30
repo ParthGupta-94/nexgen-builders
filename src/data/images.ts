@@ -33,7 +33,7 @@ export const aboutImage = U(EXT.d, 1200);
 export const founderImage = U(INT.d, 600);
 
 export const projectImages: Record<string, string> = {
-  "golden-era-homes": U(EXT.a),
+  "golden-era-homes": "/projects/golden-era/day-site-view.jpg",
   "vintage-greens": U(EXT.c),
   belgravia: U(EXT.f),
   "vaneet-infra-derabassi": U(EXT.b),
@@ -44,19 +44,33 @@ export const projectImages: Record<string, string> = {
 export const galleryImages = [U(INT.a), U(INT.b), U(INT.c)];
 
 /*
- * Golden Era Homes gallery — TEMPORARY placeholders.
- * When the real photos arrive: drop them in `public/projects/golden-era/`
- * and replace each `src` with e.g. "/projects/golden-era/01-exterior.jpg".
+ * Golden Era Homes gallery — REAL developer renders (Goyal Infra), supplied by
+ * the client. Optimised copies live in `public/projects/golden-era/`.
+ * First image is the marquee tile in the gallery grid + the page hero.
  */
+const GE = (file: string) => `/projects/golden-era/${file}`;
+
 export const goldenEraGallery: { src: string; alt: string }[] = [
-  { src: U(EXT.a, 1800), alt: "Golden Era Homes — street elevation" },
-  { src: U(INT.a, 1400), alt: "Golden Era Homes — living area" },
-  { src: U(INT.f, 1400), alt: "Golden Era Homes — living room" },
-  { src: U(INT.b, 1400), alt: "Golden Era Homes — modular kitchen" },
-  { src: U(INT.c, 1400), alt: "Golden Era Homes — bedroom" },
-  { src: U(INT.d, 1400), alt: "Golden Era Homes — interior detail" },
-  { src: U(INT.e, 1400), alt: "Golden Era Homes — bathroom" },
-  { src: U(EXT.b, 1400), alt: "Golden Era Homes — at dusk" },
+  { src: GE("front-elevation-night.jpg"), alt: "Golden Era Homes — front elevation at night" },
+  { src: GE("site-elevation-day.jpg"), alt: "Golden Era Homes — full site elevation by day" },
+  { src: GE("day-site-view.jpg"), alt: "Golden Era Homes — day view of the towers" },
+  { src: GE("night-view-site.jpg"), alt: "Golden Era Homes — the site lit up at night" },
+  { src: GE("highrise-elevation-low-angle.jpg"), alt: "Golden Era Homes — high-rise elevation, low angle" },
+  { src: GE("block-2-3-elevations.jpg"), alt: "Golden Era Homes — Block 2 & 3 elevations" },
+  { src: GE("block4-balcony-view.jpg"), alt: "Golden Era Homes — Block 4 balcony view" },
+  { src: GE("entrance.jpg"), alt: "Golden Era Homes — grand entrance" },
+  { src: GE("lobby.jpg"), alt: "Golden Era Homes — high-rise lobby" },
+  { src: GE("bedroom.jpg"), alt: "Golden Era Homes — bedroom interior" },
+  { src: GE("dining.jpg"), alt: "Golden Era Homes — dining area interior" },
+  { src: GE("swimming-pool.jpg"), alt: "Golden Era Homes — swimming pool" },
+  { src: GE("gym.jpg"), alt: "Golden Era Homes — gymnasium" },
+  { src: GE("badminton-court.jpg"), alt: "Golden Era Homes — badminton court" },
+  { src: GE("cricket-pitch.jpg"), alt: "Golden Era Homes — cricket pitch" },
+  { src: GE("indoor-games.jpg"), alt: "Golden Era Homes — indoor games room" },
+  { src: GE("mini-theatre.jpg"), alt: "Golden Era Homes — mini theatre" },
+  { src: GE("kids-play-area.jpg"), alt: "Golden Era Homes — kids' play area" },
+  { src: GE("park-view.jpg"), alt: "Golden Era Homes — landscaped park" },
+  { src: GE("yoga.jpg"), alt: "Golden Era Homes — yoga & meditation deck" },
 ];
 
 export const locationImages: Record<string, string> = {

@@ -35,16 +35,18 @@ const specs: { label: string; value: string }[] = [
   { label: "Possession", value: "[PLACEHOLDER]" },
 ];
 
-// Amenities — placeholders to confirm with the owner.
+// Amenities — drawn from Goyal Infra's own project renders.
 const amenities = [
-  "[PLACEHOLDER — e.g. Clubhouse]",
-  "[PLACEHOLDER — e.g. Gymnasium]",
-  "[PLACEHOLDER — e.g. Landscaped greens]",
-  "[PLACEHOLDER — e.g. Kids' play area]",
-  "[PLACEHOLDER — e.g. 24×7 security]",
-  "[PLACEHOLDER — e.g. Power backup]",
-  "[PLACEHOLDER — e.g. Covered parking]",
-  "[PLACEHOLDER — e.g. Lift]",
+  "Swimming pool",
+  "Gymnasium",
+  "Badminton court",
+  "Cricket pitch",
+  "Indoor games room",
+  "Mini theatre",
+  "Kids' play area & sandpit",
+  "Yoga & meditation deck",
+  "Landscaped parks & greens",
+  "Grand entrance lobby",
 ];
 
 const jsonLd = {
