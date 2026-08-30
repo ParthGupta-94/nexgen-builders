@@ -14,6 +14,8 @@ import { Reveal } from "@/components/ui/reveal";
 import { locations, getLocation } from "@/data/locations";
 import { site, whatsappHref } from "@/data/site";
 import { projects } from "@/data/projects";
+import { Photo } from "@/components/ui/photo";
+import { projectImages } from "@/data/images";
 
 export function generateStaticParams() {
   return locations.map((l) => ({ slug: l.slug }));
@@ -221,7 +223,7 @@ export default async function LocationPage({
                     href={`/projects/${p.slug}`}
                     className="group flex h-full flex-col overflow-hidden rounded-2xl border border-[var(--color-line)] bg-[var(--color-paper)] transition-all duration-500 hover:-translate-y-1 hover:border-[var(--color-gold-soft)]/60 hover:shadow-xl hover:shadow-black/5"
                   >
-                    <div className="photo-well aspect-[4/3] w-full" />
+                    <Photo src={projectImages[p.slug]} alt={p.name} overlay className="aspect-[4/3] w-full" />
                     <div className="flex flex-1 flex-col p-6">
                       <p className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-gold">
                         <MapPin size={12} /> {p.tagline}

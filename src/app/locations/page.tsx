@@ -4,6 +4,8 @@ import { ArrowUpRight, MapPin } from "lucide-react";
 import { Container, Section, Button } from "@/components/ui/primitives";
 import { PageHeader } from "@/components/site/page-header";
 import { Reveal } from "@/components/ui/reveal";
+import { Photo } from "@/components/ui/photo";
+import { locationImages } from "@/data/images";
 import { locations } from "@/data/locations";
 import { site, whatsappHref } from "@/data/site";
 
@@ -35,11 +37,16 @@ export default function LocationsHub() {
                   href={`/locations/${l.slug}`}
                   className="group flex h-full flex-col overflow-hidden rounded-2xl border border-[var(--color-line)] bg-[var(--color-paper)] transition-all duration-500 hover:-translate-y-1 hover:border-[var(--color-gold-soft)]/60 hover:shadow-xl hover:shadow-black/5"
                 >
-                  <div className="photo-well relative aspect-[16/10] w-full">
+                  <Photo
+                    src={locationImages[l.slug]}
+                    alt={l.name}
+                    overlay
+                    className="aspect-[16/10] w-full"
+                  >
                     <span className="absolute left-4 top-4 flex items-center gap-1.5 rounded-full bg-black/40 px-3 py-1 text-[0.68rem] font-semibold uppercase tracking-wider text-white backdrop-blur">
                       <MapPin size={11} /> {l.region}
                     </span>
-                  </div>
+                  </Photo>
                   <div className="flex flex-1 flex-col p-6">
                     <p className="text-xs font-medium uppercase tracking-wider text-gold">
                       {l.tagline}

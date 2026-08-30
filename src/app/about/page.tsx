@@ -8,6 +8,8 @@ import {
 import { Container, Section, Eyebrow, Button } from "@/components/ui/primitives";
 import { PageHeader } from "@/components/site/page-header";
 import { Reveal } from "@/components/ui/reveal";
+import { Photo } from "@/components/ui/photo";
+import { aboutImage, founderImage } from "@/data/images";
 import { CountUp } from "@/components/ui/count-up";
 import {
   site,
@@ -41,7 +43,12 @@ export default function AboutPage() {
       <Section className="bg-ivory">
         <Container className="grid items-center gap-12 lg:grid-cols-2 lg:gap-20">
           <Reveal>
-            <div className="photo-well aspect-4/5 w-full rounded-2xl" />
+            <Photo
+              src={aboutImage}
+              alt="A NexGen home"
+              sizes="(max-width: 1024px) 100vw, 45vw"
+              className="aspect-4/5 w-full rounded-2xl"
+            />
           </Reveal>
           <Reveal delay={120}>
             <div>
@@ -176,7 +183,7 @@ export default function AboutPage() {
         <Container className="grid gap-12 lg:grid-cols-2 lg:gap-16">
           <Reveal>
             <div className="flex h-full flex-col justify-center rounded-2xl border border-[var(--color-line)] bg-[var(--color-paper)] p-8 sm:p-10">
-              <div className="photo-well h-20 w-20 rounded-full" />
+              <Photo src={founderImage} alt={site.contact.owner} sizes="80px" className="h-20 w-20 rounded-full" />
               <h3 className="mt-5 font-display text-2xl text-ink">
                 {site.contact.owner}
               </h3>

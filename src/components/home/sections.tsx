@@ -3,6 +3,8 @@ import { ArrowUpRight, MapPin, Quote, Check } from "lucide-react";
 import { Container, Section, Eyebrow, Button } from "@/components/ui/primitives";
 import { Reveal } from "@/components/ui/reveal";
 import { CountUp } from "@/components/ui/count-up";
+import { Photo } from "@/components/ui/photo";
+import { aboutImage, projectImages } from "@/data/images";
 import {
   stats,
   pillars,
@@ -46,7 +48,12 @@ export function AboutTeaser() {
     <Section className="bg-ivory">
       <Container className="grid items-center gap-12 lg:grid-cols-2 lg:gap-20">
         <Reveal variant="left">
-          <div className="photo-well aspect-4/5 w-full overflow-hidden rounded-2xl" />
+          <Photo
+            src={aboutImage}
+            alt="A NexGen home"
+            sizes="(max-width: 1024px) 100vw, 45vw"
+            className="aspect-4/5 w-full rounded-2xl"
+          />
         </Reveal>
         <Reveal delay={120}>
           <div>
@@ -174,11 +181,16 @@ export function FeaturedProjects() {
                 href={`/projects/${p.slug}`}
                 className="group flex h-full flex-col overflow-hidden rounded-2xl border border-[var(--color-line)] bg-[var(--color-paper)] transition-all duration-500 hover:-translate-y-1 hover:border-[var(--color-gold-soft)]/60 hover:shadow-xl hover:shadow-black/5"
               >
-                <div className="photo-well relative aspect-[4/3] w-full">
+                <Photo
+                  src={projectImages[p.slug]}
+                  alt={p.name}
+                  overlay
+                  className="aspect-[4/3] w-full"
+                >
                   <span className="absolute left-4 top-4 rounded-full bg-black/40 px-3 py-1 text-[0.68rem] font-semibold uppercase tracking-wider text-white backdrop-blur">
                     {p.status}
                   </span>
-                </div>
+                </Photo>
                 <div className="flex flex-1 flex-col p-6">
                   <p className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-gold">
                     <MapPin size={12} /> {p.tagline}

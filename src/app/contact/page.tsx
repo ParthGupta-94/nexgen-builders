@@ -4,6 +4,8 @@ import { Container, Section } from "@/components/ui/primitives";
 import { PageHeader } from "@/components/site/page-header";
 import { Reveal } from "@/components/ui/reveal";
 import { EnquiryForm } from "@/components/forms/enquiry-form";
+import { Photo } from "@/components/ui/photo";
+import { contactImage } from "@/data/images";
 import { site, whatsappHref } from "@/data/site";
 
 export const metadata: Metadata = {
@@ -166,12 +168,18 @@ export default function ContactPage() {
                   </ul>
                 </div>
 
-                {/* Map placeholder */}
-                <div className="photo-well flex aspect-4/3 items-end rounded-2xl p-5">
-                  <span className="flex items-center gap-2 rounded-full bg-black/40 px-3 py-1.5 text-xs font-medium text-white backdrop-blur">
+                {/* Location visual (temporary stock — swap for a map/photo) */}
+                <Photo
+                  src={contactImage}
+                  alt="NexGen office locality, Zirakpur"
+                  overlay
+                  sizes="(max-width: 1024px) 100vw, 33vw"
+                  className="flex aspect-4/3 items-end rounded-2xl p-5"
+                >
+                  <span className="relative z-10 flex items-center gap-2 rounded-full bg-black/50 px-3 py-1.5 text-xs font-medium text-white backdrop-blur">
                     <MapPin size={13} /> PR-7 Airport Road, Zirakpur
                   </span>
-                </div>
+                </Photo>
               </div>
             </Reveal>
           </div>

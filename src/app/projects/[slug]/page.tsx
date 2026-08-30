@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import { Container, Section, Eyebrow } from "@/components/ui/primitives";
 import { Reveal } from "@/components/ui/reveal";
+import { Photo } from "@/components/ui/photo";
+import { projectImages, galleryImages } from "@/data/images";
 import { projects, getProject } from "@/data/projects";
 import { getLocation } from "@/data/locations";
 import { site, whatsappHref } from "@/data/site";
@@ -155,10 +157,16 @@ export default async function ProjectPage({
       <div className="bg-ivory">
         <Container className="py-8">
           <div className="grid gap-4 sm:grid-cols-3">
-            <div className="photo-well aspect-[4/3] rounded-2xl sm:col-span-2 sm:aspect-[16/9]" />
+            <Photo
+              src={projectImages[p.slug] ?? galleryImages[0]}
+              alt={`${p.name} — exterior`}
+              priority
+              sizes="(max-width: 640px) 100vw, 66vw"
+              className="aspect-[4/3] rounded-2xl sm:col-span-2 sm:aspect-[16/9]"
+            />
             <div className="grid grid-rows-2 gap-4">
-              <div className="photo-well rounded-2xl" />
-              <div className="photo-well rounded-2xl" />
+              <Photo src={galleryImages[0]} alt={`${p.name} — interior`} className="rounded-2xl" />
+              <Photo src={galleryImages[1]} alt={`${p.name} — interior`} className="rounded-2xl" />
             </div>
           </div>
           <p className="mt-3 text-center text-xs text-muted">

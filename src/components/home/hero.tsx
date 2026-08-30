@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import Image from "next/image";
 import { MessageCircle, ArrowRight, ShieldCheck } from "lucide-react";
 import gsap from "gsap";
 import { Container } from "@/components/ui/primitives";
 import { site, whatsappHref } from "@/data/site";
+import { heroImage } from "@/data/images";
 
 export function Hero() {
   const root = useRef<HTMLElement>(null);
@@ -57,9 +59,18 @@ export function Hero() {
         </span>
       </div>
 
-      {/* Background placeholder well — swap for a hero photograph */}
-      <div className="hero-bg photo-well absolute inset-0 -z-10 scale-110" />
-      <div className="absolute inset-0 -z-10 bg-gradient-to-b from-black/50 via-black/40 to-[var(--color-espresso)]" />
+      {/* Background photograph (temporary stock — swap for a NexGen project) */}
+      <div className="hero-bg absolute inset-0 -z-10 scale-110 overflow-hidden bg-[var(--color-espresso)]">
+        <Image
+          src={heroImage}
+          alt="Premium modern home at dusk"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover"
+        />
+      </div>
+      <div className="absolute inset-0 -z-10 bg-gradient-to-b from-black/60 via-black/45 to-[var(--color-espresso)]" />
 
       <Container className="flex min-h-[100svh] flex-col justify-center pb-20 pt-36 sm:pt-40">
         <div className="max-w-4xl">

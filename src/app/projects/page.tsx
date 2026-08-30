@@ -4,6 +4,8 @@ import { ArrowUpRight, MapPin, Building2 } from "lucide-react";
 import { Container, Section, Button } from "@/components/ui/primitives";
 import { PageHeader } from "@/components/site/page-header";
 import { Reveal } from "@/components/ui/reveal";
+import { Photo } from "@/components/ui/photo";
+import { projectImages } from "@/data/images";
 import { projects } from "@/data/projects";
 import { partners, site, whatsappHref } from "@/data/site";
 
@@ -34,14 +36,19 @@ export default function ProjectsPage() {
                   href={`/projects/${p.slug}`}
                   className="group flex h-full flex-col overflow-hidden rounded-2xl border border-[var(--color-line)] bg-[var(--color-paper)] transition-all duration-500 hover:-translate-y-1 hover:border-[var(--color-gold-soft)]/60 hover:shadow-xl hover:shadow-black/5"
                 >
-                  <div className="photo-well relative aspect-[4/3] w-full">
+                  <Photo
+                    src={projectImages[p.slug]}
+                    alt={p.name}
+                    overlay
+                    className="aspect-[4/3] w-full"
+                  >
                     <span className="absolute left-4 top-4 rounded-full bg-black/40 px-3 py-1 text-[0.68rem] font-semibold uppercase tracking-wider text-white backdrop-blur">
                       {p.status}
                     </span>
                     <span className="absolute right-4 top-4 rounded-full bg-[var(--color-gold)]/90 px-3 py-1 text-[0.68rem] font-semibold uppercase tracking-wider text-white backdrop-blur">
                       {p.type}
                     </span>
-                  </div>
+                  </Photo>
                   <div className="flex flex-1 flex-col p-6">
                     <p className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-gold">
                       <MapPin size={12} /> {p.tagline}
