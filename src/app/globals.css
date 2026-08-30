@@ -56,6 +56,17 @@ body {
   font-optical-sizing: auto;
   letter-spacing: -0.01em;
 }
+/* nicer line breaks: balanced headings, no orphan/widow in body copy */
+h1, h2, h3 {
+  text-wrap: balance;
+}
+p {
+  text-wrap: pretty;
+}
+/* leave room under the sticky header when jumping to an anchor */
+:target {
+  scroll-margin-top: 6rem;
+}
 .figure {
   font-feature-settings: "tnum";
   font-variant-numeric: tabular-nums;
