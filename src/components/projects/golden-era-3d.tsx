@@ -93,6 +93,12 @@ export function GoldenEra3D() {
       for (let i = 0; i < 22; i++) { x.beginPath(); let px = Math.random() * 512, py = 0; x.moveTo(px, py); while (py < 512) { px += (Math.random() - 0.5) * 60; py += 20 + Math.random() * 30; x.lineTo(px, py); } x.stroke(); }
       return new THREE.CanvasTexture(c);
     };
+    const walnutTex = () => {
+      const c = cv(256), x = c.getContext("2d")!; x.fillStyle = "#5a3a22"; x.fillRect(0, 0, 256, 256);
+      for (let i = 0; i < 256; i += 32) { x.fillStyle = "rgba(0,0,0,0.5)"; x.fillRect(i, 0, 3, 256); } // vertical slat grooves
+      for (let i = 0; i < 1400; i++) { x.fillStyle = `rgba(30,18,8,${Math.random() * 0.22})`; x.fillRect(Math.random() * 256, Math.random() * 256, 1, 18); } // grain
+      return new THREE.CanvasTexture(c);
+    };
 
     // dusk sky gradient (deep navy → warm sunset horizon) — matches the night render
     const duskSky = () => {
@@ -157,12 +163,19 @@ export function GoldenEra3D() {
     const bloomOrange = new THREE.MeshStandardMaterial({ color: 0xd98a3c, roughness: 0.9 });
     const carBody = new THREE.MeshPhysicalMaterial({ color: 0x7a1f24, roughness: 0.25, metalness: 0.6, clearcoat: 1, clearcoatRoughness: 0.1, envMapIntensity: 1.6 });
     // interior
-    const woodWall = new THREE.MeshStandardMaterial({ color: 0x5a3f28, roughness: 0.55, metalness: 0.05 });
-    const greyWall = new THREE.MeshStandardMaterial({ color: 0x8a8681, roughness: 0.8, metalness: 0.02 });
     const rose = new THREE.MeshStandardMaterial({ color: 0xb5697a, roughness: 0.7, metalness: 0 });
     const cream = new THREE.MeshStandardMaterial({ color: 0xe8e0d0, roughness: 0.85, metalness: 0 });
-    const curtain = new THREE.MeshStandardMaterial({ color: 0x9aa0a6, roughness: 0.95, metalness: 0 });
-    const rugMat = new THREE.MeshStandardMaterial({ color: 0x7c6742, roughness: 0.98, metalness: 0 });
+    const rugMat = new THREE.MeshStandardMaterial({ color: 0x8a7150, roughness: 0.98, metalness: 0 });
+    const whiteWall = new THREE.MeshStandardMaterial({ color: 0xefe9de, roughness: 0.92, metalness: 0 });
+    const marbleFloor = new THREE.MeshStandardMaterial({ color: 0xd9d2c4, roughness: 0.12, metalness: 0.15, map: wrap(marbleTex(), 3), envMapIntensity: 1.6 });
+    const featureGrey = new THREE.MeshStandardMaterial({ color: 0x9c9992, roughness: 0.3, metalness: 0.2, map: wrap(marbleTex(), 1.6), envMapIntensity: 1.3 });
+    const walnut = new THREE.MeshStandardMaterial({ color: 0x5a3a22, roughness: 0.5, metalness: 0.06, map: wrap(walnutTex(), 1, 1) });
+    const sofaFab = new THREE.MeshStandardMaterial({ color: 0xc0b7a4, roughness: 0.92, metalness: 0 });
+    const sheer = new THREE.MeshStandardMaterial({ color: 0xece4d6, roughness: 0.95, metalness: 0, transparent: true, opacity: 0.5 });
+    const metalBlk = new THREE.MeshStandardMaterial({ color: 0x1c1c1f, roughness: 0.5, metalness: 0.6 });
+    const tvScreen = new THREE.MeshStandardMaterial({ color: 0x0a0c10, roughness: 0.2, metalness: 0.3 });
+    const plantMat = new THREE.MeshStandardMaterial({ color: 0x3f5a34, roughness: 0.85, metalness: 0, side: THREE.DoubleSide });
+    const terra = new THREE.MeshStandardMaterial({ color: 0xa9764e, roughness: 0.85, metalness: 0 });
 
     // irregular "lights on" pattern (~55% of units lit at dusk)
     const litOn = (i: number) => (Math.abs(Math.sin((i + 1) * 34.17)) * 91) % 10 < 5.5;
@@ -347,64 +360,109 @@ export function GoldenEra3D() {
     for (const px of [-9, -5, 8, 12]) { srbox(0.5, 0.5, 0.5, stone, px, 0.55, 9.6, 0.05); addS(new THREE.IcosahedronGeometry(0.34, 2), foliageLt, px, 1.0, 9.6, false); }
 
     // ============================================================
-    //  FURNISHED SHOW FLAT — themed to the dining render.
-    //  A glazed pavilion on the courtyard the camera flies into.
+    //  FURNISHED SHOW FLAT — the REAL Golden Era flat (from the
+    //  handover photos): polished beige-grey marble floor, white walls,
+    //  a stepped tray ceiling with downlights, a grey-marble feature
+    //  wall with a black cross-inlay, a walnut door, and a sliding
+    //  balcony door with a Greek-key railing — then furnished with
+    //  generated furniture. Camera flies in from the +Z (open) side.
     // ============================================================
-    const IX = -6.5, IY = 0, IZ = 8.4; // room centre (front-left, ground)
-    const RW = 7.2, RD = 5.4, RH = 2.7;
-    // shell (open toward +Z / the street so we can fly in)
-    ibox(RW, 0.1, RD, marbleMat, IX, IY + 0.05, IZ);                 // marble floor
-    ibox(RW, RH, 0.16, greyWall, IX, IY + RH / 2, IZ - RD / 2, false); // back wall
-    ibox(0.16, RH, RD, woodWall, IX - RW / 2, IY + RH / 2, IZ, false); // left wood wall
-    ibox(0.16, RH, RD, greyWall, IX + RW / 2, IY + RH / 2, IZ, false); // right wall
-    ibox(RW, 0.14, RD, cream, IX, IY + RH, IZ, false);              // ceiling
-    // cove LED perimeter
-    ibox(RW - 0.4, 0.05, 0.08, led, IX, IY + RH - 0.16, IZ - RD / 2 + 0.3, false);
-    ibox(0.08, 0.05, RD - 0.6, led, IX - RW / 2 + 0.3, IY + RH - 0.16, IZ, false);
-    // recessed ceiling downlights
-    for (const dx of [-2, 0, 2]) for (const dz of [-1.5, 1.5]) addI(new THREE.CylinderGeometry(0.09, 0.09, 0.04, 14), goldGlow, IX + dx, IY + RH - 0.08, IZ + dz, false);
-    // gold ring wall art on the back wall
-    for (const rx of [-0.35, 0.35]) addI(new THREE.TorusGeometry(0.42, 0.05, 12, 32), gold, IX + rx, IY + 1.7, IZ - RD / 2 + 0.1, false);
+    const IX = -6.5, IZ = 8.4;
+    const RW = 8.0, RD = 6.6, RH = 2.9;
+    const x0 = IX - RW / 2, x1 = IX + RW / 2, zBack = IZ - RD / 2, zFront = IZ + RD / 2;
+    const dcX = IX + 1.0, dHalf = 1.5; // balcony door centre + half-width
 
-    // -- dining set (marble table on gold pedestal, rose+gold chairs) --
-    const dtX = IX + 0.2, dtZ = IZ - 0.9;
-    ibox(2.6, 0.1, 1.3, marbleMat, dtX, 0.98, dtZ, false);          // table top
-    ibox(1.2, 0.9, 0.5, gold, dtX, 0.5, dtZ, false);               // gold pedestal base
-    const chair = (cx: number, cz: number, back: number) => {
-      ibox(0.44, 0.08, 0.44, rose, cx, 0.5, cz, false);            // seat
-      irbox(0.44, 0.5, 0.1, rose, cx, 0.78, cz + back * 0.2, 0.06, false); // curved back
-      for (const dx of [-0.16, 0.16]) for (const dz of [-0.16, 0.16]) addI(new THREE.CylinderGeometry(0.02, 0.02, 0.5, 8), gold, cx + dx, 0.25, cz + dz, false);
+    // -- shell: marble floor, white walls (back wall split around the door) --
+    ibox(RW, 0.1, RD, marbleFloor, IX, 0.05, IZ);
+    ibox(0.16, RH, RD, whiteWall, x0, RH / 2, IZ, false);            // left wall (TV feature)
+    ibox(0.16, RH, RD, whiteWall, x1, RH / 2, IZ, false);            // right wall (walnut door)
+    ibox((dcX - dHalf) - x0, RH, 0.16, whiteWall, (x0 + dcX - dHalf) / 2, RH / 2, zBack, false); // back wall L
+    ibox(x1 - (dcX + dHalf), RH, 0.16, whiteWall, (x1 + dcX + dHalf) / 2, RH / 2, zBack, false); // back wall R
+    ibox(2 * dHalf + 0.2, RH - 2.3, 0.16, whiteWall, dcX, (2.3 + RH) / 2, zBack, false);          // header over door
+
+    // grey-marble feature wall on the left + black cross inlay
+    ibox(0.06, 2.3, 3.6, featureGrey, x0 + 0.1, 1.35, IZ - 0.5, false);
+    ibox(0.08, 0.12, 3.6, metalBlk, x0 + 0.12, 1.95, IZ - 0.5, false);
+    ibox(0.08, 2.3, 0.12, metalBlk, x0 + 0.12, 1.35, IZ - 0.5, false);
+
+    // -- stepped tray ceiling + downlights + cove LED --
+    ibox(RW, 0.12, RD, whiteWall, IX, RH, IZ, false);
+    ibox(RW - 1.6, 0.06, RD - 1.6, cream, IX, RH - 0.03, IZ, false);      // dropped centre panel
+    for (const oz of [-(RD - 1.6) / 2, (RD - 1.6) / 2]) ibox(RW - 1.5, 0.02, 0.05, metalBlk, IX, RH - 0.16, IZ + oz, false); // shadow-gap reveal
+    for (const oz of [-(RD - 1.6) / 2 - 0.06, (RD - 1.6) / 2 + 0.06]) ibox(RW - 1.6, 0.04, 0.05, led, IX, RH - 0.22, IZ + oz, false); // cove
+    for (const dx of [-2.5, -0.85, 0.85, 2.5]) for (const dz of [-2, 0, 2]) addI(new THREE.CylinderGeometry(0.07, 0.07, 0.03, 14), goldGlow, IX + dx, RH - 0.15, IZ + dz, false);
+
+    // -- balcony: sliding glass door in the opening + Greek-key railing + view --
+    ibox(2 * dHalf, 2.3, 0.06, frame, dcX, 1.15, zBack + 0.03, false);
+    ibox(2 * dHalf - 0.16, 2.15, 0.04, glassWin, dcX, 1.15, zBack + 0.01, false);
+    ibox(0.05, 2.15, 0.05, frame, dcX, 1.15, zBack + 0.02, false);        // door meeting stile
+    ibox(2 * dHalf + 0.6, 0.1, 1.5, terra, dcX, 0.02, zBack - 0.75, false); // balcony slab (terracotta)
+    const railZ = zBack - 1.45;
+    ibox(2 * dHalf + 0.6, 0.06, 0.06, metalBlk, dcX, 1.0, railZ, false);  // top rail
+    for (let i = 0; i <= 8; i++) ibox(0.04, 0.98, 0.04, metalBlk, dcX - dHalf - 0.2 + i * ((2 * dHalf + 0.4) / 8), 0.55, railZ, false); // balusters
+    for (let i = 0; i < 4; i++) { const mx = dcX - 1.2 + i * 0.8; ibox(0.34, 0.05, 0.06, metalBlk, mx, 0.42, railZ, false); ibox(0.05, 0.34, 0.06, metalBlk, mx + 0.15, 0.55, railZ, false); } // Greek-key motif
+    for (const sx of [dcX - dHalf - 0.05, dcX + dHalf + 0.05]) ibox(0.1, RH - 0.5, 0.7, sheer, sx, (RH - 0.5) / 2, zBack + 0.14, false); // sheer curtains
+    // warm "evening city" glow beyond the balcony so the door reads as a view, not a black hole
+    const viewGlow = new THREE.Mesh(new THREE.PlaneGeometry(12, 7), new THREE.MeshStandardMaterial({ color: 0x223049, emissive: 0xc98a52, emissiveIntensity: 0.7, roughness: 1 }));
+    viewGlow.position.set(dcX, 2.4, railZ - 3.0); interior.add(viewGlow);
+
+    // -- walnut entrance door on the right wall --
+    ibox(0.05, 2.2, 1.1, walnut, x1 - 0.08, 1.1, IZ + 1.7, false);
+    addI(new THREE.CylinderGeometry(0.028, 0.028, 0.3, 10), metalBlk, x1 - 0.16, 1.1, IZ + 1.42, false); // handle
+
+    // ===================== generated furniture =====================
+    // TV wall: wall-mounted TV + walnut console + gold ring art
+    ibox(0.05, 0.98, 1.8, tvScreen, x0 + 0.16, 1.55, IZ - 0.5, false);
+    irbox(0.5, 0.5, 2.6, walnut, x0 + 0.36, 0.25, IZ - 0.5, 0.04, false);   // console
+    ibox(0.54, 0.05, 2.6, marbleFloor, x0 + 0.36, 0.52, IZ - 0.5, false);   // console top
+    for (const rz of [IZ - 2.1, IZ - 1.55]) addI(new THREE.TorusGeometry(0.32, 0.04, 12, 30), gold, x0 + 0.14, 2.35, rz, false);
+
+    // L-sofa facing the TV wall
+    const sX = IX + 0.5, sZ = IZ - 0.1;
+    ibox(2.9, 0.02, 2.4, rugMat, sX - 0.7, 0.02, sZ, false);                // rug
+    irbox(1.0, 0.42, 2.9, sofaFab, sX, 0.28, sZ, 0.1, false);               // seat (runs along z)
+    irbox(0.35, 0.55, 2.9, sofaFab, sX + 0.5, 0.62, sZ, 0.1, false);        // backrest against +X? no — faces -X
+    irbox(2.0, 0.42, 1.0, sofaFab, sX - 0.9, 0.28, sZ - 1.35, 0.1, false);  // chaise return
+    for (const cz of [sZ - 0.9, sZ, sZ + 0.9]) irbox(0.5, 0.42, 0.5, cream, sX - 0.05, 0.6, cz, 0.08, false); // cushions
+    // coffee table (marble top + gold frame)
+    irbox(1.3, 0.08, 0.7, marbleFloor, sX - 0.85, 0.4, sZ, 0.03, false);
+    for (const cx of [-0.55, 0.55]) for (const cz of [-0.28, 0.28]) ibox(0.04, 0.36, 0.04, gold, sX - 0.85 + cx, 0.2, sZ + cz, false);
+    // floor lamp
+    addI(new THREE.CylinderGeometry(0.02, 0.02, 1.5, 8), gold, sX - 1.6, 0.75, sZ + 1.3, false);
+    addI(new THREE.CylinderGeometry(0.17, 0.21, 0.3, 20), goldGlow, sX - 1.6, 1.62, sZ + 1.3, false);
+
+    // dining set in the foreground (marble top, gold pedestal, rose-velvet chairs)
+    const dtX = IX + 0.2, dtZ = zFront - 1.3;
+    irbox(2.2, 0.1, 1.1, marbleFloor, dtX, 0.98, dtZ, 0.03, false);
+    ibox(0.9, 0.88, 0.4, gold, dtX, 0.5, dtZ, false);
+    const dchair = (cx: number, cz: number, back: number) => {
+      irbox(0.42, 0.08, 0.42, rose, cx, 0.5, cz, 0.05, false);
+      irbox(0.42, 0.46, 0.1, rose, cx, 0.75, cz + back * 0.18, 0.05, false);
+      for (const ox of [-0.15, 0.15]) for (const oz of [-0.15, 0.15]) addI(new THREE.CylinderGeometry(0.018, 0.018, 0.5, 8), gold, cx + ox, 0.25, cz + oz, false);
     };
-    for (const cx of [dtX - 0.75, dtX + 0.05, dtX + 0.85]) { chair(cx, dtZ - 0.85, -1); chair(cx, dtZ + 0.85, 1); }
-    // gold globe pendants over the table
-    for (const px of [dtX - 0.9, dtX - 0.3, dtX + 0.3, dtX + 0.9]) {
-      addI(new THREE.CylinderGeometry(0.008, 0.008, 0.7, 6), frame, px, IY + RH - 0.45, dtZ, false);
-      irbox(0.32, 0.08, 0.22, gold, px, IY + RH - 0.82, dtZ, 0.04, false); // wavy gold disc
-      addI(new THREE.SphereGeometry(0.11, 16, 16), goldGlow, px, IY + RH - 1.0, dtZ, false); // glowing globe
+    for (const cx of [dtX - 0.7, dtX, dtX + 0.7]) { dchair(cx, dtZ - 0.75, -1); dchair(cx, dtZ + 0.75, 1); }
+    for (const px of [dtX - 0.7, dtX, dtX + 0.7]) { // gold globe pendants
+      addI(new THREE.CylinderGeometry(0.006, 0.006, 0.55, 6), frame, px, RH - 0.42, dtZ, false);
+      addI(new THREE.SphereGeometry(0.1, 16, 16), goldGlow, px, RH - 0.78, dtZ, false);
     }
-    // tall vase + pampas centrepiece
-    addI(new THREE.CylinderGeometry(0.1, 0.06, 0.28, 16), cream, dtX, 1.15, dtZ, false);
+    addI(new THREE.CylinderGeometry(0.09, 0.05, 0.3, 14), cream, dtX, 1.16, dtZ, false); // vase
 
-    // -- living zone (cream sofa, rug, coffee table, curtains, window) --
-    const lvZ = IZ + 1.4;
-    ibox(3.0, 0.03, 2.0, rugMat, IX - 1.2, 0.06, lvZ, false);
-    irbox(2.4, 0.4, 0.9, cream, IX - 1.2, 0.3, lvZ, 0.1, false);           // sofa seat
-    irbox(2.4, 0.55, 0.24, cream, IX - 1.2, 0.55, lvZ - 0.45, 0.1, false); // sofa back
-    for (const p of [[-0.7, 0x8a9a5b], [0.0, 0x7a2f38], [0.7, 0xe8e0d0]] as const) irbox(0.34, 0.34, 0.2, new THREE.MeshStandardMaterial({ color: p[1], roughness: 0.9 }), IX - 1.2 + p[0], 0.55, lvZ - 0.3, 0.06, false); // cushions
-    irbox(1.1, 0.1, 0.6, marbleMat, IX - 1.2, 0.4, lvZ + 0.7, 0.03, false); // coffee table
-    ibox(0.06, 0.4, 0.6, gold, IX - 1.75, 0.2, lvZ + 0.7, false);
-    // curtains + city-view window on the left wood wall side (open bay toward +Z handled by shell opening)
-    ibox(0.1, RH - 0.3, 1.6, curtain, IX - RW / 2 + 0.12, IY + (RH - 0.3) / 2, lvZ + 0.6, false);
+    // potted plants (tall fanning leaves, tucked into corners)
+    const plant = (px: number, pz: number) => {
+      addI(new THREE.CylinderGeometry(0.16, 0.12, 0.36, 12), walnut, px, 0.18, pz, false);       // pot
+      addI(new THREE.CylinderGeometry(0.145, 0.145, 0.05, 12), plantMat, px, 0.37, pz, false);   // soil
+      for (let i = 0; i < 9; i++) {
+        const a = i / 9 * Math.PI * 2, lean = 0.16 + (i % 3) * 0.05, h = 0.8 + (i % 4) * 0.16;
+        const l = addI(new THREE.BoxGeometry(0.08, h, 0.02), i % 2 ? plantMat : foliageLt, px + Math.cos(a) * 0.1, 0.37 + h / 2, pz + Math.sin(a) * 0.1, false);
+        l.rotation.set(Math.sin(a) * lean, -a, Math.cos(a) * lean);
+      }
+    };
+    plant(x1 - 0.55, zBack + 0.6); plant(x0 + 0.9, zFront - 0.7);
 
-    // -- kitchen hint (right side: counter + dark backsplash + warm LED) --
-    const kX = IX + RW / 2 - 0.7;
-    ibox(1.0, 0.9, RD - 1.2, new THREE.MeshStandardMaterial({ color: 0x3b3a37, roughness: 0.4, metalness: 0.2 }), kX, 0.45, IZ, false);
-    ibox(1.0, 0.06, RD - 1.2, marbleMat, kX, 0.92, IZ, false);
-    ibox(0.05, 1.0, RD - 1.4, new THREE.MeshStandardMaterial({ color: 0x241f1c, roughness: 0.3, metalness: 0.3 }), kX + 0.5, 1.5, IZ, false); // backsplash
-    ibox(0.06, 0.04, RD - 1.6, led, kX + 0.46, 1.05, IZ, false); // under-cabinet LED
     // warm interior fill lights
-    const iLightA = new THREE.PointLight(0xffdca6, 6, 9, 2); iLightA.position.set(IX, IY + 2.2, IZ - 0.5); interior.add(iLightA);
-    const iLightB = new THREE.PointLight(0xffe6c0, 3.5, 8, 2); iLightB.position.set(IX - 1.2, IY + 1.8, lvZ); interior.add(iLightB);
+    const iLightA = new THREE.PointLight(0xffe2b4, 5, 11, 2); iLightA.position.set(IX, 2.4, IZ); interior.add(iLightA);
+    const iLightB = new THREE.PointLight(0xffe6c0, 3, 8, 2); iLightB.position.set(sX - 0.7, 1.8, sZ); interior.add(iLightB);
+    const iLightC = new THREE.PointLight(0xfff0d0, 2.6, 7, 2); iLightC.position.set(dtX, 2.1, dtZ); interior.add(iLightC);
 
     // soft contact shadow
     const shadowFloor = new THREE.Mesh(new THREE.PlaneGeometry(500, 500), new THREE.ShadowMaterial({ opacity: 0.24 }));
@@ -462,7 +520,7 @@ export function GoldenEra3D() {
     const VIEWS: Record<ViewKey, View> = {
       street: { target: new THREE.Vector3(-3, 6.5, -1), radius: 30, az: 0.16, pol: 1.4 },
       aerial: { target: new THREE.Vector3(0, 7.0, -3), radius: 46, az: -0.5, pol: 0.98 },
-      inside: { target: new THREE.Vector3(IX, IY + 1.25, IZ), radius: 3.4, az: 0.0, pol: 1.46 },
+      inside: { target: new THREE.Vector3(IX + 0.3, 1.5, IZ - 0.4), radius: 4.4, az: 0.5, pol: 1.42 },
     };
     let modeKey: ViewKey = forceView && VIEWS[forceView] ? forceView : "street";
     let mode: View = VIEWS[modeKey];
@@ -474,8 +532,24 @@ export function GoldenEra3D() {
       lookAt.set(cur.tx, cur.ty, cur.tz); camera.lookAt(lookAt);
     };
     const setView = (v: View) => { tgt = { tx: v.target.x, ty: v.target.y, tz: v.target.z, r: v.radius, az: v.az, pol: v.pol }; };
-    setView(mode); applyCamera();
-    goToRef.current = (k: ViewKey) => { modeKey = k; mode = VIEWS[k]; setView(mode); };
+    // show only the interior when "inside", only the complex when outside — so
+    // exterior landscaping never intrudes into the room and the room box never
+    // clutters the street/aerial views.
+    const applyVis = () => {
+      const inside = modeKey === "inside";
+      interior.visible = inside;
+      complex.visible = !inside;
+      site.visible = !inside;
+    };
+    const snapCamera = () => {
+      cur.tx = tgt.tx; cur.ty = tgt.ty; cur.tz = tgt.tz; cur.r = tgt.r; cur.az = tgt.az; cur.pol = tgt.pol; applyCamera();
+    };
+    setView(mode); applyCamera(); applyVis();
+    goToRef.current = (k: ViewKey) => {
+      const crossing = k === "inside" || modeKey === "inside"; // entering or leaving the room
+      modeKey = k; mode = VIEWS[k]; setView(mode); applyVis();
+      if (crossing) snapCamera(); // cut across the interior boundary instead of flying through the void
+    };
 
     // ---------- HDRI environment + sky ----------
     const pmrem = new THREE.PMREMGenerator(renderer);
