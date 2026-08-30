@@ -2,16 +2,20 @@
 
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
-import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry.js";
+import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
+import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
+import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
+import { GTAOPass } from "three/examples/jsm/postprocessing/GTAOPass.js";
+import { SMAAPass } from "three/examples/jsm/postprocessing/SMAAPass.js";
+import { OutputPass } from "three/examples/jsm/postprocessing/OutputPass.js";
 
 /**
- * A near-architectural modern villa in Three.js, matched to the NexGen palette.
- * Procedural PBR textures, rounded geometry, reflective glass, golden-hour
- * lighting and atmosphere. Exterior orbit (auto-rotate + drag); a "Step inside"
- * button flies the camera into an open-plan interior (living / dining / kitchen
- * / stair) you can pan across. Frame-rate-independent, pauses off-screen,
- * respects reduced-motion, repaints on resize. Placeholder for a real model.
+ * A modern villa in Three.js rendered toward photoreal: HDRI image-based
+ * lighting + sky, ground-truth ambient occlusion (GTAO), SMAA antialiasing,
+ * reflective glass and PBR textures. Exterior orbit (auto-rotate + drag);
+ * "Step inside" flies into an open-plan interior you can pan across.
+ * Frame-rate-independent, pauses off-screen, respects reduced-motion.
  */
 export function House3D() {
   const mountRef = useRef<HTMLDivElement>(null);
@@ -23,12 +27,12 @@ export function House3D() {
     if (!mount) return;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    const renderer = new THREE.WebGLRenderer({ antialias: false, alpha: false });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75));
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.1;
+    renderer.toneMappingExposure = 1.0;
     mount.appendChild(renderer.domElement);
     Object.assign(renderer.domElement.style, {
       width: "100%",
@@ -38,21 +42,8 @@ export function House3D() {
     });
 
     const scene = new THREE.Scene();
-    // soft golden-hour sky so the villa reads as an outdoor photograph
-    const skyCanvas = document.createElement("canvas");
-    skyCanvas.width = 8;
-    skyCanvas.height = 256;
-    const sc = skyCanvas.getContext("2d")!;
-    const grad = sc.createLinearGradient(0, 0, 0, 256);
-    grad.addColorStop(0, "#9fb2c6");   // upper sky
-    grad.addColorStop(0.55, "#cdc6b6"); // haze
-    grad.addColorStop(1, "#ece3d1");    // warm horizon
-    sc.fillStyle = grad;
-    sc.fillRect(0, 0, 8, 256);
-    const skyTex = new THREE.CanvasTexture(skyCanvas);
-    skyTex.colorSpace = THREE.SRGBColorSpace;
-    scene.background = skyTex;
-    scene.fog = new THREE.Fog(0xd8cfbe, 26, 58);
+    scene.background = new THREE.Color(0xc3ccd4); // until HDRI loads
+    scene.fog = new THREE.Fog(0xc7cdd2, 30, 62);
     const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
 
     // ---------- procedural textures ----------
@@ -64,7 +55,7 @@ export function House3D() {
     const wrap = (t: THREE.Texture, r = 1) => {
       t.wrapS = t.wrapT = THREE.RepeatWrapping;
       t.repeat.set(r, r);
-      t.anisotropy = 4;
+      t.anisotropy = 8;
       t.needsUpdate = true;
       return t;
     };
@@ -81,10 +72,10 @@ export function House3D() {
     };
     const lawnTex = () => {
       const c = cv(512), x = c.getContext("2d")!;
-      x.fillStyle = "#3c4a2b";
+      x.fillStyle = "#3f4d2c";
       x.fillRect(0, 0, 512, 512);
-      for (let i = 0; i < 2600; i++) {
-        const g = 40 + Math.random() * 55;
+      for (let i = 0; i < 3200; i++) {
+        const g = 42 + Math.random() * 55;
         x.fillStyle = `rgb(${Math.round(g * 0.7)},${Math.round(g)},${Math.round(g * 0.5)})`;
         x.fillRect(Math.random() * 512, Math.random() * 512, 2, 3);
       }
@@ -95,20 +86,20 @@ export function House3D() {
       x.fillStyle = light ? "#6d4c2b" : "#4a3420";
       x.fillRect(0, 0, 256, 256);
       for (let i = 0; i < 256; i += 32) {
-        x.fillStyle = "rgba(0,0,0,0.18)";
+        x.fillStyle = "rgba(0,0,0,0.16)";
         x.fillRect(0, i, 256, 2);
       }
-      for (let i = 0; i < 1400; i++) {
-        x.fillStyle = `rgba(${light ? "120,84,44" : "80,56,30"},${Math.random() * 0.25})`;
-        x.fillRect(Math.random() * 256, Math.random() * 256, 18, 1);
+      for (let i = 0; i < 1600; i++) {
+        x.fillStyle = `rgba(${light ? "120,84,44" : "80,56,30"},${Math.random() * 0.22})`;
+        x.fillRect(Math.random() * 256, Math.random() * 256, 20, 1);
       }
       return new THREE.CanvasTexture(c);
     };
     const paveTex = () => {
       const c = cv(256), x = c.getContext("2d")!;
-      x.fillStyle = "#2a251c";
+      x.fillStyle = "#2c271e";
       x.fillRect(0, 0, 256, 256);
-      x.strokeStyle = "rgba(0,0,0,0.5)";
+      x.strokeStyle = "rgba(0,0,0,0.45)";
       x.lineWidth = 3;
       for (let i = 0; i <= 256; i += 64) {
         x.beginPath(); x.moveTo(i, 0); x.lineTo(i, 256); x.stroke();
@@ -117,20 +108,14 @@ export function House3D() {
       return new THREE.CanvasTexture(c);
     };
 
-    // ---------- environment (reflections) ----------
-    try {
-      const pmrem = new THREE.PMREMGenerator(renderer);
-      const env = pmrem.fromScene(new RoomEnvironment(), 0.04);
-      scene.environment = env.texture;
-      pmrem.dispose();
-    } catch {
-      /* env is a nicety */
-    }
+    // HDRI is loaded after the composer is set up (see below).
+    let hdrTex: THREE.Texture | null = null;
+    let envRT: THREE.WebGLRenderTarget | null = null;
 
-    // ---------- lighting (golden hour) ----------
-    scene.add(new THREE.HemisphereLight(0xffe9c8, 0x39432a, 0.9));
-    const sun = new THREE.DirectionalLight(0xffdca8, 3.1);
-    sun.position.set(-8, 9, 7);
+    // ---------- lighting (HDRI does ambient/fill; sun gives crisp shadows) ----------
+    scene.add(new THREE.HemisphereLight(0xdfe8f0, 0x40492f, 0.25));
+    const sun = new THREE.DirectionalLight(0xfff1d8, 2.6);
+    sun.position.set(-8, 10, 6);
     sun.castShadow = true;
     sun.shadow.mapSize.set(2048, 2048);
     sun.shadow.camera.near = 1;
@@ -141,40 +126,37 @@ export function House3D() {
     sun.shadow.camera.bottom = -13;
     sun.shadow.bias = -0.0003;
     sun.shadow.normalBias = 0.02;
-    sun.shadow.radius = 6;
+    sun.shadow.radius = 5;
     scene.add(sun);
-    const skyL = new THREE.DirectionalLight(0x9fb4d8, 0.5);
-    skyL.position.set(6, 5, -6);
-    scene.add(skyL);
-    const warmA = new THREE.PointLight(0xffd9a0, 5, 7, 2); warmA.position.set(-2.6, 1.5, -0.4); scene.add(warmA);
-    const warmB = new THREE.PointLight(0xffd9a0, 4, 7, 2); warmB.position.set(0.4, 1.6, -1.0); scene.add(warmB);
-    const warmC = new THREE.PointLight(0xffe0b0, 3, 6, 2); warmC.position.set(2.4, 1.6, -0.8); scene.add(warmC);
+    const warmA = new THREE.PointLight(0xffd9a0, 4, 7, 2); warmA.position.set(-2.6, 1.5, -0.4); scene.add(warmA);
+    const warmB = new THREE.PointLight(0xffd9a0, 3, 7, 2); warmB.position.set(0.4, 1.6, -1.0); scene.add(warmB);
+    const warmC = new THREE.PointLight(0xffe0b0, 2.5, 6, 2); warmC.position.set(2.4, 1.6, -0.8); scene.add(warmC);
 
     // ---------- materials ----------
-    const wallBump = wrap(noiseTex(128, 26), 3);
-    const cream = new THREE.MeshStandardMaterial({ color: 0xe9dfc9, roughness: 0.9, metalness: 0, bumpMap: wallBump, bumpScale: 0.006 });
-    const creamDark = new THREE.MeshStandardMaterial({ color: 0xcdbe9f, roughness: 0.92, metalness: 0, bumpMap: wallBump, bumpScale: 0.006 });
-    const charcoal = new THREE.MeshStandardMaterial({ color: 0x33302a, roughness: 0.7, metalness: 0.1, bumpMap: wallBump, bumpScale: 0.006 });
+    const wallBump = wrap(noiseTex(128, 22), 3);
+    const cream = new THREE.MeshStandardMaterial({ color: 0xe9dfc9, roughness: 0.92, metalness: 0, bumpMap: wallBump, bumpScale: 0.004, envMapIntensity: 1 });
+    const creamDark = new THREE.MeshStandardMaterial({ color: 0xcdbe9f, roughness: 0.93, metalness: 0, bumpMap: wallBump, bumpScale: 0.004, envMapIntensity: 1 });
+    const charcoal = new THREE.MeshStandardMaterial({ color: 0x35322b, roughness: 0.72, metalness: 0.12, bumpMap: wallBump, bumpScale: 0.004, envMapIntensity: 1 });
     const stone = new THREE.MeshStandardMaterial({ color: 0x211d17, roughness: 0.85, metalness: 0.05 });
-    const frame = new THREE.MeshStandardMaterial({ color: 0x17140f, roughness: 0.5, metalness: 0.4 });
+    const frame = new THREE.MeshStandardMaterial({ color: 0x15120d, roughness: 0.45, metalness: 0.5 });
     const glass = new THREE.MeshPhysicalMaterial({
-      color: 0x11202a, metalness: 0, roughness: 0.05, transmission: 0.16, thickness: 0.4,
-      ior: 1.5, clearcoat: 1, clearcoatRoughness: 0.06, envMapIntensity: 1.7, reflectivity: 0.6,
+      color: 0x0e1a22, metalness: 0, roughness: 0.03, ior: 1.5,
+      clearcoat: 1, clearcoatRoughness: 0.04, envMapIntensity: 2.2, reflectivity: 0.7,
     });
-    const gold = new THREE.MeshStandardMaterial({ color: 0xb0873a, roughness: 0.26, metalness: 1, envMapIntensity: 1.5 });
-    const goldGlow = new THREE.MeshStandardMaterial({ color: 0xffd79a, emissive: 0xf2be74, emissiveIntensity: 1.1, roughness: 0.4 });
-    const woodFloor = new THREE.MeshStandardMaterial({ color: 0x6a4a2b, roughness: 0.5, metalness: 0.05, map: wrap(woodTex(), 4) });
-    const wood = new THREE.MeshStandardMaterial({ color: 0x6b4a2a, roughness: 0.6, metalness: 0.05, map: wrap(woodTex(true), 2) });
+    const gold = new THREE.MeshStandardMaterial({ color: 0xb0873a, roughness: 0.22, metalness: 1, envMapIntensity: 2.0 });
+    const goldGlow = new THREE.MeshStandardMaterial({ color: 0xffd79a, emissive: 0xf2be74, emissiveIntensity: 1.0, roughness: 0.4 });
+    const woodFloor = new THREE.MeshStandardMaterial({ color: 0x6a4a2b, roughness: 0.45, metalness: 0.05, map: wrap(woodTex(), 4), envMapIntensity: 1 });
+    const wood = new THREE.MeshStandardMaterial({ color: 0x6b4a2a, roughness: 0.55, metalness: 0.05, map: wrap(woodTex(true), 2) });
     const woodDark = new THREE.MeshStandardMaterial({ color: 0x4a3420, roughness: 0.6, metalness: 0.05 });
-    const fabric = new THREE.MeshStandardMaterial({ color: 0x8f7d64, roughness: 0.98, metalness: 0 });
-    const fabricDark = new THREE.MeshStandardMaterial({ color: 0x6f5f49, roughness: 0.98, metalness: 0 });
+    const fabric = new THREE.MeshStandardMaterial({ color: 0x8f7d64, roughness: 0.95, metalness: 0 });
+    const fabricDark = new THREE.MeshStandardMaterial({ color: 0x6f5f49, roughness: 0.95, metalness: 0 });
     const rugMat = new THREE.MeshStandardMaterial({ color: 0x7c6742, roughness: 0.98, metalness: 0 });
-    const marble = new THREE.MeshStandardMaterial({ color: 0x2b2820, roughness: 0.22, metalness: 0.3, envMapIntensity: 1.2 });
-    const lawnMat = new THREE.MeshStandardMaterial({ map: wrap(lawnTex(), 6), roughness: 1, metalness: 0 });
-    const paveMat = new THREE.MeshStandardMaterial({ map: wrap(paveTex(), 3), roughness: 0.8, metalness: 0.05 });
-    const water = new THREE.MeshPhysicalMaterial({ color: 0x14343f, roughness: 0.08, metalness: 0, clearcoat: 1, envMapIntensity: 1.6 });
-    const foliage = new THREE.MeshStandardMaterial({ color: 0x59663f, roughness: 0.95, metalness: 0, flatShading: true });
-    const foliageLt = new THREE.MeshStandardMaterial({ color: 0x6d7a4c, roughness: 0.95, metalness: 0, flatShading: true });
+    const marble = new THREE.MeshStandardMaterial({ color: 0x2b2820, roughness: 0.18, metalness: 0.35, envMapIntensity: 1.6 });
+    const lawnMat = new THREE.MeshStandardMaterial({ map: wrap(lawnTex(), 7), roughness: 1, metalness: 0 });
+    const paveMat = new THREE.MeshStandardMaterial({ map: wrap(paveTex(), 3), roughness: 0.75, metalness: 0.05 });
+    const water = new THREE.MeshPhysicalMaterial({ color: 0x123039, roughness: 0.04, metalness: 0, clearcoat: 1, envMapIntensity: 2.0 });
+    const foliage = new THREE.MeshStandardMaterial({ color: 0x59663f, roughness: 0.92, metalness: 0 });
+    const foliageLt = new THREE.MeshStandardMaterial({ color: 0x6d7a4c, roughness: 0.92, metalness: 0 });
 
     const villa = new THREE.Group();
     scene.add(villa);
@@ -189,8 +171,9 @@ export function House3D() {
     };
     const box = (w: number, h: number, d: number, mat: THREE.Material, x: number, y: number, z: number, s = true) =>
       add(new THREE.BoxGeometry(w, h, d), mat, x, y, z, s);
+    // smoother bevels: more segments + a slightly larger floor on the radius
     const rbox = (w: number, h: number, d: number, mat: THREE.Material, x: number, y: number, z: number, r = 0.05, s = true) =>
-      add(new RoundedBoxGeometry(w, h, d, 3, r), mat, x, y, z, s);
+      add(new RoundedBoxGeometry(w, h, d, 6, Math.max(r, 0.06)), mat, x, y, z, s);
 
     const windowZ = (w: number, h: number, x: number, y: number, z: number) => {
       box(w + 0.12, h + 0.12, 0.12, frame, x, y, z - 0.03, false);
@@ -212,9 +195,9 @@ export function House3D() {
     // ---------- ground floor shell ----------
     const fx = -0.4;
     box(7.2, 0.12, 5.0, woodFloor, fx, 0.12, 0);
-    rbox(7.2, 1.95, 0.18, cream, fx, 1.0, -2.5, 0.04);
-    rbox(0.18, 1.95, 5.0, creamDark, fx - 3.55, 1.0, 0, 0.04);
-    rbox(0.18, 1.95, 5.0, charcoal, fx + 3.55, 1.0, 0, 0.04);
+    rbox(7.2, 1.95, 0.18, cream, fx, 1.0, -2.5, 0.06);
+    rbox(0.18, 1.95, 5.0, creamDark, fx - 3.55, 1.0, 0, 0.06);
+    rbox(0.18, 1.95, 5.0, charcoal, fx + 3.55, 1.0, 0, 0.06);
     box(7.35, 0.18, 5.05, creamDark, fx, 1.99, 0);
     box(5.4, 1.78, 0.05, glass, fx - 0.5, 1.0, 2.47, false);
     box(5.5, 1.9, 0.1, frame, fx - 0.5, 1.0, 2.42, false);
@@ -227,39 +210,39 @@ export function House3D() {
 
     // ================= INTERIOR (open plan) =================
     box(3.0, 0.04, 2.4, rugMat, -2.0, 0.2, 1.0);
-    rbox(2.4, 0.4, 1.0, fabric, -2.0, 0.4, 0.3, 0.08);
-    rbox(2.4, 0.6, 0.22, fabric, -2.0, 0.62, -0.15, 0.08);
-    rbox(0.22, 0.5, 1.0, fabricDark, -3.1, 0.5, 0.3, 0.06);
-    rbox(0.22, 0.5, 1.0, fabricDark, -0.9, 0.5, 0.3, 0.06);
-    rbox(1.0, 0.16, 0.8, fabricDark, -2.5, 0.5, 0.3, 0.05, false);
-    rbox(1.0, 0.16, 0.8, fabricDark, -1.5, 0.5, 0.3, 0.05, false);
-    rbox(1.3, 0.08, 0.7, wood, -2.0, 0.42, 1.2, 0.02);
+    rbox(2.4, 0.4, 1.0, fabric, -2.0, 0.4, 0.3, 0.1);
+    rbox(2.4, 0.6, 0.22, fabric, -2.0, 0.62, -0.15, 0.1);
+    rbox(0.22, 0.5, 1.0, fabricDark, -3.1, 0.5, 0.3, 0.08);
+    rbox(0.22, 0.5, 1.0, fabricDark, -0.9, 0.5, 0.3, 0.08);
+    rbox(1.0, 0.16, 0.8, fabricDark, -2.5, 0.5, 0.3, 0.07, false);
+    rbox(1.0, 0.16, 0.8, fabricDark, -1.5, 0.5, 0.3, 0.07, false);
+    rbox(1.3, 0.08, 0.7, wood, -2.0, 0.42, 1.2, 0.03);
     for (const sx of [-0.55, 0.55]) for (const sz of [-0.28, 0.28])
       box(0.05, 0.4, 0.05, gold, -2.0 + sx, 0.2, 1.2 + sz, false);
     box(0.05, 1.4, 0.05, gold, -3.2, 0.8, -0.4, false);
-    add(new THREE.CylinderGeometry(0.18, 0.22, 0.28, 20), goldGlow, -3.2, 1.55, -0.4, false);
+    add(new THREE.CylinderGeometry(0.18, 0.22, 0.28, 24), goldGlow, -3.2, 1.55, -0.4, false);
     box(0.05, 1.0, 1.6, gold, -3.9, 1.15, 0.4, false);
     box(0.03, 0.85, 1.4, marble, -3.86, 1.15, 0.4, false);
-    rbox(1.9, 0.1, 1.0, wood, 0.5, 0.78, -1.1, 0.02);
+    rbox(1.9, 0.1, 1.0, wood, 0.5, 0.78, -1.1, 0.03);
     for (const sx of [-0.8, 0.8]) for (const sz of [-0.35, 0.35])
       box(0.08, 0.72, 0.08, woodDark, 0.5 + sx, 0.38, -1.1 + sz, false);
     const chair = (cx: number, cz: number, back: "n" | "s") => {
       box(0.44, 0.06, 0.44, woodDark, cx, 0.46, cz, false);
       for (const dx of [-0.18, 0.18]) for (const dz of [-0.18, 0.18])
         box(0.05, 0.46, 0.05, woodDark, cx + dx, 0.23, cz + dz, false);
-      rbox(0.44, 0.5, 0.06, fabric, cx, 0.72, cz + (back === "n" ? -0.2 : 0.2), 0.03, false);
+      rbox(0.44, 0.5, 0.06, fabric, cx, 0.72, cz + (back === "n" ? -0.2 : 0.2), 0.04, false);
     };
     chair(0.0, -1.75, "n"); chair(1.0, -1.75, "n"); chair(0.0, -0.45, "s"); chair(1.0, -0.45, "s");
-    add(new THREE.CylinderGeometry(0.05, 0.28, 0.3, 18), goldGlow, 0.5, 1.55, -1.1, false);
+    add(new THREE.CylinderGeometry(0.05, 0.28, 0.3, 24), goldGlow, 0.5, 1.55, -1.1, false);
     box(0.02, 0.55, 0.02, gold, 0.5, 1.75, -1.1, false);
-    rbox(0.75, 0.9, 3.2, wood, 2.75, 0.45, -0.7, 0.03);
+    rbox(0.75, 0.9, 3.2, wood, 2.75, 0.45, -0.7, 0.04);
     box(0.8, 0.06, 3.3, marble, 2.75, 0.93, -0.7, false);
-    rbox(0.6, 0.7, 3.2, creamDark, 2.85, 1.55, -0.7, 0.03);
-    rbox(0.5, 1.0, 0.9, marble, 1.7, 0.5, -0.9, 0.02);
+    rbox(0.6, 0.7, 3.2, creamDark, 2.85, 1.55, -0.7, 0.04);
+    rbox(0.5, 1.0, 0.9, marble, 1.7, 0.5, -0.9, 0.03);
     box(1.5, 0.08, 1.1, marble, 1.55, 1.0, -0.9, false);
     for (const sz of [-1.2, -0.6]) {
-      add(new THREE.CylinderGeometry(0.16, 0.16, 0.08, 16), fabric, 1.0, 0.7, sz, false);
-      add(new THREE.CylinderGeometry(0.04, 0.04, 0.68, 12), gold, 1.0, 0.34, sz, false);
+      add(new THREE.CylinderGeometry(0.16, 0.16, 0.08, 20), fabric, 1.0, 0.7, sz, false);
+      add(new THREE.CylinderGeometry(0.04, 0.04, 0.68, 16), gold, 1.0, 0.34, sz, false);
     }
     for (let i = 0; i < 7; i++) box(1.1, 0.14, 0.34, woodFloor, -3.0, 0.18 + i * 0.26, -2.0 + i * 0.34, false);
     box(0.05, 1.9, 0.05, gold, -2.5, 1.0, -1.9, false);
@@ -267,8 +250,8 @@ export function House3D() {
     box(0.05, 0.05, 2.0, gold, -2.5, 1.75, -1.05, false);
 
     // ================= UPPER FLOOR =================
-    rbox(5.4, 1.7, 4.2, creamDark, 0.9, 2.9, -0.2, 0.05);
-    rbox(2.0, 1.7, 3.0, charcoal, -2.8, 2.9, 0.3, 0.05);
+    rbox(5.4, 1.7, 4.2, creamDark, 0.9, 2.9, -0.2, 0.08);
+    rbox(2.0, 1.7, 3.0, charcoal, -2.8, 2.9, 0.3, 0.08);
     box(5.55, 0.16, 4.35, gold, 0.9, 3.82, -0.2, false);
     box(5.35, 0.28, 4.15, stone, 0.9, 3.68, -0.2, false);
     windowZ(3.9, 1.15, 0.9, 2.95, 1.96);
@@ -277,27 +260,37 @@ export function House3D() {
     box(4.5, 0.55, 0.04, glass, 0.9, 2.42, 3.1, false);
     box(4.62, 0.05, 0.08, gold, 0.9, 2.72, 3.1, false);
 
-    // ================= LANDSCAPING =================
+    // ================= LANDSCAPING (smooth foliage) =================
     const tree = (x: number, z: number, s: number) => {
-      add(new THREE.CylinderGeometry(0.12 * s, 0.18 * s, 1.5 * s, 8), woodDark, x, 0.75 * s, z);
-      add(new THREE.IcosahedronGeometry(0.95 * s, 0), foliage, x, 1.9 * s, z);
-      add(new THREE.IcosahedronGeometry(0.7 * s, 0), foliageLt, x - 0.5 * s, 1.6 * s, z + 0.3 * s, false);
-      add(new THREE.IcosahedronGeometry(0.62 * s, 0), foliage, x + 0.55 * s, 1.55 * s, z - 0.3 * s, false);
+      add(new THREE.CylinderGeometry(0.12 * s, 0.18 * s, 1.5 * s, 12), woodDark, x, 0.75 * s, z);
+      add(new THREE.IcosahedronGeometry(0.95 * s, 2), foliage, x, 1.9 * s, z);
+      add(new THREE.IcosahedronGeometry(0.7 * s, 2), foliageLt, x - 0.5 * s, 1.6 * s, z + 0.3 * s, false);
+      add(new THREE.IcosahedronGeometry(0.62 * s, 2), foliage, x + 0.55 * s, 1.55 * s, z - 0.3 * s, false);
     };
     tree(5.2, -3.4, 1.15);
     tree(-5.4, -2.2, 0.9);
-    box(0.6, 0.5, 4.2, foliage, -5.2, 0.28, 1.0);
-    box(3.6, 0.45, 0.55, foliageLt, -1.8, 0.25, -4.7);
+    rbox(0.6, 0.5, 4.2, foliage, -5.2, 0.28, 1.0, 0.12);
+    rbox(3.6, 0.45, 0.55, foliageLt, -1.8, 0.25, -4.7, 0.12);
     for (const px of [fx + 2.2, fx + 3.5]) {
-      rbox(0.4, 0.42, 0.4, stone, px, 0.32, 2.9, 0.03);
-      add(new THREE.IcosahedronGeometry(0.32, 0), foliageLt, px, 0.72, 2.9, false);
+      rbox(0.4, 0.42, 0.4, stone, px, 0.32, 2.9, 0.04);
+      add(new THREE.IcosahedronGeometry(0.32, 2), foliageLt, px, 0.72, 2.9, false);
     }
 
-    const shadowFloor = new THREE.Mesh(new THREE.PlaneGeometry(80, 80), new THREE.ShadowMaterial({ opacity: 0.28 }));
+    const shadowFloor = new THREE.Mesh(new THREE.PlaneGeometry(80, 80), new THREE.ShadowMaterial({ opacity: 0.26 }));
     shadowFloor.rotation.x = -Math.PI / 2;
     shadowFloor.position.y = 0.14;
     shadowFloor.receiveShadow = true;
     scene.add(shadowFloor);
+
+    // ---------- post-processing (AO + AA) ----------
+    const composer = new EffectComposer(renderer);
+    composer.addPass(new RenderPass(scene, camera));
+    const gtao = new GTAOPass(scene, camera, 1, 1);
+    gtao.output = GTAOPass.OUTPUT.Default;
+    gtao.updateGtaoMaterial({ radius: 0.5, distanceExponent: 1, thickness: 1, scale: 1, samples: 16 });
+    composer.addPass(gtao);
+    composer.addPass(new SMAAPass());
+    composer.addPass(new OutputPass());
 
     // ---- orbit camera ----
     type View = { target: THREE.Vector3; radius: number; az: number; pol: number };
@@ -323,6 +316,28 @@ export function House3D() {
     setView(EXT);
     applyCamera();
     goToRef.current = (goInside: boolean) => { mode = goInside ? INT : EXT; setView(mode); };
+
+    const renderOnce = () => composer.render();
+
+    // ---- HDRI environment + sky (async) ----
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    pmrem.compileEquirectangularShader();
+    new RGBELoader().load(
+      "/hdri/sky_1k.hdr",
+      (hdr) => {
+        hdr.mapping = THREE.EquirectangularReflectionMapping;
+        hdrTex = hdr;
+        envRT = pmrem.fromEquirectangular(hdr);
+        scene.environment = envRT.texture;
+        scene.background = hdr;
+        scene.backgroundBlurriness = 0;
+        scene.environmentIntensity = 1;
+        pmrem.dispose();
+        renderOnce();
+      },
+      undefined,
+      () => pmrem.dispose(),
+    );
 
     // ---- interaction ----
     let dragging = false, lastX = 0, lastY = 0;
@@ -351,15 +366,15 @@ export function House3D() {
     const resize = () => {
       const w = mount.clientWidth || 1, h = mount.clientHeight || 1;
       renderer.setSize(w, h, false);
+      composer.setSize(w, h);
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
       applyCamera();
-      renderer.render(scene, camera);
+      composer.render();
     };
     resize();
     const ro = new ResizeObserver(resize);
     ro.observe(mount);
-    renderer.render(scene, camera);
 
     // ---- loop ----
     let visible = true;
@@ -371,12 +386,12 @@ export function House3D() {
       raf = requestAnimationFrame(tick);
       if (!visible || document.hidden) { clock.getDelta(); return; }
       const dt = Math.min(clock.getDelta(), 0.05);
-      if (!dragging && !reduce && mode === EXT) tgt.az += 0.1 * dt;
+      if (!dragging && !reduce && mode === EXT) tgt.az += 0.09 * dt;
       const k = 1 - Math.exp(-6 * dt);
       cur.tx += (tgt.tx - cur.tx) * k; cur.ty += (tgt.ty - cur.ty) * k; cur.tz += (tgt.tz - cur.tz) * k;
       cur.r += (tgt.r - cur.r) * k; cur.az += (tgt.az - cur.az) * k; cur.pol += (tgt.pol - cur.pol) * k;
       applyCamera();
-      renderer.render(scene, camera);
+      composer.render();
     };
     raf = requestAnimationFrame(tick);
 
@@ -394,7 +409,9 @@ export function House3D() {
         if (Array.isArray(m)) m.forEach((mm) => mm.dispose());
         else m?.dispose?.();
       });
-      scene.environment?.dispose?.();
+      hdrTex?.dispose();
+      envRT?.dispose();
+      composer.dispose();
       renderer.dispose();
       if (renderer.domElement.parentNode === mount) mount.removeChild(renderer.domElement);
     };
