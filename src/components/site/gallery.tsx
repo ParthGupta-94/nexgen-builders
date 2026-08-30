@@ -43,7 +43,7 @@ export function Gallery({ images }: { images: Shot[] }) {
             onClick={() => setOpen(i)}
             aria-label={`Open photo ${i + 1}: ${img.alt}`}
             className={`group relative overflow-hidden rounded-xl bg-[var(--color-espresso)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--color-gold)] ${
-              i === 0 ? "col-span-2 row-span-2 aspect-[4/3] sm:aspect-[16/11]" : "aspect-square"
+              i === 0 ? "col-span-2 row-span-2 aspect-[4/3] sm:aspect-auto sm:h-full" : "aspect-square"
             }`}
           >
             <Image
