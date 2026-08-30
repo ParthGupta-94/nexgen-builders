@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { MeshoptDecoder } from "three/examples/jsm/libs/meshopt_decoder.module.js";
 import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
@@ -180,8 +181,6 @@ export function GoldenEra3D() {
     const terra = new THREE.MeshStandardMaterial({ color: 0xa9764e, roughness: 0.85, metalness: 0 });
     const bathFloor = new THREE.MeshStandardMaterial({ color: 0x3a3b3d, roughness: 0.18, metalness: 0.2, envMapIntensity: 1.2 });
     const bathWall = new THREE.MeshStandardMaterial({ color: 0xedeeec, roughness: 0.22, metalness: 0.08, map: wrap(marbleTex(), 2), envMapIntensity: 1.2 });
-    const chrome = new THREE.MeshStandardMaterial({ color: 0xd0d3d7, roughness: 0.16, metalness: 1, envMapIntensity: 1.8 });
-    const porcelain = new THREE.MeshStandardMaterial({ color: 0xf4f4f2, roughness: 0.14, metalness: 0.05, envMapIntensity: 1 });
 
     // irregular "lights on" pattern (~55% of units lit at dusk)
     const litOn = (i: number) => (Math.abs(Math.sin((i + 1) * 34.17)) * 91) % 10 < 5.5;
@@ -440,22 +439,17 @@ export function GoldenEra3D() {
     ibox(KW, 0.12, KD, whiteWall, KX, RH, KZ, false);                        // ceiling
     ibox(KW - 1.4, 0.06, KD - 1.4, cream, KX, RH - 0.03, KZ, false);         // tray panel
     for (const dx of [-1.7, 0, 1.7]) for (const dz of [-1.7, 1.7]) addI(new THREE.CylinderGeometry(0.07, 0.07, 0.03, 14), goldGlow, KX + dx, RH - 0.15, KZ + dz, false);
-    // counter run along the back wall
-    ibox(KW - 0.5, 0.85, 0.6, walnut, KX, 0.43, kzBack + 0.35, false);       // base cabinets
-    ibox(KW - 0.4, 0.08, 0.66, marbleFloor, KX, 0.9, kzBack + 0.35, false);  // quartz worktop
-    ibox(KW - 0.5, 1.0, 0.05, metalBlk, KX, 1.5, kzBack + 0.06, false);      // dark backsplash
+    // counter run along the back wall (the real island loads below; pendants hang over it)
+    ibox(KW - 0.5, 0.85, 0.62, walnut, KX, 0.43, kzBack + 0.36, false);      // base cabinets
+    ibox(KW - 0.4, 0.08, 0.68, marbleFloor, KX, 0.9, kzBack + 0.36, false);  // quartz worktop
+    ibox(KW - 0.5, 1.05, 0.05, metalBlk, KX, 1.5, kzBack + 0.07, false);     // dark backsplash
     ibox(KW - 0.5, 0.55, 0.4, whiteWall, KX, 2.2, kzBack + 0.24, false);     // upper cabinets
-    ibox(KW - 0.6, 0.04, 0.42, led, KX, 1.02, kzBack + 0.58, false);         // under-cabinet LED
-    ibox(0.66, 0.03, 0.46, metalBlk, KX - 1.6, 0.95, kzBack + 0.35, false);  // cooktop
-    ibox(0.9, 0.55, 0.45, whiteWall, KX - 1.6, 2.15, kzBack + 0.32, false);  // chimney hood
-    ibox(0.5, 0.05, 0.36, cream, KX + 1.6, 0.94, kzBack + 0.35, false);      // sink basin
-    addI(new THREE.CylinderGeometry(0.018, 0.018, 0.28, 10), gold, KX + 1.6, 1.06, kzBack + 0.5, false); // faucet
-    // island + stools + pendants
-    ibox(2.4, 0.9, 1.0, walnut, KX - 0.3, 0.45, KZ + 0.9, false);
-    ibox(2.6, 0.08, 1.2, marbleFloor, KX - 0.3, 0.94, KZ + 0.9, false);
-    for (const sx of [KX - 1.1, KX - 0.3, KX + 0.5]) { addI(new THREE.CylinderGeometry(0.17, 0.17, 0.09, 18), sofaFab, sx, 0.62, KZ + 1.7, false); addI(new THREE.CylinderGeometry(0.03, 0.03, 0.6, 10), metalBlk, sx, 0.3, KZ + 1.7, false); }
-    for (const px of [KX - 0.9, KX - 0.3, KX + 0.3]) { addI(new THREE.CylinderGeometry(0.005, 0.005, 0.5, 6), frame, px, RH - 0.4, KZ + 0.9, false); addI(new THREE.SphereGeometry(0.09, 16, 16), goldGlow, px, RH - 0.72, KZ + 0.9, false); }
+    ibox(KW - 0.6, 0.04, 0.44, led, KX, 1.02, kzBack + 0.6, false);          // under-cabinet LED
+    ibox(0.66, 0.03, 0.48, metalBlk, KX - 1.6, 0.95, kzBack + 0.36, false);  // cooktop
+    ibox(0.9, 0.55, 0.46, whiteWall, KX - 1.6, 2.15, kzBack + 0.34, false);  // chimney hood
+    for (const px of [KX - 0.6, KX, KX + 0.6]) { addI(new THREE.CylinderGeometry(0.005, 0.005, 0.5, 6), frame, px, RH - 0.4, KZ + 0.7, false); addI(new THREE.SphereGeometry(0.09, 16, 16), goldGlow, px, RH - 0.72, KZ + 0.7, false); }
     const kLight = new THREE.PointLight(0xffe6c0, 4.5, 11, 2); kLight.position.set(KX, 2.3, KZ + 0.4); interior.add(kLight);
+    const kLight2 = new THREE.PointLight(0xfff0d6, 4, 9, 2); kLight2.position.set(KX, 1.9, kzBack + 1.2); interior.add(kLight2);
 
     // ===================== BEDROOM (left of living) =====================
     const BX = -15.5, BZ = IZ, BW = 6.6, BD = RD;
@@ -473,16 +467,10 @@ export function GoldenEra3D() {
     ibox(0.06, 2.4, 3.2, featureGrey, bx0 + 0.1, 1.3, BZ - 0.2, false);
     ibox(0.08, 0.12, 3.2, metalBlk, bx0 + 0.12, 1.95, BZ - 0.2, false);
     ibox(0.08, 2.4, 0.12, metalBlk, bx0 + 0.12, 1.3, BZ - 0.2, false);
-    // bed (head against the feature wall, extends +X)
-    const bedX = bx0 + 1.5;
-    ibox(0.16, 1.2, 2.2, sofaFab, bx0 + 0.22, 0.7, BZ - 0.2, false);         // upholstered headboard
-    ibox(2.2, 0.3, 2.2, walnut, bedX, 0.2, BZ - 0.2, false);                 // platform base
-    ibox(2.1, 0.22, 2.0, cream, bedX, 0.46, BZ - 0.2, false);               // mattress
-    irbox(1.5, 0.16, 2.1, sofaFab, bedX + 0.3, 0.62, BZ - 0.2, 0.05, false); // duvet fold
-    for (const pz of [BZ - 0.75, BZ + 0.35]) irbox(0.7, 0.22, 0.5, cream, bx0 + 0.85, 0.62, pz, 0.08, false); // pillows
-    for (const pz of [BZ - 1.45, BZ + 1.05]) { ibox(0.5, 0.45, 0.5, walnut, bx0 + 0.6, 0.22, pz, false); addI(new THREE.CylinderGeometry(0.1, 0.14, 0.24, 16), goldGlow, bx0 + 0.6, 0.6, pz, false); } // nightstands + lamps
-    irbox(0.6, 0.35, 1.8, sofaFab, bedX + 1.55, 0.18, BZ - 0.2, 0.05, false); // bench at foot
-    ibox(3.4, 0.02, 3.0, rugMat, bedX + 0.4, 0.02, BZ - 0.2, false);          // rug
+    // real bed model loads below (head to the feature wall); keep nightstands + lamps + rug
+    const bedX = bx0 + 1.9;
+    for (const pz of [BZ - 1.55, BZ + 1.15]) { ibox(0.5, 0.45, 0.5, walnut, bx0 + 0.6, 0.22, pz, false); addI(new THREE.CylinderGeometry(0.1, 0.14, 0.24, 16), goldGlow, bx0 + 0.6, 0.6, pz, false); } // nightstands + lamps
+    ibox(3.6, 0.02, 3.2, rugMat, bedX + 0.3, 0.02, BZ - 0.2, false);          // rug
     // sliding-mirror wardrobe on the right wall
     ibox(0.12, 2.4, 3.4, walnut, bx1 - 0.14, 1.2, BZ + 0.2, false);
     for (const wz of [BZ - 1.2, BZ - 0.1, BZ + 1.0]) ibox(0.05, 2.2, 1.0, glassCore, bx1 - 0.22, 1.2, wz, false); // tinted mirror panels
@@ -513,25 +501,9 @@ export function GoldenEra3D() {
     // frosted window on the left wall
     ibox(0.1, 0.95, 1.15, bathWall, hx0 + 0.05, 1.7, HZ - 0.5, false);
     ibox(0.05, 0.8, 1.0, glassCore, hx0 + 0.11, 1.7, HZ - 0.5, false);
-    // wall-hung wood vanity + stone top + vessel basin + faucet + mirror
-    ibox(0.5, 0.5, 1.9, walnut, hx1 - 0.32, 0.72, HZ, false);
-    ibox(0.56, 0.06, 2.0, marbleFloor, hx1 - 0.32, 1.0, HZ, false);
-    addI(new THREE.CylinderGeometry(0.17, 0.2, 0.17, 20), porcelain, hx1 - 0.34, 1.11, HZ - 0.45, false);
-    addI(new THREE.CylinderGeometry(0.016, 0.016, 0.24, 10), chrome, hx1 - 0.34, 1.2, HZ - 0.2, false);
-    ibox(0.04, 1.05, 1.5, glassCore, hx1 - 0.1, 1.75, HZ, false);            // mirror
-    ibox(0.05, 0.04, 1.5, led, hx1 - 0.14, 2.3, HZ, false);                  // mirror light
-    // wall-hung WC on a half duct wall (back-left)
-    ibox(0.72, 1.1, 0.32, bathWall, HX - 1.2, 0.6, hzBack + 0.22, false);
-    irbox(0.44, 0.36, 0.62, porcelain, HX - 1.2, 0.52, hzBack + 0.6, 0.1, false);
-    ibox(0.3, 0.04, 0.16, chrome, HX - 1.2, 1.12, hzBack + 0.28, false);     // flush plate
-    // shower: glass screen + chrome rain head + riser + handset, grey feature on the wall
-    ibox(0.05, 2.2, 1.7, railGlass, hx0 + 1.55, 1.1, HZ + 1.0, false);       // glass screen
-    ibox(0.06, 2.2, 0.06, chrome, hx0 + 1.55, 1.1, HZ + 1.85, false);        // screen post
-    addI(new THREE.CylinderGeometry(0.1, 0.1, 0.05, 18), chrome, hx0 + 0.5, 2.25, HZ + 1.3, false); // rain head
-    addI(new THREE.CylinderGeometry(0.02, 0.02, 0.9, 10), chrome, hx0 + 0.35, 1.55, HZ + 1.7, false); // riser
-    // chrome towel rail + folded towel
-    ibox(0.05, 0.05, 0.8, chrome, hx1 - 0.12, 1.1, HZ - 1.7, false);
-    irbox(0.12, 0.4, 0.55, cream, hx1 - 0.22, 1.1, HZ - 1.7, 0.04, false);
+    // real vanity / toilet / bathtub models load below; mirror over the vanity kept
+    ibox(0.04, 1.05, 1.3, glassCore, hx1 - 0.1, 1.8, HZ, false);             // mirror
+    ibox(0.05, 0.04, 1.3, led, hx1 - 0.14, 2.34, HZ, false);                // mirror light
     const hLight = new THREE.PointLight(0xffe9cc, 4.5, 9, 2); hLight.position.set(HX, 2.3, HZ); interior.add(hLight);
     const hLight2 = new THREE.PointLight(0xfff2dc, 2, 5, 2); hLight2.position.set(hx1 - 0.4, 1.8, HZ); interior.add(hLight2);
 
@@ -586,9 +558,10 @@ export function GoldenEra3D() {
     }
     const renderFrame = () => (composer ? composer.render() : renderer.render(scene, camera));
 
-    // ---------- load real furniture models (Poly Haven CC0 glTF) ----------
+    // ---------- load real furniture models (CC0 Poly Haven glTF + FurniMesh GLB) ----------
     const gltfLoader = new GLTFLoader();
-    const M = "/models/gltf";
+    gltfLoader.setMeshoptDecoder(MeshoptDecoder); // FurniMesh GLBs are meshopt-compressed
+    const M = "/models/gltf", G = "/models/glb";
     const prep = (o: THREE.Object3D) => o.traverse((c) => { const m = c as THREE.Mesh; if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } });
     // place `o` so its footprint is centred at (px,pz) and it sits on the floor at py
     // (hang=true aligns the TOP to py instead, for ceiling fixtures).
@@ -598,8 +571,16 @@ export function GoldenEra3D() {
       o.position.set(px - c.x, hang ? py - b.max.y : py - b.min.y, pz - c.z);
       interior.add(o);
     };
+    // scale so the larger horizontal footprint = targetW, then seat on the floor
+    const seatFit = (o: THREE.Object3D, px: number, py: number, pz: number, rotY: number, targetW: number) => {
+      o.updateMatrixWorld(true);
+      const s0 = new THREE.Box3().setFromObject(o).getSize(new THREE.Vector3());
+      seat(o, px, py, pz, rotY, targetW / Math.max(s0.x, s0.z));
+    };
     const load = (name: string, cb: (o: THREE.Object3D) => void) =>
       gltfLoader.load(`${M}/${name}/${name}_1k.gltf`, (g) => { prep(g.scene); cb(g.scene); renderFrame(); }, undefined, () => {});
+    const loadGlb = (name: string, cb: (o: THREE.Object3D) => void) =>
+      gltfLoader.load(`${G}/${name}.glb`, (g) => { prep(g.scene); cb(g.scene); renderFrame(); }, undefined, () => {});
     // living room (sofa faces the TV wall on -X)
     load("Sofa_01", (o) => seat(o, sX, 0, sZ, -Math.PI / 2));
     load("CoffeeTable_01", (o) => seat(o, sX - 2.1, 0, sZ, 0));
@@ -618,6 +599,12 @@ export function GoldenEra3D() {
       for (const [x, z, r] of spots) seat(o.clone(true), x, 0, z, r);
     });
     load("modern_ceiling_lamp_01", (o) => seat(o, dtX, RH - 0.04, dtZ, 0, 1, true));
+    // bedroom / kitchen / bathroom — realistic FurniMesh GLB (rotation/scale tuned by screenshot)
+    loadGlb("bed", (o) => seatFit(o, bx0 + 1.9, 0, BZ - 0.2, 0, 2.6));
+    loadGlb("kitchen_island", (o) => seatFit(o, KX, 0, KZ + 0.7, 0, 2.4));
+    loadGlb("vanity", (o) => seatFit(o, hx1 - 0.5, 0, HZ, -Math.PI / 2, 1.4));
+    loadGlb("toilet", (o) => seatFit(o, HX - 1.3, 0, hzBack + 0.5, 0, 0.7));
+    loadGlb("bathtub", (o) => seatFit(o, hx0 + 0.95, 0, HZ + 1.0, 0, 1.7));
 
     // ---------- orbit camera ----------
     type View = { target: THREE.Vector3; radius: number; az: number; pol: number };
