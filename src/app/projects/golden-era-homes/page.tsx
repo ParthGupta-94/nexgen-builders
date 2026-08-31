@@ -7,7 +7,7 @@ import { Container, Section, Eyebrow, Button } from "@/components/ui/primitives"
 import { Reveal } from "@/components/ui/reveal";
 import { Photo } from "@/components/ui/photo";
 import { Gallery } from "@/components/site/gallery";
-import { LazyGoldenEra3D } from "@/components/projects/lazy-golden-era-3d";
+import { GoldenEraExplore } from "@/components/projects/golden-era-explore";
 import { getProject } from "@/data/projects";
 import { getLocation } from "@/data/locations";
 import { goldenEraGallery } from "@/data/images";
@@ -168,30 +168,25 @@ export default function GoldenEraPage() {
         </Container>
       </Section>
 
-      {/* 3D concept massing — pinned scroll-track: the section stays put and the
-          towers assemble as you scroll through it (same as the homepage villa). */}
-      <section className="section-dark">
-        <div data-scroll-track className="relative h-[240vh]">
-          <div className="sticky top-0 flex h-screen flex-col justify-center py-14">
-            <Container>
-              <div className="max-w-2xl">
-                <Eyebrow>In 3D</Eyebrow>
-                <h2 className="mt-4 font-display text-[clamp(1.6rem,3.4vw,2.4rem)] text-[var(--color-ivory)]">
-                  Explore the towers — from the sky, the street, and inside a home.
-                </h2>
-                <p className="mt-3 max-w-xl text-[#cbc3b2]">
-                  Scroll to watch the Golden Era Homes cluster come together — then switch to an
-                  aerial view, drop to the boulevard, or step inside a furnished home. Indicative
-                  concept, not a final elevation.
-                </p>
-              </div>
-              <div className="relative mt-6 h-[56vh] min-h-[360px] w-full overflow-hidden rounded-3xl border border-white/10 shadow-xl shadow-black/30">
-                <LazyGoldenEra3D />
-              </div>
-            </Container>
+      {/* 3D — opt-in: a still render by default; the interactive scene loads on tap */}
+      <Section className="section-dark">
+        <Container>
+          <div className="max-w-2xl" data-reveal>
+            <Eyebrow>In 3D</Eyebrow>
+            <h2 className="mt-4 font-display text-[clamp(1.6rem,3.4vw,2.4rem)] text-[var(--color-ivory)]">
+              Explore the towers — from the sky, the street, and inside a home.
+            </h2>
+            <p className="mt-3 max-w-xl text-[#cbc3b2]">
+              An interactive 3D model of the Golden Era Homes cluster — tap to walk the towers,
+              switch to an aerial view, or step inside a furnished home. Indicative concept, not
+              a final elevation.
+            </p>
           </div>
-        </div>
-      </section>
+          <div className="relative mt-6 h-[62vh] min-h-[360px] w-full overflow-hidden rounded-3xl border border-white/10 shadow-xl shadow-black/30" data-reveal>
+            <GoldenEraExplore />
+          </div>
+        </Container>
+      </Section>
 
       {/* Amenities & specs */}
       <Section className="bg-ivory">

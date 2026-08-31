@@ -337,7 +337,7 @@ export function House3D() {
       m.position.copy(ep); // start scattered
       m.rotation.copy(pieces[pieces.length - 1].er);
     });
-    let assembly = 0; // 0 = exploded, 1 = assembled
+    let assembly = scrollTrack ? 0 : 1; // no scroll-track (click-to-load) → start assembled
     const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
     const applyAssembly = () => {
       const e = easeOut(assembly);
@@ -471,7 +471,7 @@ export function House3D() {
       const tr = track.getBoundingClientRect();
       const dist = Math.max(1, track.offsetHeight - window.innerHeight);
       let target = -tr.top / dist;
-      target = reduce || mode === INT ? 1 : Math.max(0, Math.min(1, target));
+      target = reduce || mode === INT || !scrollTrack ? 1 : Math.max(0, Math.min(1, target));
       assembly += (target - assembly) * (1 - Math.exp(-7 * dt));
       applyAssembly();
       applyCamera();

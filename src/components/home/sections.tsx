@@ -15,7 +15,7 @@ import {
 } from "@/data/site";
 import { locations } from "@/data/locations";
 import { projects } from "@/data/projects";
-import { LazyHouse3D } from "@/components/home/lazy-house-3d";
+import { VillaExplore } from "@/components/home/villa-explore";
 
 /* ---------------- Stats strip ---------------- */
 export function StatsStrip() {
@@ -119,37 +119,32 @@ export function WhyNexgen() {
   );
 }
 
-/* ---------------- 3D villa showcase ---------------- */
+/* ---------------- 3D villa showcase (opt-in) ---------------- */
 export function Showcase3D() {
   return (
-    <section id="showcase" className="bg-sand">
-      {/* tall scroll-track: the villa stays pinned and assembles across it */}
-      <div data-scroll-track className="relative h-[300vh]">
-        <div className="sticky top-0 flex h-screen flex-col justify-center py-16">
-          <Container className="relative">
-            <div className="mx-auto max-w-2xl text-center">
-              <div className="flex justify-center">
-                <Eyebrow>Built to last</Eyebrow>
-              </div>
-              <h2
-                data-split
-                className="mt-5 font-display text-[clamp(1.9rem,4vw,2.8rem)] leading-tight text-ink"
-              >
-                Homes designed for the next generation.
-              </h2>
-              <p className="mx-auto mt-4 max-w-lg text-muted">
-                Scroll to watch it come together, piece by piece — the way we
-                judge a home: the build, the location, the long-term value.
-              </p>
-            </div>
-
-            <div className="relative mt-6 h-[58vh] min-h-[380px] w-full overflow-hidden rounded-3xl border border-[var(--color-line)] shadow-xl shadow-black/5">
-              <LazyHouse3D />
-            </div>
-          </Container>
+    <Section id="showcase" className="bg-sand">
+      <Container>
+        <div className="mx-auto max-w-2xl text-center" data-reveal>
+          <div className="flex justify-center">
+            <Eyebrow>Built to last</Eyebrow>
+          </div>
+          <h2 className="mt-5 font-display text-[clamp(1.9rem,4vw,2.8rem)] leading-tight text-ink">
+            Homes designed for the next generation.
+          </h2>
+          <p className="mx-auto mt-4 max-w-lg text-muted">
+            A NexGen home in 3D — tap to explore it and step inside. The way we
+            judge a home: the build, the location, the long-term value.
+          </p>
         </div>
-      </div>
-    </section>
+
+        <div
+          data-reveal
+          className="relative mx-auto mt-8 h-[58vh] min-h-[380px] w-full max-w-5xl overflow-hidden rounded-3xl border border-[var(--color-line)] shadow-xl shadow-black/5"
+        >
+          <VillaExplore />
+        </div>
+      </Container>
+    </Section>
   );
 }
 

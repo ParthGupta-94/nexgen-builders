@@ -40,7 +40,8 @@ export function GoldenEra3D() {
     const scrollTrack = mount.closest<HTMLElement>("[data-scroll-track]");
     // dev-only visual-verification flags (inert without the query params)
     const q = new URLSearchParams(window.location.search);
-    const forceBuilt = q.has("built");
+    // No pinned scroll-track (the click-to-load path) → start already assembled.
+    const forceBuilt = q.has("built") || !scrollTrack;
     const forceView = q.get("view"); // string | null; mapped to a ViewKey below
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const highPerf =

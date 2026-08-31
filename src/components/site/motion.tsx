@@ -23,6 +23,11 @@ export function Motion() {
       document.documentElement.classList.remove("js");
       return;
     }
+    // desktop = fine pointer + wide screen; heavy scroll-linked effects (parallax)
+    // and the cursor flourishes are gated to this to keep touch devices smooth.
+    const desktop =
+      window.matchMedia("(hover: hover) and (pointer: fine)").matches &&
+      window.innerWidth >= 900;
 
     gsap.registerPlugin(ScrollTrigger);
 
@@ -59,7 +64,9 @@ export function Motion() {
 
     // ---- GSAP enhancements (decorative) ----
     const ctx = gsap.context(() => {
-      gsap.utils.toArray<HTMLElement>("[data-parallax]").forEach((el) => {
+      // scrub parallax is desktop-only — it drives transforms on every scroll
+      // tick and is a common source of jank on phones.
+      if (desktop) gsap.utils.toArray<HTMLElement>("[data-parallax]").forEach((el) => {
         const strength = parseFloat(el.dataset.parallax || "0.15");
         gsap.fromTo(
           el,
