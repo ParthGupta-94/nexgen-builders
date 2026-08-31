@@ -3,7 +3,6 @@ import {
   StatsStrip,
   AboutTeaser,
   WhyNexgen,
-  Showcase3D,
   FeaturedProjects,
   Locations,
   Testimonial,
@@ -51,7 +50,6 @@ export default function HomePage() {
       <StatsStrip />
       <AboutTeaser />
       <WhyNexgen />
-      <Showcase3D />
       <FeaturedProjects />
       <Locations />
       <Testimonial />

@@ -14,10 +14,10 @@ const GoldenEra3D = dynamic(
   },
 );
 
-export function GoldenEra3DAuto() {
+export function GoldenEra3DAuto({ background = false }: { background?: boolean }) {
   return (
     <div className="absolute inset-0">
-      <GoldenEra3D />
+      <GoldenEra3D background={background} />
     </div>
   );
 }

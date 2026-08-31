@@ -26,7 +26,7 @@ const ROOMS: ViewKey[] = ["living", "kitchen", "bedroom", "bathroom"];
  * HDRI IBL + GTAO/SMAA; the towers ASSEMBLE as you scroll the section into
  * view. Frame-rate-independent, pauses off-screen, reduced-motion aware.
  */
-export function GoldenEra3D() {
+export function GoldenEra3D({ background = false }: { background?: boolean } = {}) {
   const mountRef = useRef<HTMLDivElement>(null);
   const goToRef = useRef<(v: ViewKey) => void>(() => {});
   const [view, setView] = useState<ViewKey>("street");
@@ -56,7 +56,9 @@ export function GoldenEra3D() {
     renderer.toneMappingExposure = 0.86;
     mount.appendChild(renderer.domElement);
     Object.assign(renderer.domElement.style, {
-      width: "100%", height: "100%", cursor: "grab", touchAction: "pan-y",
+      width: "100%", height: "100%", touchAction: "pan-y",
+      cursor: background ? "default" : "grab",
+      pointerEvents: background ? "none" : "auto", // hero bg: let scroll pass through
     });
 
     const scene = new THREE.Scene();
@@ -853,6 +855,7 @@ export function GoldenEra3D() {
   return (
     <>
       <div ref={mountRef} className="absolute inset-0" aria-hidden />
+      {!background && (
       <div className="pointer-events-none absolute inset-x-0 bottom-3 flex flex-col items-center gap-2">
         {inside && (
           <div className="pointer-events-auto inline-flex items-center gap-1 rounded-full border border-[var(--color-gold)]/40 bg-black/45 p-1 backdrop-blur">
@@ -878,6 +881,7 @@ export function GoldenEra3D() {
           </span>
         </div>
       </div>
+      )}
     </>
   );
 }
