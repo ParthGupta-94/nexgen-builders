@@ -15,7 +15,7 @@ import {
 } from "@/data/site";
 import { locations } from "@/data/locations";
 import { projects } from "@/data/projects";
-import { VillaExplore } from "@/components/home/villa-explore";
+import { Villa3DAuto } from "@/components/home/villa-3d-auto";
 
 /* ---------------- Stats strip ---------------- */
 export function StatsStrip() {
@@ -119,32 +119,33 @@ export function WhyNexgen() {
   );
 }
 
-/* ---------------- 3D villa showcase (opt-in) ---------------- */
+/* ---------------- 3D villa showcase (auto-loads; scroll-assembled) ---------------- */
 export function Showcase3D() {
   return (
-    <Section id="showcase" className="bg-sand">
-      <Container>
-        <div className="mx-auto max-w-2xl text-center" data-reveal>
-          <div className="flex justify-center">
-            <Eyebrow>Built to last</Eyebrow>
-          </div>
-          <h2 className="mt-5 font-display text-[clamp(1.9rem,4vw,2.8rem)] leading-tight text-ink">
-            Homes designed for the next generation.
-          </h2>
-          <p className="mx-auto mt-4 max-w-lg text-muted">
-            A NexGen home in 3D — tap to explore it and step inside. The way we
-            judge a home: the build, the location, the long-term value.
-          </p>
-        </div>
+    <section id="showcase" className="bg-sand">
+      <div data-scroll-track className="relative h-[300vh]">
+        <div className="sticky top-0 flex h-screen flex-col justify-center py-16">
+          <Container className="relative">
+            <div className="mx-auto max-w-2xl text-center">
+              <div className="flex justify-center">
+                <Eyebrow>Built to last</Eyebrow>
+              </div>
+              <h2 className="mt-5 font-display text-[clamp(1.9rem,4vw,2.8rem)] leading-tight text-ink">
+                Homes designed for the next generation.
+              </h2>
+              <p className="mx-auto mt-4 max-w-lg text-muted">
+                Scroll to watch it come together, piece by piece — the way we
+                judge a home: the build, the location, the long-term value.
+              </p>
+            </div>
 
-        <div
-          data-reveal
-          className="relative mx-auto mt-8 h-[58vh] min-h-[380px] w-full max-w-5xl overflow-hidden rounded-3xl border border-[var(--color-line)] shadow-xl shadow-black/5"
-        >
-          <VillaExplore />
+            <div className="relative mt-6 h-[58vh] min-h-[380px] w-full overflow-hidden rounded-3xl border border-[var(--color-line)] shadow-xl shadow-black/5">
+              <Villa3DAuto />
+            </div>
+          </Container>
         </div>
-      </Container>
-    </Section>
+      </div>
+    </section>
   );
 }
 

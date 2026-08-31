@@ -17,7 +17,7 @@ import { OutputPass } from "three/examples/jsm/postprocessing/OutputPass.js";
  * "Step inside" flies into an open-plan interior you can pan across.
  * Frame-rate-independent, pauses off-screen, respects reduced-motion.
  */
-export function House3D() {
+export function House3D({ exteriorOnly = false }: { exteriorOnly?: boolean } = {}) {
   const mountRef = useRef<HTMLDivElement>(null);
   const goToRef = useRef<(inside: boolean) => void>(() => {});
   const [inside, setInside] = useState(false);
@@ -512,13 +512,15 @@ export function House3D() {
     <>
       <div ref={mountRef} className="absolute inset-0" aria-hidden />
       <div className="pointer-events-none absolute inset-x-0 bottom-3 flex flex-wrap justify-center gap-3">
-        <button
-          type="button"
-          onClick={() => { const next = !inside; setInside(next); goToRef.current(next); }}
-          className="pointer-events-auto inline-flex items-center gap-2 rounded-full bg-[var(--color-gold)] px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-black/30 transition-all duration-300 hover:-translate-y-0.5 hover:bg-white hover:text-ink"
-        >
-          {inside ? "← Back outside" : "Step inside ↵"}
-        </button>
+        {!exteriorOnly && (
+          <button
+            type="button"
+            onClick={() => { const next = !inside; setInside(next); goToRef.current(next); }}
+            className="pointer-events-auto inline-flex items-center gap-2 rounded-full bg-[var(--color-gold)] px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-black/30 transition-all duration-300 hover:-translate-y-0.5 hover:bg-white hover:text-ink"
+          >
+            {inside ? "← Back outside" : "Step inside ↵"}
+          </button>
+        )}
         <span className="pointer-events-none hidden items-center rounded-full border border-white/15 bg-black/30 px-4 py-2.5 text-xs font-medium text-[#efe7d7] backdrop-blur sm:inline-flex">
           Scroll to build it · drag to look around
         </span>
