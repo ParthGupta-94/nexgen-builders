@@ -53,7 +53,7 @@ export function GoldenEra3D({ background = false }: { background?: boolean } = {
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.shadowMap.autoUpdate = false; // shadows recomputed manually, only when the scene is still
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 0.86;
+    renderer.toneMappingExposure = background ? 1.12 : 0.86; // hero: bright daytime
     mount.appendChild(renderer.domElement);
     Object.assign(renderer.domElement.style, {
       width: "100%", height: "100%", touchAction: "pan-y",
@@ -62,8 +62,8 @@ export function GoldenEra3D({ background = false }: { background?: boolean } = {
     });
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x1a2440);
-    scene.fog = new THREE.Fog(0x243154, 70, 230);
+    scene.background = new THREE.Color(background ? 0xd9e7f3 : 0x1a2440);
+    scene.fog = background ? new THREE.Fog(0xe4edf5, 110, 340) : new THREE.Fog(0x243154, 70, 230);
     const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 700);
 
     // ---------- procedural textures ----------
@@ -124,16 +124,16 @@ export function GoldenEra3D({ background = false }: { background?: boolean } = {
       t.colorSpace = THREE.SRGBColorSpace;
       return t;
     };
-    scene.background = duskSky();
+    if (!background) scene.background = duskSky(); // hero stays bright (HDRI sky below)
 
     let hdrTex: THREE.Texture | null = null;
     let envRT: THREE.WebGLRenderTarget | null = null;
 
     // ---------- lighting (golden-hour / dusk) ----------
-    scene.add(new THREE.HemisphereLight(0x3a4a6e, 0x241c14, 0.5));
-    scene.add(new THREE.AmbientLight(0x2a3352, 0.35));
-    const sun = new THREE.DirectionalLight(0xffa259, 2.3); // warm low setting sun
-    sun.position.set(-34, 16, 20);
+    scene.add(new THREE.HemisphereLight(background ? 0xdcebf7 : 0x3a4a6e, background ? 0x9a9078 : 0x241c14, background ? 0.75 : 0.5));
+    scene.add(new THREE.AmbientLight(background ? 0xa6b6c6 : 0x2a3352, background ? 0.22 : 0.35));
+    const sun = new THREE.DirectionalLight(background ? 0xfff4e2 : 0xffa259, background ? 3.2 : 2.3);
+    sun.position.set(background ? -18 : -34, background ? 38 : 16, background ? 24 : 20); // hero: high daytime sun
     sun.castShadow = true;
     sun.shadow.mapSize.set(highPerf ? 1536 : 1024, highPerf ? 1536 : 1024);
     sun.shadow.camera.near = 1; sun.shadow.camera.far = 160;
@@ -152,10 +152,11 @@ export function GoldenEra3D({ background = false }: { background?: boolean } = {
     const glassWin = new THREE.MeshPhysicalMaterial({ color: 0x13222b, metalness: 0, roughness: 0.06, ior: 1.5, clearcoat: 1, clearcoatRoughness: 0.05, envMapIntensity: 2.0, reflectivity: 0.7 });
     const glassCore = new THREE.MeshPhysicalMaterial({ color: 0x35566a, metalness: 0, roughness: 0.03, ior: 1.5, clearcoat: 1, clearcoatRoughness: 0.03, envMapIntensity: 2.6, reflectivity: 0.85 });
     const railGlass = new THREE.MeshPhysicalMaterial({ color: 0x30505e, metalness: 0, roughness: 0.08, transmission: 0.6, transparent: true, opacity: 0.6, ior: 1.4, envMapIntensity: 1.6 });
-    const winGlow = new THREE.MeshStandardMaterial({ color: 0xffe0b0, emissive: 0xffb865, emissiveIntensity: 1.6, roughness: 0.4 });
-    const led = new THREE.MeshStandardMaterial({ color: 0xffe9c4, emissive: 0xffc06a, emissiveIntensity: 2.3, roughness: 0.5 });
+    const em = background ? 0.2 : 1; // hero daytime: kill the lit-window glow
+    const winGlow = new THREE.MeshStandardMaterial({ color: background ? 0xdfe7ee : 0xffe0b0, emissive: 0xffb865, emissiveIntensity: 1.6 * em, roughness: 0.4 });
+    const led = new THREE.MeshStandardMaterial({ color: 0xffe9c4, emissive: 0xffc06a, emissiveIntensity: 2.3 * em, roughness: 0.5 });
     const gold = new THREE.MeshStandardMaterial({ color: 0xb08a3e, roughness: 0.24, metalness: 1, envMapIntensity: 1.6 });
-    const goldGlow = new THREE.MeshStandardMaterial({ color: 0xffd79a, emissive: 0xf2be74, emissiveIntensity: 2.4, roughness: 0.4 });
+    const goldGlow = new THREE.MeshStandardMaterial({ color: 0xffd79a, emissive: 0xf2be74, emissiveIntensity: 2.4 * em, roughness: 0.4 });
     const marbleMat = new THREE.MeshStandardMaterial({ color: 0xf3efe6, roughness: 0.16, metalness: 0.1, map: wrap(marbleTex(), 2), envMapIntensity: 1.4 });
     const stone = new THREE.MeshStandardMaterial({ color: 0x6f6752, roughness: 0.85, metalness: 0.06 });
     const copper = new THREE.MeshStandardMaterial({ color: 0xb5623a, roughness: 0.3, metalness: 0.9, envMapIntensity: 1.8 });
@@ -595,9 +596,8 @@ export function GoldenEra3D({ background = false }: { background?: boolean } = {
     if (highPerf) {
       composer = new EffectComposer(renderer);
       composer.addPass(new RenderPass(scene, camera));
-      // gentle bloom so lit windows / LED strips glow like the night render
-      // (GTAO ambient-occlusion pass dropped — biggest cost, minimal visual loss)
-      composer.addPass(new UnrealBloomPass(new THREE.Vector2(1, 1), 0.42, 0.4, 0.86));
+      // gentle bloom for the dusk glow; skipped in the bright daytime hero
+      if (!background) composer.addPass(new UnrealBloomPass(new THREE.Vector2(1, 1), 0.42, 0.4, 0.86));
       composer.addPass(new SMAAPass());
       composer.addPass(new OutputPass());
     }
@@ -736,8 +736,13 @@ export function GoldenEra3D({ background = false }: { background?: boolean } = {
     new RGBELoader().load("/hdri/sky_1k.hdr", (hdr) => {
       hdr.mapping = THREE.EquirectangularReflectionMapping;
       hdrTex = hdr; envRT = pmrem.fromEquirectangular(hdr);
-      // keep the dusk gradient as the visible sky; use the HDRI only as dim IBL
-      scene.environment = envRT.texture; scene.environmentIntensity = 0.45;
+      scene.environment = envRT.texture;
+      if (background) {
+        // hero: real daytime sky as the visible background + full IBL (bright + realistic)
+        scene.background = hdr; scene.backgroundBlurriness = 0.4; scene.environmentIntensity = 1.15;
+      } else {
+        scene.environmentIntensity = 0.45; // GE page keeps the dusk gradient sky
+      }
       pmrem.dispose(); renderFrame();
     }, undefined, () => pmrem.dispose());
 

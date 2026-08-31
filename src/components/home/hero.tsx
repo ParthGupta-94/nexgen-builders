@@ -54,8 +54,9 @@ export function Hero() {
           <div className="absolute inset-0 -z-20">
             <GoldenEra3DAuto background />
           </div>
-          {/* legibility scrim */}
-          <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-black/55 via-black/25 to-black/80" />
+          {/* legibility scrim — bright cluster/sky at top-right, darkened behind the text */}
+          <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-tr from-black/80 via-black/30 to-transparent" />
+          <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-t from-black/40 to-transparent" />
 
           <Container className="flex h-full flex-col justify-center pb-24 pt-36 sm:pt-40">
             <div className="max-w-4xl">
