@@ -182,9 +182,14 @@ export default function AboutPage() {
       <Section className="bg-ivory">
         <Container className="grid gap-12 lg:grid-cols-2 lg:gap-16">
           <Reveal>
-            <div className="flex h-full flex-col justify-center rounded-2xl border border-[var(--color-line)] bg-[var(--color-paper)] p-8 sm:p-10">
-              <Photo src={founderImage} alt={site.contact.owner} sizes="80px" className="h-20 w-20 rounded-full" />
-              <h3 className="mt-5 font-display text-2xl text-ink">
+            <div className="flex h-full flex-col justify-center rounded-2xl border border-[var(--color-line)] bg-[var(--color-paper)] p-6 sm:p-8">
+              <Photo
+                src={founderImage}
+                alt={`${site.contact.owner} at the NexGen office`}
+                sizes="(max-width: 1024px) 100vw, 45vw"
+                className="aspect-4/3 w-full rounded-xl"
+              />
+              <h3 className="mt-6 font-display text-2xl text-ink">
                 {site.contact.owner}
               </h3>
               <p className="mt-1 text-sm font-medium uppercase tracking-[0.14em] text-gold">

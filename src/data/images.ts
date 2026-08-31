@@ -30,7 +30,7 @@ const INT = {
 
 export const heroImage = U(EXT.f, 2000);
 export const aboutImage = U(EXT.d, 1200);
-export const founderImage = U(INT.d, 600);
+export const founderImage = "/team/sanjeev.jpg"; // real photo — Sanjeev at the NexGen office
 
 export const projectImages: Record<string, string> = {
   "golden-era-homes": "/projects/golden-era/day-site-view.jpg",
