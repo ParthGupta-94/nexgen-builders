@@ -80,7 +80,7 @@ export const testimonials = [
   {
     quote:
       "Your deep market knowledge and negotiation skills got us the best possible outcome. You made a stressful, complicated process feel completely seamless and easy.",
-    author: "[PLACEHOLDER — client name]",
+    author: "A NexGen client",
     detail: "Home buyer, Zirakpur",
   },
 ] as const;
@@ -142,4 +142,10 @@ export const nav = [
 
 export function whatsappHref(message: string = site.contact.whatsappMessage) {
   return `https://wa.me/${site.contact.whatsapp}?text=${encodeURIComponent(message)}`;
+}
+
+/** True when a value is missing or still an unfilled [PLACEHOLDER]. Components
+ *  use this to hide fields that don't have a real value yet. */
+export function isPlaceholder(value?: string): boolean {
+  return !value || value.trimStart().startsWith("[PLACEHOLDER");
 }

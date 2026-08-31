@@ -7,7 +7,7 @@ import { Reveal } from "@/components/ui/reveal";
 import { Photo } from "@/components/ui/photo";
 import { projectImages } from "@/data/images";
 import { projects } from "@/data/projects";
-import { partners, site, whatsappHref } from "@/data/site";
+import { partners, site, whatsappHref, isPlaceholder } from "@/data/site";
 
 export const metadata: Metadata = {
   title: "Projects — Flats, Villas & Homes in Zirakpur & Tricity",
@@ -54,9 +54,11 @@ export default function ProjectsPage() {
                       <MapPin size={12} /> {p.tagline}
                     </p>
                     <h2 className="mt-2 font-display text-xl text-ink">{p.name}</h2>
-                    <p className="mt-1 flex items-center gap-1.5 text-xs text-muted">
-                      <Building2 size={12} /> {p.developer}
-                    </p>
+                    {!isPlaceholder(p.developer) && (
+                      <p className="mt-1 flex items-center gap-1.5 text-xs text-muted">
+                        <Building2 size={12} /> {p.developer}
+                      </p>
+                    )}
                     <p className="mt-3 flex-1 text-sm leading-relaxed text-muted">
                       {p.intro[0].slice(0, 120)}…
                     </p>

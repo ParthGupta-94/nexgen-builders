@@ -6,7 +6,7 @@ import { Reveal } from "@/components/ui/reveal";
 import { EnquiryForm } from "@/components/forms/enquiry-form";
 import { Photo } from "@/components/ui/photo";
 import { contactImage } from "@/data/images";
-import { site, whatsappHref } from "@/data/site";
+import { site, whatsappHref, isPlaceholder } from "@/data/site";
 
 export const metadata: Metadata = {
   title: "Contact NexGen Builders & Promoters — Zirakpur, PR-7 Airport Road",
@@ -135,10 +135,12 @@ export default function ContactPage() {
                         {site.address.city}, {site.address.state} {site.address.pin}
                       </span>
                     </li>
-                    <li className="flex gap-3">
-                      <Clock size={18} className="mt-0.5 shrink-0 text-gold" />
-                      <span>{site.address.hours}</span>
-                    </li>
+                    {!isPlaceholder(site.address.hours) && (
+                      <li className="flex gap-3">
+                        <Clock size={18} className="mt-0.5 shrink-0 text-gold" />
+                        <span>{site.address.hours}</span>
+                      </li>
+                    )}
                     <li className="flex gap-3">
                       <svg
                         viewBox="0 0 24 24"

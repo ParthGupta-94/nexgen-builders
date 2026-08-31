@@ -12,7 +12,7 @@ import { GoldenEra3DAuto } from "@/components/projects/golden-era-3d-auto";
 import { getProject } from "@/data/projects";
 import { getLocation } from "@/data/locations";
 import { goldenEraGallery } from "@/data/images";
-import { site, whatsappHref } from "@/data/site";
+import { site, whatsappHref, isPlaceholder } from "@/data/site";
 
 const NO_3D = process.env.NEXT_PUBLIC_NO_3D === "1";
 
@@ -173,8 +173,8 @@ export default function GoldenEraPage() {
             <div className="rounded-2xl border border-[var(--color-line)] bg-[var(--color-paper)] p-7">
               <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-gold">At a glance</h2>
               <dl className="mt-4 space-y-3 text-sm">
-                {specs.map((s, i) => (
-                  <div key={s.label} className={`flex justify-between gap-4 ${i < specs.length - 1 ? "border-b border-[var(--color-line)] pb-3" : ""}`}>
+                {specs.filter((s) => !isPlaceholder(s.value)).map((s, i, arr) => (
+                  <div key={s.label} className={`flex justify-between gap-4 ${i < arr.length - 1 ? "border-b border-[var(--color-line)] pb-3" : ""}`}>
                     <dt className="text-muted">{s.label}</dt>
                     <dd className="text-right font-medium text-ink">{s.value}</dd>
                   </div>

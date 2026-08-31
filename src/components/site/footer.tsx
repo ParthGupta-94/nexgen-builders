@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { MapPin, Phone, Mail } from "lucide-react";
-import { nav, site, whatsappHref } from "@/data/site";
+import { nav, site, whatsappHref, isPlaceholder } from "@/data/site";
 import { Container } from "@/components/ui/primitives";
 
 export function SiteFooter() {
@@ -85,7 +85,8 @@ export function SiteFooter() {
             © {new Date().getFullYear()} {site.name}. All rights reserved.
           </p>
           <p>
-            {site.contact.owner}, {site.contact.role} · RERA {site.rera}
+            {site.contact.owner}, {site.contact.role}
+            {!isPlaceholder(site.rera) && <> · RERA {site.rera}</>}
           </p>
         </div>
       </Container>

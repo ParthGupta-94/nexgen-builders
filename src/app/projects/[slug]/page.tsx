@@ -17,7 +17,7 @@ import { Photo } from "@/components/ui/photo";
 import { projectImages, galleryImages } from "@/data/images";
 import { projects, getProject } from "@/data/projects";
 import { getLocation } from "@/data/locations";
-import { site, whatsappHref } from "@/data/site";
+import { site, whatsappHref, isPlaceholder } from "@/data/site";
 
 export function generateStaticParams() {
   // golden-era-homes has its own bespoke page at /projects/golden-era-homes
@@ -129,9 +129,11 @@ export default async function ProjectPage({
             <span className="flex items-center gap-1.5">
               <MapPin size={15} className="text-[var(--color-gold-soft)]" /> {p.tagline}
             </span>
-            <span className="flex items-center gap-1.5">
-              <Building2 size={15} className="text-[var(--color-gold-soft)]" /> {p.developer}
-            </span>
+            {!isPlaceholder(p.developer) && (
+              <span className="flex items-center gap-1.5">
+                <Building2 size={15} className="text-[var(--color-gold-soft)]" /> {p.developer}
+              </span>
+            )}
           </p>
 
           <div className="mt-8 flex flex-wrap gap-4">
@@ -209,10 +211,12 @@ export default async function ProjectPage({
                   <dt className="text-muted">Location</dt>
                   <dd className="text-right font-medium text-ink">{p.tagline}</dd>
                 </div>
-                <div className="flex justify-between gap-4 border-b border-[var(--color-line)] pb-3">
-                  <dt className="text-muted">Developer</dt>
-                  <dd className="text-right font-medium text-ink">{p.developer}</dd>
-                </div>
+                {!isPlaceholder(p.developer) && (
+                  <div className="flex justify-between gap-4 border-b border-[var(--color-line)] pb-3">
+                    <dt className="text-muted">Developer</dt>
+                    <dd className="text-right font-medium text-ink">{p.developer}</dd>
+                  </div>
+                )}
                 <div className="flex justify-between gap-4 border-b border-[var(--color-line)] pb-3">
                   <dt className="text-muted">Type</dt>
                   <dd className="text-right font-medium text-ink">{p.type}</dd>
