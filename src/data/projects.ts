@@ -65,7 +65,7 @@ export const projects: Project[] = [
         body: "We push for the best price, floor and payment terms on your behalf.",
       },
     ],
-    configs: ["1, 2 & 3 BHK apartments", "Ready-to-move & under-construction options"],
+    configs: ["3 BHK apartments & independent floors", "S+14 towers (1750 & 2100 sq.ft) · S+4 floors (225 sq.yd)"],
     faqs: [
       {
         q: "What is the price of a flat in Golden Era Homes?",

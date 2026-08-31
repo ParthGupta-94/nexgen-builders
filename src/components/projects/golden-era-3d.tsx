@@ -579,7 +579,7 @@ export function GoldenEra3D({ background = false }: { background?: boolean } = {
       pieces.push({ m, fp, ep, fr: m.rotation.clone(), er: new THREE.Euler((rnd(i, 1.1) - 0.5) * 1.4, (rnd(i, 2.2) - 0.5) * 2.0, (rnd(i, 3.3) - 0.5) * 1.4) });
       m.position.copy(ep); m.rotation.copy(pieces[pieces.length - 1].er);
     });
-    let assembly = reduce || forceBuilt ? 1 : 0;
+    let assembly = reduce || forceBuilt ? 1 : background ? 0.5 : 0; // hero starts mostly built
     let introT = 0; // timed build-intro clock (used on the click-to-load path)
     const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
     const applyAssembly = () => {
@@ -796,7 +796,9 @@ export function GoldenEra3D({ background = false }: { background?: boolean } = {
       } else if (scrollTrack) {
         const tr = scrollTrack.getBoundingClientRect();
         const dist = Math.max(1, scrollTrack.offsetHeight - window.innerHeight);
-        target = Math.max(0, Math.min(1, -tr.top / dist / 0.88));
+        const sp = Math.max(0, Math.min(1, -tr.top / dist));
+        // hero (background): start ~mostly built and just settle the last bit on scroll
+        target = background ? 0.5 + 0.5 * sp : Math.min(1, sp / 0.88);
       } else {
         introT += dt;
         target = Math.max(0, Math.min(1, (introT - 0.3) / 2.6));

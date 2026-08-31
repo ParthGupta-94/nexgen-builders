@@ -42,3 +42,6 @@ next-env.d.ts
 
 # local design reference photos (not published)
 /reference/
+
+# Local reference material (brochures, raw photos) — not shipped
+reference/
