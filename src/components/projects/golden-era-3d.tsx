@@ -40,8 +40,7 @@ export function GoldenEra3D() {
     const scrollTrack = mount.closest<HTMLElement>("[data-scroll-track]");
     // dev-only visual-verification flags (inert without the query params)
     const q = new URLSearchParams(window.location.search);
-    // No pinned scroll-track (the click-to-load path) → start already assembled.
-    const forceBuilt = q.has("built") || !scrollTrack;
+    const forceBuilt = q.has("built");
     const forceView = q.get("view"); // string | null; mapped to a ViewKey below
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const highPerf =
@@ -563,6 +562,7 @@ export function GoldenEra3D() {
       m.position.copy(ep); m.rotation.copy(pieces[pieces.length - 1].er);
     });
     let assembly = reduce || forceBuilt ? 1 : 0;
+    let introT = 0; // timed build-intro clock (used on the click-to-load path)
     const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
     const applyAssembly = () => {
       const e = easeOut(assembly);
@@ -631,8 +631,6 @@ export function GoldenEra3D() {
     loadGlb("bed", (o) => seatFit(o, bx0 + 1.35, 0, BZ, Math.PI / 2, 2.2)); // head to the feature wall (-X)
     // realistic potted plants in the other rooms
     load("calathea_orbifolia_01", (o) => seat(o, bx1 - 0.7, 0, bzBack + 1.0));   // bedroom corner
-    load("calathea_orbifolia_01", (o) => seat(o, hx0 + 0.55, 0, HZ + 1.7));       // bathroom corner
-    load("calathea_orbifolia_01", (o) => seat(o, dtX + 2.3, 0, dtZ - 0.3));       // dining corner
     loadGlb("kitchen_island", (o) => seatFit(o, KX, 0, KZ + 0.7, 0, 2.4));
     loadGlb("vanity", (o) => seatFit(o, hx1 - 0.5, 0, HZ, -Math.PI / 2, 1.4));
     loadGlb("toilet", (o) => seatFit(o, HX - 1.3, 0, hzBack + 0.5, 0, 0.7));
@@ -758,16 +756,20 @@ export function GoldenEra3D() {
       raf = requestAnimationFrame(tick);
       if (!visible || document.hidden) { clock.getDelta(); return; }
       const dt = Math.min(clock.getDelta(), 0.05);
-      // SCROLL-TRACK assembly (same as the homepage villa): the section pins and
-      // the towers converge as you scroll through the tall track. Completes at
-      // ~88% so the finished cluster holds for a beat before the section releases.
-      const track = scrollTrack || mount;
-      const tr = track.getBoundingClientRect();
-      const dist = Math.max(1, track.offsetHeight - window.innerHeight);
-      let target = -tr.top / dist / 0.88;
-      // scroll-driven while OUTSIDE (street AND aerial both watch it build);
-      // forced complete only inside a room (or reduced-motion / verification).
-      target = reduce || forceBuilt || ROOMS.includes(modeKey) ? 1 : Math.max(0, Math.min(1, target));
+      // Assembly target: built when inside a room / reduced-motion / verified;
+      // scroll-driven if a pinned track exists; otherwise (click-to-load) it plays
+      // once as a ~2.6s timed build-intro so you watch the cluster come together.
+      let target: number;
+      if (reduce || forceBuilt || ROOMS.includes(modeKey)) {
+        target = 1;
+      } else if (scrollTrack) {
+        const tr = scrollTrack.getBoundingClientRect();
+        const dist = Math.max(1, scrollTrack.offsetHeight - window.innerHeight);
+        target = Math.max(0, Math.min(1, -tr.top / dist / 0.88));
+      } else {
+        introT += dt;
+        target = Math.max(0, Math.min(1, (introT - 0.3) / 2.6));
+      }
       if (!dragging && modeKey === "aerial") tgt.az += 0.05 * dt;
       const k = 1 - Math.exp(-6 * dt);
       cur.tx += (tgt.tx - cur.tx) * k; cur.ty += (tgt.ty - cur.ty) * k; cur.tz += (tgt.tz - cur.tz) * k;

@@ -337,7 +337,8 @@ export function House3D() {
       m.position.copy(ep); // start scattered
       m.rotation.copy(pieces[pieces.length - 1].er);
     });
-    let assembly = scrollTrack ? 0 : 1; // no scroll-track (click-to-load) → start assembled
+    let assembly = reduce ? 1 : 0; // exploded → plays a timed build-intro on load
+    let introT = 0;
     const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
     const applyAssembly = () => {
       const e = easeOut(assembly);
@@ -465,13 +466,19 @@ export function House3D() {
       const k = 1 - Math.exp(-6 * dt);
       cur.tx += (tgt.tx - cur.tx) * k; cur.ty += (tgt.ty - cur.ty) * k; cur.tz += (tgt.tz - cur.tz) * k;
       cur.r += (tgt.r - cur.r) * k; cur.az += (tgt.az - cur.az) * k; cur.pol += (tgt.pol - cur.pol) * k;
-      // scroll-driven assembly across the PINNED scroll-track: pieces converge
-      // over a full screen-plus of scrolling while the section stays fixed.
-      const track = scrollTrack || mount;
-      const tr = track.getBoundingClientRect();
-      const dist = Math.max(1, track.offsetHeight - window.innerHeight);
-      let target = -tr.top / dist;
-      target = reduce || mode === INT || !scrollTrack ? 1 : Math.max(0, Math.min(1, target));
+      // Assembly: built inside / reduced-motion; scroll-driven with a pinned
+      // track; otherwise (click-to-load) a ~2.6s timed build-intro on load.
+      let target: number;
+      if (reduce || mode === INT) {
+        target = 1;
+      } else if (scrollTrack) {
+        const tr = scrollTrack.getBoundingClientRect();
+        const dist = Math.max(1, scrollTrack.offsetHeight - window.innerHeight);
+        target = Math.max(0, Math.min(1, -tr.top / dist));
+      } else {
+        introT += dt;
+        target = Math.max(0, Math.min(1, (introT - 0.3) / 2.6));
+      }
       assembly += (target - assembly) * (1 - Math.exp(-7 * dt));
       applyAssembly();
       applyCamera();
