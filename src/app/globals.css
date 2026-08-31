@@ -157,6 +157,9 @@ p {
 .js .reveal.in {
   opacity: 1;
   transform: none;
+  /* release the compositor layer once revealed — avoids holding a GPU layer
+     per element forever (matters on mobile with many reveals) */
+  will-change: auto;
 }
 [data-parallax] {
   will-change: transform;
