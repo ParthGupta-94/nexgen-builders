@@ -21,7 +21,7 @@ const jsonLd = {
   name: site.name,
   telephone: site.contact.phone,
   email: site.contact.email,
-  url: "https://nexgenbuilders.in/contact",
+  url: "https://nexgenestates.in/contact",
   address: {
     "@type": "PostalAddress",
     streetAddress: `${site.address.line1}, ${site.address.line2}`,

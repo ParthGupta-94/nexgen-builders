@@ -52,7 +52,7 @@ export default function OgImage() {
           </div>
         </div>
 
-        <div style={{ fontSize: 24, color: "#c9a24a" }}>nexgenbuilders.in</div>
+        <div style={{ fontSize: 24, color: "#c9a24a" }}>nexgenestates.in</div>
       </div>
     ),
     { ...size },

@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { locations } from "@/data/locations";
 import { projects } from "@/data/projects";
 
-const BASE = "https://nexgenbuilders.in";
+const BASE = "https://nexgenestates.in";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const staticRoutes = ["", "/projects", "/locations", "/about", "/contact"].map((path) => ({

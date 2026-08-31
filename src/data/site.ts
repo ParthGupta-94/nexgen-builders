@@ -39,8 +39,8 @@ export const site = {
     facebook: "[PLACEHOLDER — Facebook page URL]",
   },
 
-  // Preferred domains (to be registered): nexgenbuilders.in
-  domain: "nexgenbuilders.in",
+  // Preferred domains (to be registered): nexgenestates.in
+  domain: "nexgenestates.in",
 
   // RERA / certifications — owner confirmed these exist; awaiting numbers.
   rera: "[PLACEHOLDER — RERA registration number]",
