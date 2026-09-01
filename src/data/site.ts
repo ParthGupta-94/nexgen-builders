@@ -80,7 +80,7 @@ export const testimonials = [
   {
     quote:
       "Your deep market knowledge and negotiation skills got us the best possible outcome. You made a stressful, complicated process feel completely seamless and easy.",
-    author: "A NexGen client",
+    author: "Vansh Sharma",
     detail: "Home buyer, Zirakpur",
   },
 ] as const;
