@@ -307,6 +307,58 @@ export default async function ProjectPage({
         </Container>
       </Section>
 
+      {/* Amenities */}
+      {p.amenities?.length ? (
+        <Section className="bg-ivory">
+          <Container>
+            <Reveal>
+              <div>
+                <Eyebrow>Amenities</Eyebrow>
+                <h2 className="mt-5 font-display text-[clamp(1.6rem,3.2vw,2.2rem)] text-ink">
+                  Everyday comfort, built in.
+                </h2>
+                <ul className="mt-8 grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
+                  {p.amenities.map((a) => (
+                    <li key={a} className="flex items-start gap-2.5 text-sm text-ink">
+                      <Check size={16} className="mt-0.5 shrink-0 text-gold" /> {a}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </Reveal>
+          </Container>
+        </Section>
+      ) : null}
+
+      {/* Connectivity */}
+      {p.connectivity?.length ? (
+        <Section className="section-dark">
+          <Container>
+            <Reveal>
+              <Eyebrow>Connectivity</Eyebrow>
+              <h2 className="mt-5 font-display text-[clamp(1.6rem,3.4vw,2.4rem)] text-[var(--color-ivory)]">
+                A genuinely seamless address.
+              </h2>
+              <p className="mt-3 max-w-2xl on-dark-muted">
+                Drive times from {p.name} — indicative, per the developer.
+              </p>
+            </Reveal>
+            <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
+              {p.connectivity.map((c, i) => (
+                <Reveal key={c.place} delay={i * 50}>
+                  <div className="h-full rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-center">
+                    <p className="figure font-display text-[1.7rem] leading-none text-[var(--color-gold-soft)]">
+                      {c.time}
+                    </p>
+                    <p className="mt-2 text-sm text-[#efe7d7]">{c.place}</p>
+                  </div>
+                </Reveal>
+              ))}
+            </div>
+          </Container>
+        </Section>
+      ) : null}
+
       {/* FAQ */}
       <Section className="bg-ivory">
         <Container className="max-w-3xl">

@@ -26,6 +26,9 @@ export type Project = {
   highlights: { title: string; body: string }[];
   configs: string[];
   faqs: Faq[];
+  // optional rich sections (real data from the developer's site; omit if unknown)
+  amenities?: string[];
+  connectivity?: { place: string; time: string }[];
 };
 
 export const projects: Project[] = [
@@ -114,6 +117,17 @@ export const projects: Project[] = [
       },
     ],
     configs: ["2 & 3 BHK apartments", "Airport Road / PR-7 location"],
+    amenities: ["Swimming pool", "37,000 sq.ft clubhouse", "6.5-acre landscaped greens", "Power backup", "Piped-gas connection", "Managed facilities (IFMS)"],
+    connectivity: [
+      { place: "Chandigarh Airport", time: "18 min" },
+      { place: "Mehar Hospital", time: "10 min" },
+      { place: "St. Xavier's School", time: "5 min" },
+      { place: "D-Mart", time: "5 min" },
+      { place: "Decathlon", time: "5 min" },
+      { place: "Metro Wholesale", time: "10 min" },
+      { place: "Mohali", time: "20 min" },
+      { place: "Panchkula", time: "20 min" },
+    ],
     faqs: [
       {
         q: "Is Vintage Greens ready to move in?",
@@ -162,6 +176,17 @@ export const projects: Project[] = [
       },
     ],
     configs: ["Premium 3 & 4 BHK apartments", "Airport Road / PR-7 location"],
+    amenities: ["Swimming pool", "Clubhouse", "Gymnasium", "Indoor games", "Yoga deck", "Squash court", "Banquet hall"],
+    connectivity: [
+      { place: "Bestech Mall", time: "8 min" },
+      { place: "Manav Rachna School", time: "6 min" },
+      { place: "IISER Mohali", time: "10 min" },
+      { place: "NIPER Mohali", time: "11 min" },
+      { place: "Airport", time: "15 min" },
+      { place: "Fortis Hospital", time: "16 min" },
+      { place: "PCA Stadium", time: "12 min" },
+      { place: "Railway Station", time: "25 min" },
+    ],
     faqs: [
       {
         q: "How much does a luxury flat in Belgravia cost?",
@@ -206,6 +231,7 @@ export const projects: Project[] = [
       },
     ],
     configs: ["1, 2 & 3 BHK homes", "Chandigarh–Ambala belt location"],
+    amenities: ["24×7 gated security", "Clubhouse", "Mini theatre", "Amphitheatre", "Gymnasium", "Cricket, basketball & volleyball", "Landscaped parks", "Rainwater harvesting"],
     faqs: [
       {
         q: "Are Vaneet Infra homes in Derabassi a good investment?",
@@ -254,6 +280,14 @@ export const projects: Project[] = [
       },
     ],
     configs: ["Residential configurations", "Patiala Highway location"],
+    amenities: ["Club Green clubhouse", "Kids' play area", "Sports zones", "7-acre central park", "EV charging", "24×7 water supply", "Power backup", "3-tier security"],
+    connectivity: [
+      { place: "Chandigarh Airport", time: "15 min" },
+      { place: "Amity University", time: "15 min" },
+      { place: "Panchkula", time: "15 min" },
+      { place: "Tribune Chowk", time: "20 min" },
+      { place: "Ambala Highway", time: "10 min" },
+    ],
     faqs: [
       {
         q: "Where is Velora located?",
