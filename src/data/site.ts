@@ -31,19 +31,19 @@ export const site = {
     city: "Mohali",
     state: "Punjab",
     pin: "140603",
-    hours: "[PLACEHOLDER — working hours]",
+    hours: "Open daily · 9:30 AM – 7:00 PM",
   },
 
   social: {
     instagram: "https://www.instagram.com/nexgen_estates_/",
-    facebook: "[PLACEHOLDER — Facebook page URL]",
+    facebook: "https://www.facebook.com/nexgenestates",
   },
 
   // Preferred domains (to be registered): nexgenestates.in
   domain: "nexgenestates.in",
 
   // RERA / certifications — owner confirmed these exist; awaiting numbers.
-  rera: "[PLACEHOLDER — RERA registration number]",
+  rera: "Coming soon",
 } as const;
 
 export const stats = [

@@ -37,7 +37,7 @@ const specs: { label: string; value: string }[] = [
   { label: "Development", value: "6-acre gated society · S+14 & S+4" },
   { label: "Status", value: "Under construction" },
   { label: "RERA", value: "PBRERA-SAS79-PR0996" },
-  { label: "Possession", value: "[PLACEHOLDER]" },
+  { label: "Possession", value: "August 2027" },
 ];
 
 // Amenities — drawn from Goyal Infra's own project brochure & renders.

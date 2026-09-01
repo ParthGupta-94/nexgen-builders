@@ -167,6 +167,28 @@ export default function ContactPage() {
                         @nexgen_estates_
                       </a>
                     </li>
+                    {!isPlaceholder(site.social.facebook) && (
+                      <li className="flex gap-3">
+                        <svg
+                          viewBox="0 0 24 24"
+                          width="18"
+                          height="18"
+                          fill="currentColor"
+                          className="mt-0.5 shrink-0 text-gold"
+                          aria-hidden
+                        >
+                          <path d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06c0 5 3.66 9.15 8.44 9.9v-7H7.9v-2.9h2.54V9.85c0-2.51 1.49-3.9 3.78-3.9 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56v1.87h2.78l-.44 2.9h-2.34v7A9.98 9.98 0 0 0 22 12.06Z" />
+                        </svg>
+                        <a
+                          href={site.social.facebook}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="hover:text-gold"
+                        >
+                          facebook.com/nexgenestates
+                        </a>
+                      </li>
+                    )}
                   </ul>
                 </div>
 
