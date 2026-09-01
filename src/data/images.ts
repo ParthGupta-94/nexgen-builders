@@ -34,14 +34,53 @@ export const founderImage = "/team/sanjeev.jpg"; // real photo — Sanjeev at th
 
 export const projectImages: Record<string, string> = {
   "golden-era-homes": "/projects/golden-era/day-site-view.jpg",
-  "vintage-greens": U(EXT.c),
-  belgravia: U(EXT.f),
-  "vaneet-infra-derabassi": U(EXT.b),
-  velora: U(EXT.e),
+  "vintage-greens": "/projects/vintage-greens/exterior.jpg",
+  belgravia: "/projects/belgravia/elevation.jpg",
+  "vaneet-infra-derabassi": "/projects/vaneet-infra-derabassi/aerial.jpg",
+  velora: "/projects/velora/aerial.jpg",
 };
 
-// gallery shots for a project detail page
+// fallback gallery shots (stock) for any project without its own gallery
 export const galleryImages = [U(INT.a), U(INT.b), U(INT.c)];
+
+/*
+ * Per-project galleries — REAL developer renders sourced from each project's
+ * official site (Vintage Buildtech, Affinity Group, Velora Buildtech, Vaneet
+ * Infra). Optimised copies live in public/projects/<slug>/. First image is the
+ * card/hero. Golden Era has its own `goldenEraGallery` below.
+ */
+export const projectGallery: Record<string, { src: string; alt: string }[]> = {
+  "vintage-greens": [
+    { src: "/projects/vintage-greens/exterior.jpg", alt: "Vintage Greens — the towers from the entrance driveway" },
+    { src: "/projects/vintage-greens/aerial.jpg", alt: "Vintage Greens — aerial view of the cluster" },
+    { src: "/projects/vintage-greens/elevation-dusk.jpg", alt: "Vintage Greens — tower elevation at dusk" },
+    { src: "/projects/vintage-greens/pool.jpg", alt: "Vintage Greens — swimming pool" },
+    { src: "/projects/vintage-greens/clubhouse.jpg", alt: "Vintage Greens — clubhouse" },
+    { src: "/projects/vintage-greens/living.jpg", alt: "Vintage Greens — living room interior" },
+    { src: "/projects/vintage-greens/kitchen.jpg", alt: "Vintage Greens — modular kitchen" },
+    { src: "/projects/vintage-greens/bedroom.jpg", alt: "Vintage Greens — master bedroom" },
+  ],
+  belgravia: [
+    { src: "/projects/belgravia/elevation.jpg", alt: "Affinity Belgravia — daytime elevation of the towers" },
+    { src: "/projects/belgravia/aerial.jpg", alt: "Affinity Belgravia — aerial view" },
+    { src: "/projects/belgravia/night.jpg", alt: "Affinity Belgravia — night view" },
+    { src: "/projects/belgravia/pool.jpg", alt: "Affinity Belgravia — swimming pool" },
+    { src: "/projects/belgravia/clubhouse.jpg", alt: "Affinity Belgravia — clubhouse" },
+    { src: "/projects/belgravia/living.jpg", alt: "Affinity Belgravia — living room interior" },
+    { src: "/projects/belgravia/dining.jpg", alt: "Affinity Belgravia — dining area interior" },
+  ],
+  velora: [
+    { src: "/projects/velora/aerial.jpg", alt: "Velora Urbano — aerial view of the plotted township" },
+    { src: "/projects/velora/clubhouse.jpg", alt: "Velora Urbano — Club Green clubhouse" },
+    { src: "/projects/velora/greens.jpg", alt: "Velora Urbano — landscaped greens" },
+  ],
+  "vaneet-infra-derabassi": [
+    { src: "/projects/vaneet-infra-derabassi/aerial.jpg", alt: "Vaneet Infra, Derabassi — aerial masterplan" },
+    { src: "/projects/vaneet-infra-derabassi/retail-arcade.jpg", alt: "Vaneet Infra, Derabassi — retail arcade entrance" },
+    { src: "/projects/vaneet-infra-derabassi/sunwise.jpg", alt: "Vaneet Infra, Derabassi — Sunwise plots" },
+    { src: "/projects/vaneet-infra-derabassi/city-court.jpg", alt: "Vaneet Infra, Derabassi — City Court commercial block" },
+  ],
+};
 
 /*
  * Golden Era Homes gallery — REAL developer renders (Goyal Infra), supplied by

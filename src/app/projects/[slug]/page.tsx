@@ -14,7 +14,8 @@ import {
 import { Container, Section, Eyebrow } from "@/components/ui/primitives";
 import { Reveal } from "@/components/ui/reveal";
 import { Photo } from "@/components/ui/photo";
-import { projectImages, galleryImages } from "@/data/images";
+import { projectImages, galleryImages, projectGallery } from "@/data/images";
+import { Gallery } from "@/components/site/gallery";
 import { projects, getProject } from "@/data/projects";
 import { getLocation } from "@/data/locations";
 import { site, whatsappHref, isPlaceholder } from "@/data/site";
@@ -156,26 +157,37 @@ export default async function ProjectPage({
         </Container>
       </section>
 
-      {/* Gallery placeholder */}
+      {/* Gallery */}
       <div className="bg-ivory">
         <Container className="py-8">
-          <div className="grid gap-4 sm:grid-cols-3">
-            <Photo
-              src={projectImages[p.slug] ?? galleryImages[0]}
-              alt={`${p.name} — exterior`}
-              priority
-              sizes="(max-width: 640px) 100vw, 66vw"
-              className="aspect-[4/3] rounded-2xl sm:col-span-2 sm:aspect-[16/9]"
-            />
-            <div className="grid grid-rows-2 gap-4">
-              <Photo src={galleryImages[0]} alt={`${p.name} — interior`} className="rounded-2xl" />
-              <Photo src={galleryImages[1]} alt={`${p.name} — interior`} className="rounded-2xl" />
-            </div>
-          </div>
-          <p className="mt-3 text-center text-xs text-muted">
-            Project photography coming soon — ask us for the latest images and
-            walkthrough on WhatsApp.
-          </p>
+          {projectGallery[p.slug]?.length ? (
+            <>
+              <Gallery images={projectGallery[p.slug]} />
+              <p className="mt-3 text-center text-xs text-muted">
+                Developer&apos;s renders. Tap any image to view it full-screen.
+              </p>
+            </>
+          ) : (
+            <>
+              <div className="grid gap-4 sm:grid-cols-3">
+                <Photo
+                  src={projectImages[p.slug] ?? galleryImages[0]}
+                  alt={`${p.name} — exterior`}
+                  priority
+                  sizes="(max-width: 640px) 100vw, 66vw"
+                  className="aspect-[4/3] rounded-2xl sm:col-span-2 sm:aspect-[16/9]"
+                />
+                <div className="grid grid-rows-2 gap-4">
+                  <Photo src={galleryImages[0]} alt={`${p.name} — interior`} className="rounded-2xl" />
+                  <Photo src={galleryImages[1]} alt={`${p.name} — interior`} className="rounded-2xl" />
+                </div>
+              </div>
+              <p className="mt-3 text-center text-xs text-muted">
+                Project photography coming soon — ask us for the latest images and
+                walkthrough on WhatsApp.
+              </p>
+            </>
+          )}
         </Container>
       </div>
 
