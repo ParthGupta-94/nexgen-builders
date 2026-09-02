@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     template: "%s · NexGen Builders & Promoters",
   },
   description:
-    "Trusted property advisors and builders on PR-7 Airport Road, Zirakpur. 10 years, 300+ deals. Flats, plots & villas across Zirakpur, Mohali, Panchkula & Himachal — with negotiation you can feel and builders we've verified.",
+    "Trusted property dealer & builders on PR-7 Airport Road, Zirakpur — flats, plots & villas across the Tricity. 10 years, 300+ deals, builders we verify.",
   keywords: [
     "property dealer in Zirakpur",
     "real estate Airport Road PR-7",
