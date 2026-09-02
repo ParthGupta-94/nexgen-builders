@@ -22,8 +22,8 @@ const jsonLd = {
     {
       "@type": "BreadcrumbList",
       itemListElement: [
-        { "@type": "ListItem", position: 1, name: "Home", item: "https://nexgenestates.in/" },
-        { "@type": "ListItem", position: 2, name: "Contact", item: "https://nexgenestates.in/contact" },
+        { "@type": "ListItem", position: 1, name: "Home", item: "https://www.nexgenestates.in/" },
+        { "@type": "ListItem", position: 2, name: "Contact", item: "https://www.nexgenestates.in/contact" },
       ],
     },
   ],

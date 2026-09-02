@@ -65,10 +65,10 @@ export default async function LocationPage({
     "@graph": [
       {
         "@type": "RealEstateAgent",
-        "@id": `https://nexgenestates.in/${loc.slug}#agent`,
+        "@id": `https://www.nexgenestates.in/${loc.slug}#agent`,
         name: `${site.name} — ${loc.name}`,
         description: loc.metaDescription,
-        url: `https://nexgenestates.in/${loc.slug}`,
+        url: `https://www.nexgenestates.in/${loc.slug}`,
         telephone: site.contact.phone,
         areaServed: { "@type": "City", name: loc.name },
         address: {
@@ -91,9 +91,9 @@ export default async function LocationPage({
       {
         "@type": "BreadcrumbList",
         itemListElement: [
-          { "@type": "ListItem", position: 1, name: "Home", item: "https://nexgenestates.in/" },
-          { "@type": "ListItem", position: 2, name: "Areas We Cover", item: "https://nexgenestates.in/locations" },
-          { "@type": "ListItem", position: 3, name: loc.name, item: `https://nexgenestates.in/${loc.slug}` },
+          { "@type": "ListItem", position: 1, name: "Home", item: "https://www.nexgenestates.in/" },
+          { "@type": "ListItem", position: 2, name: "Areas We Cover", item: "https://www.nexgenestates.in/locations" },
+          { "@type": "ListItem", position: 3, name: loc.name, item: `https://www.nexgenestates.in/${loc.slug}` },
         ],
       },
     ],

@@ -158,15 +158,15 @@ export const officeGeo = { lat: 30.6427, lng: 76.818 };
 export const businessJsonLd = {
   "@context": "https://schema.org",
   "@type": ["RealEstateAgent", "LocalBusiness"],
-  "@id": "https://nexgenestates.in/#business",
+  "@id": "https://www.nexgenestates.in/#business",
   name: site.name,
   description:
     "Trusted property dealer and real-estate consultants on PR-7 Airport Road, Zirakpur, serving the Tricity — 10 years and 300+ deals.",
-  url: "https://nexgenestates.in",
+  url: "https://www.nexgenestates.in",
   telephone: site.contact.phone,
   email: site.contact.email,
-  image: "https://nexgenestates.in/opengraph-image",
-  logo: "https://nexgenestates.in/icon.svg",
+  image: "https://www.nexgenestates.in/opengraph-image",
+  logo: "https://www.nexgenestates.in/icon.svg",
   priceRange: "₹₹",
   founder: { "@type": "Person", name: site.contact.owner },
   address: {

@@ -21,7 +21,7 @@ const hanken = Hanken_Grotesk({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://nexgenestates.in"),
+  metadataBase: new URL("https://www.nexgenestates.in"),
   title: {
     default:
       "NexGen Builders & Promoters — Property in Zirakpur, Mohali & Tricity",
