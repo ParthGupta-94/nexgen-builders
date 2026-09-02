@@ -34,7 +34,7 @@ export default function LocationsHub() {
             {locations.map((l, i) => (
               <Reveal key={l.slug} delay={(i % 3) * 80}>
                 <Link
-                  href={`/locations/${l.slug}`}
+                  href={`/${l.slug}`}
                   className="group flex h-full flex-col overflow-hidden rounded-2xl border border-[var(--color-line)] bg-[var(--color-paper)] transition-all duration-500 hover:-translate-y-1 hover:border-[var(--color-gold-soft)]/60 hover:shadow-xl hover:shadow-black/5"
                 >
                   <Photo

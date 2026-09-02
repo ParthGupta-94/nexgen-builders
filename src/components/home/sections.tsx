@@ -244,7 +244,7 @@ export function Locations() {
           {locations.map((l, i) => (
             <Reveal key={l.slug} delay={(i % 3) * 80}>
               <Link
-                href={`/locations/${l.slug}`}
+                href={`/${l.slug}`}
                 className="group flex items-start gap-4 rounded-xl border border-[var(--color-line)] bg-[var(--color-paper)] p-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-[var(--color-gold-soft)]/60"
               >
                 <MapPin className="mt-0.5 shrink-0 text-gold" size={20} />

@@ -17,27 +17,32 @@ import { projects } from "@/data/projects";
 import { Photo } from "@/components/ui/photo";
 import { projectImages } from "@/data/images";
 
+// Locality landing pages live at the root (/zirakpur, /mohali, …) — only the
+// known city slugs are generated; anything else 404s.
+export const dynamicParams = false;
+
 export function generateStaticParams() {
-  return locations.map((l) => ({ slug: l.slug }));
+  return locations.map((l) => ({ city: l.slug }));
 }
 
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ city: string }>;
 }): Promise<Metadata> {
-  const { slug } = await params;
-  const loc = getLocation(slug);
+  const { city } = await params;
+  const loc = getLocation(city);
   if (!loc) return {};
   return {
     title: loc.metaTitle,
     description: loc.metaDescription,
     keywords: loc.keywords,
-    alternates: { canonical: `/locations/${loc.slug}` },
+    alternates: { canonical: `/${loc.slug}` },
     openGraph: {
       title: loc.metaTitle,
       description: loc.metaDescription,
       type: "website",
+      url: `/${loc.slug}`,
     },
   };
 }
@@ -45,25 +50,27 @@ export async function generateMetadata({
 export default async function LocationPage({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ city: string }>;
 }) {
-  const { slug } = await params;
-  const loc = getLocation(slug);
+  const { city } = await params;
+  const loc = getLocation(city);
   if (!loc) notFound();
 
   const areaProjects = projects.filter((p) => p.locationSlug === loc.slug);
   const others = locations.filter((l) => l.slug !== loc.slug);
 
-  // FAQPage + RealEstateAgent structured data for rich results in this area.
+  // RealEstateAgent + FAQPage + BreadcrumbList structured data for this area.
   const jsonLd = {
     "@context": "https://schema.org",
     "@graph": [
       {
         "@type": "RealEstateAgent",
+        "@id": `https://nexgenestates.in/${loc.slug}#agent`,
         name: `${site.name} — ${loc.name}`,
         description: loc.metaDescription,
+        url: `https://nexgenestates.in/${loc.slug}`,
         telephone: site.contact.phone,
-        areaServed: loc.name,
+        areaServed: { "@type": "City", name: loc.name },
         address: {
           "@type": "PostalAddress",
           streetAddress: `${site.address.line1}, ${site.address.line2}`,
@@ -80,6 +87,14 @@ export default async function LocationPage({
           name: f.q,
           acceptedAnswer: { "@type": "Answer", text: f.a },
         })),
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Home", item: "https://nexgenestates.in/" },
+          { "@type": "ListItem", position: 2, name: "Areas We Cover", item: "https://nexgenestates.in/locations" },
+          { "@type": "ListItem", position: 3, name: loc.name, item: `https://nexgenestates.in/${loc.slug}` },
+        ],
       },
     ],
   };
@@ -223,7 +238,7 @@ export default async function LocationPage({
                     href={`/projects/${p.slug}`}
                     className="group flex h-full flex-col overflow-hidden rounded-2xl border border-[var(--color-line)] bg-[var(--color-paper)] transition-all duration-500 hover:-translate-y-1 hover:border-[var(--color-gold-soft)]/60 hover:shadow-xl hover:shadow-black/5"
                   >
-                    <Photo src={projectImages[p.slug]} alt={p.name} overlay className="aspect-[4/3] w-full" />
+                    <Photo src={projectImages[p.slug]} alt={`${p.name} — ${p.tagline}`} overlay className="aspect-[4/3] w-full" />
                     <div className="flex flex-1 flex-col p-6">
                       <p className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-gold">
                         <MapPin size={12} /> {p.tagline}
@@ -303,7 +318,7 @@ export default async function LocationPage({
             {others.map((l) => (
               <Link
                 key={l.slug}
-                href={`/locations/${l.slug}`}
+                href={`/${l.slug}`}
                 className="group flex items-center justify-between gap-3 rounded-xl border border-[var(--color-line)] bg-[var(--color-ivory)] px-5 py-4 transition-colors hover:border-[var(--color-gold-soft)]/60"
               >
                 <span className="flex items-center gap-2.5">

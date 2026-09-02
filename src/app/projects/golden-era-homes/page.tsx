@@ -386,7 +386,7 @@ export default function GoldenEraPage() {
       {loc && (
         <Section className="section-dark">
           <Container>
-            <Link href={`/locations/${loc.slug}`}
+            <Link href={`/${loc.slug}`}
               className="group flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-white/10 bg-white/[0.03] p-7 transition-colors hover:border-[var(--color-gold-soft)]/50">
               <div className="flex items-center gap-4">
                 <MapPin className="text-[var(--color-gold-soft)]" size={24} />

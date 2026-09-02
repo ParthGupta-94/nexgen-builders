@@ -283,7 +283,7 @@ export default async function ProjectPage({
           {loc && (
             <Reveal>
               <Link
-                href={`/locations/${loc.slug}`}
+                href={`/${loc.slug}`}
                 className="group mt-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[var(--color-line)] bg-[var(--color-paper)] p-7 transition-colors hover:border-[var(--color-gold-soft)]/60"
               >
                 <div className="flex items-center gap-4">

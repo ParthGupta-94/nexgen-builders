@@ -37,7 +37,7 @@ export const locations: Location[] = [
     region: "Tricity, Punjab",
     metaTitle: "Property Dealer in Zirakpur — Flats, Plots & Villas | NexGen",
     metaDescription:
-      "Looking for property in Zirakpur? NexGen Builders & Promoters is a trusted Zirakpur property dealer on PR-7 Airport Road — 1, 2 & 3 BHK flats, plots and villas, with builders we verify. 10 years, 300+ deals. WhatsApp us.",
+      "Trusted property dealer in Zirakpur on PR-7 Airport Road — 1/2/3 BHK flats, plots & villas, with builders we verify. NexGen: 10 yrs, 300+ deals. WhatsApp us.",
     keywords: [
       "property dealer in Zirakpur",
       "flats in Zirakpur",
@@ -93,9 +93,9 @@ export const locations: Location[] = [
     name: "PR-7 Airport Road",
     shortName: "Airport Road",
     region: "Zirakpur, Tricity",
-    metaTitle: "Property on PR-7 Airport Road, Zirakpur — Flats & Villas | NexGen",
+    metaTitle: "PR-7 Airport Road Property, Zirakpur — Flats & Villas | NexGen",
     metaDescription:
-      "Premium property on the PR-7 Airport Road corridor, Zirakpur. NexGen Builders & Promoters offers 2 & 3 BHK flats, luxury apartments and villas near the airport. Trusted local advisors, 300+ deals. Talk to us on WhatsApp.",
+      "Premium property on the PR-7 Airport Road corridor, Zirakpur — 2 & 3 BHK flats, apartments & villas near the airport. NexGen: trusted advisors, 300+ deals.",
     keywords: [
       "property PR-7 Airport Road",
       "flats near Chandigarh airport",
@@ -148,7 +148,7 @@ export const locations: Location[] = [
     region: "Tricity, Punjab",
     metaTitle: "Property Dealer in Mohali — Flats, Plots & Investment | NexGen",
     metaDescription:
-      "Buy property in Greater Mohali with NexGen Builders & Promoters. Flats, plots and safe long-term investment near Mohali's IT City and sectors. Honest, experienced Tricity advisors — 300+ deals. WhatsApp us today.",
+      "Buy property in Greater Mohali — flats, plots & safe long-term investment near IT City. NexGen Builders & Promoters: honest Tricity advisors, 300+ deals.",
     keywords: [
       "property dealer in Mohali",
       "flats in Mohali",
@@ -195,13 +195,71 @@ export const locations: Location[] = [
     ],
   },
   {
+    slug: "chandigarh",
+    name: "Chandigarh",
+    shortName: "Chandigarh",
+    region: "Tricity, Chandigarh UT",
+    metaTitle: "Real Estate Agent in Chandigarh — Homes & Flats | NexGen",
+    metaDescription:
+      "Trusted Chandigarh real estate consultants — sector kothis, builder floors & value flats across the Tricity. NexGen: 10 yrs, 300+ deals. WhatsApp us.",
+    keywords: [
+      "real estate agent in Chandigarh",
+      "property dealer in Chandigarh",
+      "property in Chandigarh",
+      "flats in Chandigarh",
+      "builder floor Chandigarh",
+      "buy home in Chandigarh",
+    ],
+    tagline: "The city at the centre",
+    intro: [
+      "Chandigarh is the reason the whole Tricity exists — planned, green, and still the address every other town is measured against. It's also largely built-out, which makes buying here a different game: mostly resale kothis, builder floors and the occasional society flat, where a fair price and clean paperwork matter far more than a glossy brochure.",
+      "That's exactly where a dealer earns their keep. For ten years and 300+ deals we've worked Chandigarh and its edges — so whether you want to own inside the city or get more home for your money in Mohali, Zirakpur or New Chandigarh just across the line, we'll tell you honestly where your budget goes furthest.",
+    ],
+    highlights: [
+      {
+        title: "India's first planned city",
+        body: "The sector grid, wide green avenues and the Tricity's most established schools, hospitals and markets — the benchmark every other address is judged by.",
+      },
+      {
+        title: "Mostly a resale market",
+        body: "Little new supply inside the city means most buys are kothis, builder floors and resale flats — where verified title and a fair price are everything.",
+      },
+      {
+        title: "Value just across the border",
+        body: "When city prices stretch the budget, Mohali, Zirakpur and New Chandigarh offer new launches minutes away — we'll lay out the honest trade-off.",
+      },
+    ],
+    nearby: ["Sectors", "PGIMER", "Panjab University", "IT Park", "Airport", "Elante Mall"],
+    configs: [
+      "Sector kothis & builder floors",
+      "Resale society flats",
+      "Residential plots (resale)",
+      "New launches in the wider Tricity",
+    ],
+    projectSlugs: [],
+    faqs: [
+      {
+        q: "Do you deal in property inside Chandigarh?",
+        a: "Yes — we help buyers with kothis, builder floors and resale flats across Chandigarh's sectors, and we verify the title and paperwork before you commit. Tell us your preferred sector and budget on WhatsApp.",
+      },
+      {
+        q: "Is it better to buy in Chandigarh or nearby Mohali / Zirakpur?",
+        a: "Chandigarh offers the established address; Mohali, Zirakpur and New Chandigarh often offer newer homes and better value minutes away. We'll lay out the honest trade-off for your budget — no pressure either way.",
+      },
+      {
+        q: "How much does a home in Chandigarh cost?",
+        a: "It ranges widely by sector, plot size and whether it's a kothi, floor or flat — and it moves. Send us your budget on WhatsApp and we'll come back with real, current options, usually within minutes.",
+      },
+    ],
+  },
+  {
     slug: "panchkula",
     name: "Panchkula Extension",
     shortName: "Panchkula",
     region: "Tricity, Haryana",
     metaTitle: "Property Dealer in Panchkula — Flats & Plots | NexGen Builders",
     metaDescription:
-      "Property in Panchkula and Panchkula Extension with NexGen Builders & Promoters. Established and upcoming addresses, flats and plots across the Tricity's greenest quarter. Trusted advisors, 300+ deals. Message us on WhatsApp.",
+      "Property in Panchkula & Panchkula Extension — flats & plots in the Tricity's greenest quarter. NexGen Builders & Promoters: trusted advisors, 300+ deals.",
     keywords: [
       "property dealer in Panchkula",
       "flats in Panchkula",
@@ -254,7 +312,7 @@ export const locations: Location[] = [
     region: "Tricity, Punjab",
     metaTitle: "Property in Derabassi — Value Homes & Plots | NexGen Builders",
     metaDescription:
-      "Affordable, high-value property in Derabassi on the Chandigarh–Ambala belt. NexGen Builders & Promoters offers flats, plots and homes with strong long-term upside. Honest local advisors, 300+ deals. WhatsApp us.",
+      "High-value property in Derabassi on the Chandigarh–Ambala belt — flats, plots & homes with strong upside. NexGen: honest local advisors, 300+ deals.",
     keywords: [
       "property in Derabassi",
       "flats in Derabassi",
@@ -307,7 +365,7 @@ export const locations: Location[] = [
     region: "Himachal Pradesh",
     metaTitle: "Property in Shimla & Solan — Land & Hill Homes | NexGen Builders",
     metaDescription:
-      "Buy land and hill property in Shimla and Solan, Himachal Pradesh, with NexGen Builders & Promoters. From cottages to land banks — we've sold 150 bighas in Himachal. Trusted, experienced advisors. WhatsApp us.",
+      "Buy land & hill homes in Shimla and Solan, Himachal — cottages to land banks. NexGen Builders & Promoters: we've sold 150 bighas here. WhatsApp us.",
     keywords: [
       "property in Shimla",
       "land in Solan",
