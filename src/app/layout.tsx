@@ -48,6 +48,7 @@ export const metadata: Metadata = {
     locale: "en_IN",
   },
   robots: { index: true, follow: true },
+  verification: { google: "A08hZfZZ-0eWP-bqJjKtyIuvoy2PgZp3CorrRJu-fO4" },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
