@@ -12,7 +12,7 @@ import { site, whatsappHref } from "@/data/site";
 export const metadata: Metadata = {
   title: "Areas We Cover — Zirakpur, Mohali, Panchkula & Himachal",
   description:
-    "NexGen Builders & Promoters covers Zirakpur, PR-7 Airport Road, Greater Mohali, Panchkula, Derabassi and the Himachal hills. Find a trusted property dealer in your area.",
+    "NexGen covers Zirakpur, Airport Road, Mohali, Chandigarh, Panchkula, Derabassi & the Himachal hills — find a trusted property dealer in your area.",
   alternates: { canonical: "/locations" },
 };
 

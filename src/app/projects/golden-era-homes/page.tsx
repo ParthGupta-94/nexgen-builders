@@ -87,16 +87,28 @@ const connectivity = [
 
 const jsonLd = {
   "@context": "https://schema.org",
-  "@type": "ApartmentComplex",
-  name: "Golden Era Homes",
-  description: p.metaDescription,
-  address: {
-    "@type": "PostalAddress",
-    streetAddress: "Nagla Road",
-    addressLocality: "Zirakpur",
-    addressRegion: site.address.state,
-    addressCountry: "IN",
-  },
+  "@graph": [
+    {
+      "@type": "ApartmentComplex",
+      name: "Golden Era Homes",
+      description: p.metaDescription,
+      address: {
+        "@type": "PostalAddress",
+        streetAddress: "Nagla Road",
+        addressLocality: "Zirakpur",
+        addressRegion: site.address.state,
+        addressCountry: "IN",
+      },
+    },
+    {
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Home", item: "https://nexgenestates.in/" },
+        { "@type": "ListItem", position: 2, name: "Projects", item: "https://nexgenestates.in/projects" },
+        { "@type": "ListItem", position: 3, name: "Golden Era Homes", item: "https://nexgenestates.in/projects/golden-era-homes" },
+      ],
+    },
+  ],
 };
 
 export default function GoldenEraPage() {

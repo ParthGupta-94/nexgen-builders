@@ -25,7 +25,7 @@ import {
 export const metadata: Metadata = {
   title: "About — Our Story, from Corporate to Builder",
   description:
-    "The story of NexGen Builders & Promoters and founder Sanjeev Bhagta — from a corporate career and an IT company to 300+ real-estate deals and a builder shaping Zirakpur and the Tricity. Credibility, negotiation, promises kept.",
+    "The NexGen story — founder Sanjeev Bhagta's journey from a corporate career to 300+ property deals and a builder shaping Zirakpur and the Tricity.",
   alternates: { canonical: "/about" },
 };
 

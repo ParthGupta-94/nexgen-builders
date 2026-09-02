@@ -43,7 +43,7 @@ export const projects: Project[] = [
     locationSlug: "zirakpur",
     metaTitle: "Golden Era Homes, Zirakpur — Flats on Nagla Road | NexGen",
     metaDescription:
-      "Golden Era Homes by Goyal Infra on Nagla Road, Zirakpur — premium residences with quick access to PR-7 and the airport. Get current pricing and availability from NexGen on WhatsApp.",
+      "Golden Era Homes, Zirakpur — 3 BHK towers & floors on Nagla Road (PR-7) by Goyal Infra. NexGen: current pricing, availability & honest advice. WhatsApp us.",
     keywords: [
       "Golden Era Homes Zirakpur",
       "Golden Era Homes Goyal Infra",
@@ -163,7 +163,7 @@ export const projects: Project[] = [
     locationSlug: "airport-road-pr7",
     metaTitle: "Vintage Greens, Airport Road Zirakpur — Flats | NexGen Builders",
     metaDescription:
-      "Vintage Greens on Airport Road, Zirakpur — green, low-density living on the PR-7 corridor. Talk to NexGen Builders & Promoters for current pricing, availability and honest advice on WhatsApp.",
+      "Vintage Greens, Zirakpur — luxury 3 & 4 BHK on PR-7 Airport Road by Vintage Buildtech. NexGen: current pricing, availability & honest advice on WhatsApp.",
     keywords: [
       "Vintage Greens Zirakpur",
       "Vintage Greens Airport Road",
@@ -222,7 +222,7 @@ export const projects: Project[] = [
     locationSlug: "airport-road-pr7",
     metaTitle: "Belgravia, Airport Road Zirakpur — Luxury Apartments | NexGen",
     metaDescription:
-      "Belgravia on Airport Road, Zirakpur — an exclusive PR-7 address for buyers who want a premium lifestyle. NexGen Builders & Promoters has current details and honest pricing. WhatsApp us.",
+      "Affinity Belgravia, Zirakpur — premium 3 & 4 BHK on Airport Road by Affinity Group. NexGen Builders & Promoters: pricing, availability & honest advice.",
     keywords: [
       "Belgravia Zirakpur",
       "Belgravia Airport Road",
@@ -277,7 +277,7 @@ export const projects: Project[] = [
     locationSlug: "derabassi",
     metaTitle: "Vaneet Infra, Derabassi — Value Homes | NexGen Builders",
     metaDescription:
-      "Vaneet Infra in Derabassi — well-priced homes on the Chandigarh–Ambala belt with strong long-term upside. NexGen Builders & Promoters has current pricing and availability. WhatsApp us.",
+      "Vaneet Infra, Derabassi — well-priced plots & homes on the Chandigarh–Ambala belt. NexGen Builders & Promoters: current pricing & honest advice. WhatsApp us.",
     keywords: [
       "Vaneet Infra Derabassi",
       "flats in Derabassi",
@@ -326,7 +326,7 @@ export const projects: Project[] = [
     locationSlug: "zirakpur",
     metaTitle: "Velora, Patiala Highway — Homes with Upside | NexGen Builders",
     metaDescription:
-      "Velora on the Patiala Highway — a well-connected address with strong long-term upside near Zirakpur. NexGen Builders & Promoters has current details and honest pricing. WhatsApp us.",
+      "Velora Urbano, Zirakpur — residential plots & SCOs on Patiala Highway by Velora Buildtech. NexGen: current pricing, availability & honest advice on WhatsApp.",
     keywords: [
       "Velora Patiala Highway",
       "Velora Zirakpur",

@@ -81,6 +81,14 @@ export default async function ProjectPage({
           acceptedAnswer: { "@type": "Answer", text: f.a },
         })),
       },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Home", item: "https://nexgenestates.in/" },
+          { "@type": "ListItem", position: 2, name: "Projects", item: "https://nexgenestates.in/projects" },
+          { "@type": "ListItem", position: 3, name: p.name, item: `https://nexgenestates.in/projects/${p.slug}` },
+        ],
+      },
     ],
   };
 

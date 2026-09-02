@@ -6,30 +6,27 @@ import { Reveal } from "@/components/ui/reveal";
 import { EnquiryForm } from "@/components/forms/enquiry-form";
 import { Photo } from "@/components/ui/photo";
 import { contactImage } from "@/data/images";
-import { site, whatsappHref, isPlaceholder } from "@/data/site";
+import { site, whatsappHref, isPlaceholder, businessJsonLd } from "@/data/site";
 
 export const metadata: Metadata = {
   title: "Contact NexGen Builders & Promoters — Zirakpur, PR-7 Airport Road",
   description:
-    "Talk to NexGen Builders & Promoters about property in Zirakpur, Mohali, Panchkula or Himachal. WhatsApp, call or visit our office on PR-7 Airport Road, Zirakpur. We reply within minutes.",
+    "Talk to NexGen Builders & Promoters about property in Zirakpur, Mohali, Panchkula or Himachal — WhatsApp, call or visit our PR-7 Airport Road office.",
   alternates: { canonical: "/contact" },
 };
 
 const jsonLd = {
   "@context": "https://schema.org",
-  "@type": "RealEstateAgent",
-  name: site.name,
-  telephone: site.contact.phone,
-  email: site.contact.email,
-  url: "https://nexgenestates.in/contact",
-  address: {
-    "@type": "PostalAddress",
-    streetAddress: `${site.address.line1}, ${site.address.line2}`,
-    addressLocality: site.address.city,
-    addressRegion: site.address.state,
-    postalCode: site.address.pin,
-    addressCountry: "IN",
-  },
+  "@graph": [
+    businessJsonLd,
+    {
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Home", item: "https://nexgenestates.in/" },
+        { "@type": "ListItem", position: 2, name: "Contact", item: "https://nexgenestates.in/contact" },
+      ],
+    },
+  ],
 };
 
 export default function ContactPage() {

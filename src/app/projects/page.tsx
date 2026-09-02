@@ -12,7 +12,7 @@ import { partners, site, whatsappHref, isPlaceholder } from "@/data/site";
 export const metadata: Metadata = {
   title: "Projects — Flats, Villas & Homes in Zirakpur & Tricity",
   description:
-    "Explore the residential projects NexGen Builders & Promoters is marketing across Zirakpur, Airport Road, Derabassi and the Tricity — Golden Era Homes, Vintage Greens, Belgravia, Vaneet Infra and Velora. Verified builders, honest pricing.",
+    "Explore the residential projects NexGen markets across Zirakpur, Airport Road & the Tricity — Golden Era, Green Lotus Utsav, Vintage Greens, Belgravia & more.",
   alternates: { canonical: "/projects" },
 };
 

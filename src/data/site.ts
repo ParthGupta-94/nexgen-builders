@@ -149,3 +149,70 @@ export function whatsappHref(message: string = site.contact.whatsappMessage) {
 export function isPlaceholder(value?: string): boolean {
   return !value || value.trimStart().startsWith("[PLACEHOLDER");
 }
+
+// Office geo — APPROXIMATE (PR-7 Airport Road, Zirakpur). Replace with the exact
+// pin from the Google Business Profile if it differs.
+export const officeGeo = { lat: 30.6427, lng: 76.818 };
+
+/** Shared LocalBusiness / RealEstateAgent JSON-LD for the home & contact pages. */
+export const businessJsonLd = {
+  "@context": "https://schema.org",
+  "@type": ["RealEstateAgent", "LocalBusiness"],
+  "@id": "https://nexgenestates.in/#business",
+  name: site.name,
+  description:
+    "Trusted property dealer and real-estate consultants on PR-7 Airport Road, Zirakpur, serving the Tricity — 10 years and 300+ deals.",
+  url: "https://nexgenestates.in",
+  telephone: site.contact.phone,
+  email: site.contact.email,
+  image: "https://nexgenestates.in/opengraph-image",
+  logo: "https://nexgenestates.in/icon.svg",
+  priceRange: "₹₹",
+  founder: { "@type": "Person", name: site.contact.owner },
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: `${site.address.line1}, ${site.address.line2}`,
+    addressLocality: site.address.city,
+    addressRegion: site.address.state,
+    postalCode: site.address.pin,
+    addressCountry: "IN",
+  },
+  geo: {
+    "@type": "GeoCoordinates",
+    latitude: officeGeo.lat,
+    longitude: officeGeo.lng,
+  },
+  hasMap: "https://share.google/rwEM8mlq4H8SSbDeF",
+  areaServed: [
+    "Zirakpur",
+    "Mohali",
+    "Chandigarh",
+    "Panchkula",
+    "Derabassi",
+    "Shimla",
+    "Solan",
+  ].map((n) => ({ "@type": "City", name: n })),
+  openingHoursSpecification: [
+    {
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday",
+      ],
+      opens: "09:30",
+      closes: "19:00",
+    },
+  ],
+  sameAs: [site.social.instagram, site.social.facebook],
+  aggregateRating: {
+    "@type": "AggregateRating",
+    ratingValue: "5.0",
+    reviewCount: "14",
+    bestRating: "5",
+  },
+};
