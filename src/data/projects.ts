@@ -81,6 +81,78 @@ export const projects: Project[] = [
     ],
   },
   {
+    slug: "green-lotus-utsav",
+    name: "Green Lotus Utsav",
+    tagline: "Airport Road, Zirakpur",
+    developer: "Green Lotus Group",
+    type: "Residential apartments",
+    status: "Available",
+    locationName: "Zirakpur",
+    locationSlug: "airport-road-pr7",
+    metaTitle: "Green Lotus Utsav, Zirakpur — 3–6 BHK Eco Flats | NexGen",
+    metaDescription:
+      "Green Lotus Utsav, Zirakpur — IGBC-certified 3–6 BHK eco apartments on PR-7 Airport Road. NexGen Builders & Promoters: pricing, availability & honest advice.",
+    keywords: [
+      "Green Lotus Utsav Zirakpur",
+      "Green Lotus Utsav price",
+      "Green Lotus Utsav 3 BHK",
+      "eco apartments Zirakpur",
+      "Green Lotus Utsav Airport Road",
+    ],
+    intro: [
+      "Green Lotus Utsav is one of Zirakpur's landmark green addresses — an IGBC-certified eco-development on the PR-7 Airport Road corridor, where high-rise towers wrap around landscaped courtyards and homes run from spacious 3 BHKs to sprawling penthouses.",
+      "It's a project buyers ask about by name, and one we know inside out. We'll walk you honestly through the towers, floors and configurations, check the paperwork, and negotiate hard — so you get the right home at the right number, not just the list price.",
+    ],
+    highlights: [
+      {
+        title: "IGBC-certified green living",
+        body: "Solar-ready homes, rainwater harvesting and low-VOC interiors — comfort that's easier on the running costs and the planet.",
+      },
+      {
+        title: "On the PR-7 Airport Road corridor",
+        body: "The Tricity's most sought-after belt — minutes from the international airport, the highway, malls and schools.",
+      },
+      {
+        title: "Resort-grade amenities",
+        body: "An all-weather pool, clubhouse, sports courts, fine dining and more — a full lifestyle inside the gates.",
+      },
+    ],
+    configs: ["3 BHK, 3 BHK + Study & 4 BHK apartments", "5 & 6 BHK penthouses"],
+    amenities: [
+      "All-weather swimming pool & kids' pool",
+      "Clubhouse & fine-dining lounge",
+      "Gym, sauna, steam & jacuzzi",
+      "Tennis, squash & basketball courts",
+      "Billiards, table tennis & mini theatre",
+      "Library & kids' corner",
+      "EV charging & golf-cart service",
+      "Rainwater harvesting & waste management",
+    ],
+    connectivity: [
+      { place: "Metro", time: "4 min" },
+      { place: "Paras Downtown Mall", time: "5 min" },
+      { place: "Schools", time: "5 min" },
+      { place: "Bus Stand", time: "5 min" },
+      { place: "Airport", time: "7 min" },
+      { place: "Hospitals", time: "10 min" },
+      { place: "Railway Station", time: "12 min" },
+    ],
+    faqs: [
+      {
+        q: "Who is the developer of Green Lotus Utsav?",
+        a: "Green Lotus Utsav is developed under the Green Lotus brand (Maya Estate) on PR-7 Airport Road, Zirakpur — an IGBC-certified green development (RERA PBRERA-SAS79-PR0425). We've worked this corridor for years and can give you the honest picture.",
+      },
+      {
+        q: "What configurations does Green Lotus Utsav offer?",
+        a: "Mainly 3 BHK, 3 BHK + study and 4 BHK apartments, plus 5 and 6 BHK penthouses. Tell us your family size and budget on WhatsApp and we'll match you to what's genuinely available now.",
+      },
+      {
+        q: "What is the price of a flat in Green Lotus Utsav?",
+        a: "Pricing moves by tower, floor, facing and stage, and it changes regularly. Message us your budget on WhatsApp and we'll send current, real numbers — usually within minutes.",
+      },
+    ],
+  },
+  {
     slug: "vintage-greens",
     name: "Vintage Greens",
     tagline: "Airport Road, Zirakpur",

@@ -34,6 +34,7 @@ export const founderImage = "/team/sanjeev.jpg"; // real photo — Sanjeev at th
 
 export const projectImages: Record<string, string> = {
   "golden-era-homes": "/projects/golden-era/day-site-view.jpg",
+  "green-lotus-utsav": "/projects/green-lotus-utsav/exterior.jpg",
   "vintage-greens": "/projects/vintage-greens/exterior.jpg",
   belgravia: "/projects/belgravia/elevation.jpg",
   "vaneet-infra-derabassi": "/projects/vaneet-infra-derabassi/aerial.jpg",
@@ -50,6 +51,14 @@ export const galleryImages = [U(INT.a), U(INT.b), U(INT.c)];
  * card/hero. Golden Era has its own `goldenEraGallery` below.
  */
 export const projectGallery: Record<string, { src: string; alt: string }[]> = {
+  "green-lotus-utsav": [
+    { src: "/projects/green-lotus-utsav/exterior.jpg", alt: "Green Lotus Utsav — the towers on PR-7 Airport Road, Zirakpur" },
+    { src: "/projects/green-lotus-utsav/aerial.jpg", alt: "Green Lotus Utsav — aerial view of the green development" },
+    { src: "/projects/green-lotus-utsav/night.jpg", alt: "Green Lotus Utsav — the towers lit up at night" },
+    { src: "/projects/green-lotus-utsav/clubhouse.jpg", alt: "Green Lotus Utsav — clubhouse" },
+    { src: "/projects/green-lotus-utsav/pool.jpg", alt: "Green Lotus Utsav — all-weather indoor swimming pool" },
+    { src: "/projects/green-lotus-utsav/dining.jpg", alt: "Green Lotus Utsav — fine-dining lounge" },
+  ],
   "vintage-greens": [
     { src: "/projects/vintage-greens/exterior.jpg", alt: "Vintage Greens — the towers from the entrance driveway" },
     { src: "/projects/vintage-greens/aerial.jpg", alt: "Vintage Greens — aerial view of the cluster" },
